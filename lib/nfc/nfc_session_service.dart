@@ -1,4 +1,6 @@
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:nfc_manager/nfc_manager_android.dart';
+import 'package:nfc_manager/nfc_manager_ios.dart';
 
 import 'nfc_block_contract.dart';
 
@@ -20,10 +22,8 @@ class NfcSessionService implements NfcSessionContract {
   });
 
   /// The one tag this PoC accepts, as an uppercase hex string with no
-  /// separators, e.g. '04A2B3C4D5E680'. Get this value by running
-  /// [startListening] once with logging on, tapping your door tag,
-  /// and reading the UID it prints — then hardcode it here via the
-  /// constructor from wherever you build this service (e.g. main.dart).
+  /// separators, e.g. '049A9B12541B90'. Confirmed for your door tag
+  /// via NFC Tools' "Serial number" field.
   final String expectedTagUid;
 
   /// Whoever implements the blocking side. This service calls
@@ -37,16 +37,24 @@ class NfcSessionService implements NfcSessionContract {
 
   @override
   Future<void> startListening() async {
-    final isAvailable = await NfcManager.instance.isAvailable();
-    if (!isAvailable) {
-      // No NFC hardware, or it's turned off in system settings.
-      // For the PoC, printing is enough; a real app would show this
-      // in the UI instead.
-      print('NFC is not available on this device.');
+    final availability = await NfcManager.instance.checkAvailability();
+    if (availability != NfcAvailability.enabled) {
+      // Either no NFC hardware, or the user has it turned off in
+      // system settings. Printing is enough for the PoC; a real app
+      // would surface this in the UI instead.
+      print('NFC is not available: $availability');
       return;
     }
 
     await NfcManager.instance.startSession(
+      // Your door tag is ISO14443 (Type A / MIFARE DESFire), so that
+      // alone would suffice, but listening for all three families
+      // costs nothing and means any tag you try later just works too.
+      pollingOptions: {
+        NfcPollingOption.iso14443,
+        NfcPollingOption.iso15693,
+        NfcPollingOption.iso18092,
+      },
       onDiscovered: _handleTagDiscovered,
     );
   }
@@ -67,10 +75,9 @@ class NfcSessionService implements NfcSessionContract {
       print('Ignored tag with UID $uid (does not match expected tag).');
     }
 
-    // On iOS in particular, a session only handles ONE tap and then
-    // must be explicitly stopped and restarted to accept the next
-    // one. Doing this unconditionally keeps Android and iOS on the
-    // same code path.
+    // A session only handles one tap and then closes itself; restart
+    // it so the next tap is picked up too. Doing this unconditionally
+    // keeps Android and iOS on the same code path.
     await NfcManager.instance.stopSession();
     await startListening();
   }
@@ -84,44 +91,39 @@ class NfcSessionService implements NfcSessionContract {
     blocker.onBlockStateChanged(_state);
   }
 
-  /// Pulls the UID out of the tag's raw platform data and formats it
-  /// as an uppercase hex string, e.g. '04A2B3C4D5E680'.
+  /// Pulls the UID out of whichever typed tag technology was
+  /// detected. Different tag families (and platforms) expose the
+  /// identifier through different classes — this checks the ones
+  /// relevant to your door tag (ISO14443 Type A / MIFARE DESFire,
+  /// which shows up as NfcA and often IsoDep on Android, and as
+  /// Iso7816/MiFare on iOS) plus a couple of common fallbacks.
   ///
-  /// `tag.data` is a plain Map whose shape depends on which tag
-  /// technology and OS detected it — there is no single typed class
-  /// that works everywhere in this package version. This checks the
-  /// common places the identifier shows up. If your specific door tag
-  /// isn't covered, temporarily add `print(tag.data);` at the top of
-  /// this method, tap the tag, and read the map that gets printed to
-  /// find the right key — then add a branch for it below.
+  /// If a tag you try later isn't covered, the print statement in
+  /// [startListening]'s caller (or adding one here) combined with
+  /// `tag` itself in the debugger will show which technology it
+  /// actually came in as.
   String? _extractUid(NfcTag tag) {
-    final raw = tag.data;
-    if (raw is! Map) return null;
+    // Android — the UID lives on the shared NfcTagAndroid.id field,
+    // reached via each technology's own `.tag` property, not a
+    // direct `.identifier` getter.
+    final nfcA = NfcAAndroid.from(tag);
+    if (nfcA != null) return _bytesToHex(nfcA.tag.id);
 
-    // Some platforms put the id directly at the top level.
-    if (raw['id'] is List) {
-      return _bytesToHex(List<int>.from(raw['id'] as List));
-    }
+    final nfcB = NfcBAndroid.from(tag);
+    if (nfcB != null) return _bytesToHex(nfcB.tag.id);
 
-    // Otherwise it's nested under a technology-specific key.
-    const techKeys = [
-      'nfca',
-      'nfcb',
-      'nfcf', 
-      'nfcv',
-      'isodep',
-      'mifareclassic',
-      'mifareultralight',
-      'iso15693',
-      'miFare', // iOS-style key casing seen in some versions
-    ];
+    final nfcF = NfcFAndroid.from(tag);
+    if (nfcF != null) return _bytesToHex(nfcF.tag.id);
 
-    for (final key in techKeys) {
-      final tech = raw[key];
-      if (tech is Map && tech['identifier'] is List) {
-        return _bytesToHex(List<int>.from(tech['identifier'] as List));
-      }
-    }
+    final nfcV = NfcVAndroid.from(tag);
+    if (nfcV != null) return _bytesToHex(nfcV.tag.id);
+
+    // iOS — these classes DO expose `.identifier` directly.
+    final miFareIos = MiFareIos.from(tag);
+    if (miFareIos != null) return _bytesToHex(miFareIos.identifier);
+
+    final iso15693Ios = Iso15693Ios.from(tag);
+    if (iso15693Ios != null) return _bytesToHex(iso15693Ios.identifier);
 
     return null;
   }
