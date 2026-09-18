@@ -18,6 +18,22 @@ class _MyHomePageState extends State<MyHomePage> {
     'com.example.app_blocking_prototype/blocking',
   );
 
+  @override
+  void initState() {
+    super.initState();
+    _loadBlockState();
+  }
+
+  Future<void> _loadBlockState() async {
+    if (!io.Platform.isAndroid) return;
+    try {
+      final blocked = await platform.invokeMethod<bool>('getBlocking');
+      if (mounted) setState(() => isBlocked = blocked ?? false);
+    } catch (e) {
+      debugPrint('MethodChannel error: $e');
+    }
+  }
+
   Future<void> _setBlock() async {
     final newState = !isBlocked;
     try {
@@ -26,7 +42,20 @@ class _MyHomePageState extends State<MyHomePage> {
         isBlocked = newState;
       });
     } catch (e) {
-      print('MethodChannel error: $e');
+      debugPrint('MethodChannel error: $e');
+    }
+  }
+
+  Future<void> _scanNfcTag() async {
+    final newState = await Navigator.pushNamed(
+      context,
+      '/nfcScan',
+      arguments: isBlocked,
+    );
+    if (mounted && newState is bool) {
+      setState(() {
+        isBlocked = newState;
+      });
     }
   }
 
@@ -51,6 +80,14 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Icon(Icons.block),
             ),
             const SizedBox(height: 16),
+            if (io.Platform.isAndroid) ...[
+              OutlinedButton.icon(
+                onPressed: _scanNfcTag,
+                icon: const Icon(Icons.nfc),
+                label: const Text('Block/unblock with NFC tag'),
+              ),
+              const SizedBox(height: 16),
+            ],
             OutlinedButton(
               onPressed: () => Navigator.pushNamed(
                 context,

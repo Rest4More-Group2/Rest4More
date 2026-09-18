@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,7 +37,7 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen> {
       await platform.invokeMethod('requestAuthorization');
       await _checkStatus();
     } catch (e) {
-      print('Authorization error: $e');
+      debugPrint('Authorization error: $e');
     }
   }
 

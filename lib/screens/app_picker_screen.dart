@@ -69,7 +69,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
         ).showSnackBar(const SnackBar(content: Text('Blocked apps saved')));
       }
     } catch (e) {
-      print('MethodChannel error: $e');
+      debugPrint('MethodChannel error: $e');
     }
   }
 

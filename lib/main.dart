@@ -4,6 +4,7 @@ import 'screens/app_picker_screen.dart';
 import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/nfc_scan_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) => const AuthorizationIosScreen(),
+        '/nfcScan': (context) => const NfcScanScreen(),
       },
     );
   }

@@ -22,6 +22,10 @@ class MainActivity : FlutterActivity() {
                     prefs.edit().putBoolean("isBlocking", isBlocking).apply()
                     result.success(null)
                 }
+                "getBlocking" -> {
+                    val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                    result.success(prefs.getBoolean("isBlocking", false))
+                }
                 "setBlockedPackages" -> {
                     val blockedPackages = call.argument<List<String>>("blockedPackages") ?: emptyList()
                     val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)

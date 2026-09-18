@@ -139,6 +139,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.3"
+  ndef_record:
+    dependency: transitive
+    description:
+      name: ndef_record
+      sha256: fc889b2e0c362aad8129596669cc62e401e14493f64718d4883f7f11bed01798
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
+  nfc_manager:
+    dependency: "direct main"
+    description:
+      name: nfc_manager
+      sha256: "1b8d3788ed71bb34f59878a445e433891eb2268353289515c1542b2780151fe6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.1"
   path:
     dependency: transitive
     description:
