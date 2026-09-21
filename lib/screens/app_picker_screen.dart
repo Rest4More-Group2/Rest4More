@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
+import 'package:rest4more/theme/app_color.dart';
 
 class AppPickerScreen extends StatefulWidget {
   const AppPickerScreen({super.key});
@@ -64,9 +65,12 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
         'blockedPackages': _selectedPackages.toList(),
       });
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Blocked apps saved')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Blocked apps saved'),
+            backgroundColor: AppColors.decoration,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('MethodChannel error: $e');
@@ -76,21 +80,27 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: AppColors.decoration,
+        foregroundColor: AppColors.background,
         title: const Text('Select apps to block'),
         actions: [
           IconButton(icon: const Icon(Icons.save), onPressed: _saveSelection),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(color: AppColors.primaryAction),
+            )
           : !io.Platform.isAndroid
-          ? const Center(
+          ? Center(
               child: Padding(
-                padding: EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Text(
                   'App selection is only available on Android for now.',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.text),
                 ),
               ),
             )
@@ -98,18 +108,27 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
               itemCount: _apps.length,
               itemBuilder: (context, index) {
                 final app = _apps[index];
-                final isSelected = _selectedPackages.contains(
-                  app.packageName,
-                );
+                final isSelected = _selectedPackages.contains(app.packageName);
 
                 return CheckboxListTile(
                   value: isSelected,
                   onChanged: (checked) => _toggleApp(app.packageName, checked),
-                  title: Text(app.name),
-                  subtitle: Text(app.packageName),
+                  activeColor: AppColors.primaryAction,
+                  checkColor: AppColors.background,
+                  tileColor: AppColors.background,
+                  title: Text(
+                    app.name,
+                    style: TextStyle(color: AppColors.text),
+                  ),
+                  subtitle: Text(
+                    app.packageName,
+                    style: TextStyle(
+                      color: AppColors.text.withValues(alpha: 0.6),
+                    ),
+                  ),
                   secondary: app.icon != null
                       ? Image.memory(app.icon!, width: 40, height: 40)
-                      : const Icon(Icons.android),
+                      : Icon(Icons.android, color: AppColors.primaryAction),
                 );
               },
             ),

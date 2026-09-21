@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rest4more/theme/app_color.dart';
 
 class AuthorizationIosScreen extends StatefulWidget {
   const AuthorizationIosScreen({super.key});
@@ -49,37 +50,57 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Screen Time Access')),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.decoration,
+        foregroundColor: AppColors.background,
+        title: const Text('Screen Time Access'),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (_status == 'loading') const CircularProgressIndicator(),
+              if (_status == 'loading')
+                CircularProgressIndicator(color: AppColors.primaryAction),
               if (_status == 'notDetermined') ...[
-                const Icon(Icons.shield_outlined, size: 64),
+                Icon(
+                  Icons.shield_outlined,
+                  size: 64,
+                  color: AppColors.primaryAction,
+                ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'This app needs Screen Time access to block distracting apps.',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.text),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: _requestAuthorization,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryAction,
+                    side: BorderSide(color: AppColors.primaryAction),
+                  ),
                   child: const Text('Enable'),
                 ),
               ],
               if (_status == 'denied') ...[
-                const Icon(Icons.block, size: 64, color: Colors.red),
+                Icon(Icons.block, size: 64, color: AppColors.accent),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Screen Time access was denied. Please enable it manually in Settings.',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.text),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                OutlinedButton(
                   onPressed: _openSettings,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryAction,
+                    side: BorderSide(color: AppColors.primaryAction),
+                  ),
                   child: const Text('Open Settings'),
                 ),
               ],

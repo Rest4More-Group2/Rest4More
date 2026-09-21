@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:rest4more/theme/app_color.dart';
 
 class NfcScanScreen extends StatefulWidget {
   const NfcScanScreen({super.key});
@@ -93,7 +94,12 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan NFC tag')),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.decoration,
+        foregroundColor: AppColors.background,
+        title: const Text('Scan NFC tag'),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -103,16 +109,22 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
               Icon(
                 Icons.nfc,
                 size: 96,
-                color: _canScan
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).disabledColor,
+                color: _canScan ? AppColors.primaryAction : AppColors.panel,
               ),
               const SizedBox(height: 24),
-              Text(_status, textAlign: TextAlign.center),
+              Text(
+                _status,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.text),
+              ),
               if (!_canScan) ...[
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: _startScan,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryAction,
+                    side: BorderSide(color: AppColors.primaryAction),
+                  ),
                   child: const Text('Try again'),
                 ),
               ],

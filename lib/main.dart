@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rest4more/theme/app_color.dart';
 
 import 'screens/app_picker_screen.dart';
 import 'screens/authorization_ios_screen.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'AppBlock Prototype',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
       ),
       initialRoute: '/',
       routes: {

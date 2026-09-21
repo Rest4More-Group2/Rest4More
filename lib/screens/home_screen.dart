@@ -2,6 +2,7 @@ import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rest4more/theme/app_color.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -62,26 +63,38 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: AppColors.decoration,
+        foregroundColor: AppColors.background,
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Block State'),
+            Text('Block State', style: TextStyle(color: AppColors.text)),
             Text(
               '$isBlocked',
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium
+                  ?.copyWith(color: AppColors.text),
             ),
+            const SizedBox(height: 16),
             OutlinedButton(
               onPressed: _setBlock,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryAction,
+                side: BorderSide(color: AppColors.primaryAction),
+              ),
               child: const Icon(Icons.block),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: _scanNfcTag,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryAction,
+                side: BorderSide(color: AppColors.primaryAction),
+              ),
               icon: const Icon(Icons.nfc),
               label: const Text('Block/unblock with NFC tag'),
             ),
@@ -90,6 +103,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () => Navigator.pushNamed(
                 context,
                 io.Platform.isAndroid ? '/picker' : '/authorizationIOS',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryAction,
+                side: BorderSide(color: AppColors.primaryAction),
               ),
               child: const Text('Choose apps to block'),
             ),
