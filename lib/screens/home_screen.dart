@@ -80,14 +80,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Icon(Icons.block),
             ),
             const SizedBox(height: 16),
-            if (io.Platform.isAndroid) ...[
-              OutlinedButton.icon(
-                onPressed: _scanNfcTag,
-                icon: const Icon(Icons.nfc),
-                label: const Text('Block/unblock with NFC tag'),
-              ),
-              const SizedBox(height: 16),
-            ],
+            OutlinedButton.icon(
+              onPressed: _scanNfcTag,
+              icon: const Icon(Icons.nfc),
+              label: const Text('Block/unblock with NFC tag'),
+            ),
+            const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () => Navigator.pushNamed(
                 context,

@@ -1,8 +1,10 @@
 import Flutter
 import UIKit
 import FamilyControls
+import ManagedSettings
+import UIHostingController
 
-@available(iOS 13, *)
+@available(iOS 16, *)
 class SceneDelegate: FlutterSceneDelegate {
     override func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         super.scene(scene, willConnectTo: session, options: connectionOptions)
@@ -37,6 +39,33 @@ class SceneDelegate: FlutterSceneDelegate {
                 @unknown default:
                     result("notDetermined")
                 }
+            case "setBlocking":
+                let isBlocking = (call.arguments as? [String: Any])?["isBlocking"] as? Bool ?? false
+                UserDefaults.standard.set(isBlocking, forKey: "isBlocking")
+
+                let store = ManagedSettingsStore()
+                if isBlocking {
+                    if let data = UserDefaults.standard.data(forKey: "blockedSelection"),
+                       let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: data) {
+                        store.shield.applications = selection.applicationTokens
+                        store.shield.applicationCategories = .specific(selection.categoryTokens)
+                    }
+                } else {
+                    store.shield.applications = nil
+                    store.shield.applicationCategories = nil
+                }
+                result(nil)
+            case "showAppPicker":
+                guard let rootVC = window?.rootViewController else {
+                    result(nil)
+                    return
+                }
+                let hostingController = UIHostingController(rootView: AppPickerHostView(onDone: {
+                    rootVC.dismiss(animated: true) {
+                        result(nil)
+                    }
+                }))
+                rootVC.present(hostingController, animated: true)
             case "openSettings":
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)

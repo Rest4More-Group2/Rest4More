@@ -28,7 +28,8 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen> {
     });
 
     if (_status == 'approved' && mounted) {
-      Navigator.pushReplacementNamed(context, '/picker');
+      await platform.invokeMethod('showAppPicker');
+      if (mounted) Navigator.pop(context);
     }
   }
 
