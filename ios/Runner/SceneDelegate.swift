@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import FamilyControls
 import ManagedSettings
-import UIHostingController
+import SwiftUI
 
 @available(iOS 16, *)
 class SceneDelegate: FlutterSceneDelegate {
@@ -56,7 +56,7 @@ class SceneDelegate: FlutterSceneDelegate {
                 }
                 result(nil)
             case "showAppPicker":
-                guard let rootVC = window?.rootViewController else {
+                guard let rootVC = self.window?.rootViewController else {
                     result(nil)
                     return
                 }
