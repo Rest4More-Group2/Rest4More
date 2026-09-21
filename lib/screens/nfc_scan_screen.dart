@@ -18,6 +18,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
   bool _canScan = false;
   bool _isBlocked = false;
   bool _started = false;
+  bool _sessionActive = false;
 
   @override
   void didChangeDependencies() {
@@ -30,7 +31,10 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
 
   @override
   void dispose() {
-    NfcManager.instance.stopSession();
+    if (_sessionActive) {
+      _sessionActive = false;
+      NfcManager.instance.stopSession().catchError((_) {});
+    }
     super.dispose();
   }
 
@@ -55,6 +59,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
           : 'Hold your phone against an NFC tag to block your apps';
     });
 
+    _sessionActive = true;
     await NfcManager.instance.startSession(
       pollingOptions: {
         NfcPollingOption.iso14443,
@@ -62,6 +67,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
         NfcPollingOption.iso18092,
       },
       onDiscovered: (tag) async {
+        _sessionActive = false;
         await NfcManager.instance.stopSession();
         await _toggleBlocking();
       },
