@@ -1,5 +1,19 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+import 'converters.dart';
+import 'enums.dart';
+import 'tables/accessories.dart';
+import 'tables/block_profiles.dart';
+import 'tables/entitlements.dart';
+import 'tables/focus_sessions.dart';
+import 'tables/ios_selections.dart';
+import 'tables/local_notifications.dart';
+import 'tables/profiles.dart';
+import 'tables/programme_days.dart';
+import 'tables/programme_enrollments.dart';
+import 'tables/routines.dart';
 
 part 'app_database.g.dart';
 
@@ -7,7 +21,18 @@ part 'app_database.g.dart';
 ///
 /// Maak nooit zelf een tweede instantie aan buiten `databaseProvider`: dat
 /// opent een tweede verbinding met hetzelfde bestand.
-@DriftDatabase(tables: [])
+@DriftDatabase(tables: [
+  Profiles,
+  Routines,
+  BlockProfiles,
+  IosSelections,
+  Accessories,
+  FocusSessions,
+  ProgrammeEnrollments,
+  ProgrammeDays,
+  LocalNotifications,
+  Entitlements,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? driftDatabase(name: 'restformore'));
@@ -19,6 +44,18 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
+          // Gedeeltelijke unieke indexen kunnen niet in de Drift-DSL, daarom
+          // hier met SQL. De database hoort bij een gebruiker, dus een
+          // constante uitdrukking volstaat.
+          await customStatement(
+            'CREATE UNIQUE INDEX one_open_session ON focus_sessions ((1)) '
+            'WHERE ended_at IS NULL AND deleted_at IS NULL',
+          );
+          await customStatement(
+            'CREATE UNIQUE INDEX one_live_enrollment '
+            'ON programme_enrollments ((1)) '
+            "WHERE status IN ('active','paused') AND deleted_at IS NULL",
+          );
         },
         onUpgrade: (m, from, to) async {
           // Gewoonte bij elke schemawijziging: verhoog `schemaVersion`, voeg
