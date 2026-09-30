@@ -1,3 +1,4 @@
+import 'screens/onboarding/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:rest4more/theme/app_color.dart';
 
@@ -17,13 +18,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'AppBlock Prototype',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(title: 'AppBlock Prototype'),
+        '/': (context) => const WelcomeScreen(),
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) => const AuthorizationIosScreen(),
