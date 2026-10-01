@@ -23,19 +23,15 @@ class EntitlementRepository {
         .watch();
   }
 
-  /// Neemt de lijst van de server over voor de latere pull. Rijen die de
-  /// server niet meer noemt worden zacht verwijderd. Niets hiervan is
-  /// `dirty`, want de server blijft de eigenaar.
+  /// Neemt de lijst van de server over voor de latere pull, in een
+  /// transactie. Rijen die de server niet meer noemt worden echt verwijderd,
+  /// de rest wordt toegevoegd of bijgewerkt. De server is de eigenaar, dus
+  /// niets hiervan is `dirty` en er is geen zachte verwijdering.
   Future<void> replaceFromServer(List<Entitlement> incoming) {
     return _db.transaction(() async {
       final ids = incoming.map((e) => e.id).toSet();
-      await (_db.update(_db.entitlements)
-            ..where((t) => t.id.isNotIn(ids) & t.deletedAt.isNull()))
-          .write(EntitlementsCompanion(
-        deletedAt: Value(_now().toUtc()),
-        updatedAt: Value(_now().toUtc()),
-        dirty: const Value(false),
-      ));
+      await (_db.delete(_db.entitlements)..where((t) => t.id.isNotIn(ids)))
+          .go();
       for (final entitlement in incoming) {
         await _db.into(_db.entitlements).insertOnConflictUpdate(
               entitlement.copyWith(dirty: false).toCompanion(true),

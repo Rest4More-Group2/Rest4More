@@ -6,6 +6,8 @@ import '../sync_columns.dart';
 
 /// Rechten op functies. Alleen de server schrijft hier, de app leest en
 /// stuurt nooit terug. `feature` is bewust vrije tekst.
+///
+/// Let op: de latere push-lus voor synchronisatie moet deze tabel overslaan.
 @DataClassName('Entitlement')
 class Entitlements extends Table with SyncColumns {
   TextColumn get feature => text()();

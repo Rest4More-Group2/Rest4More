@@ -234,15 +234,15 @@ void main() {
       expect(active.every((e) => !e.dirty), isTrue);
     });
 
-    test('rijen die de server niet meer noemt verdwijnen zacht', () async {
+    test('rijen die de server niet meer noemt zijn weg', () async {
       final repo = EntitlementRepository(db, now: clock.call);
       await repo.replaceFromServer([entitlement('a'), entitlement('b')]);
+      expect(await db.select(db.entitlements).get(), hasLength(2));
       await repo.replaceFromServer([entitlement('b')]);
-      expect((await repo.watchActive().first).map((e) => e.id), ['b']);
       final all = await db.select(db.entitlements).get();
-      expect(all, hasLength(2));
-      expect(all.firstWhere((e) => e.id == 'a').deletedAt, isNotNull);
-      expect(all.every((e) => !e.dirty), isTrue);
+      expect(all.map((e) => e.id), ['b']);
+      expect(all.single.dirty, isFalse);
+      expect(all.single.deletedAt, isNull);
     });
   });
 }
