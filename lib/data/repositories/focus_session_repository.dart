@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
@@ -112,16 +114,38 @@ class FocusSessionRepository {
     FocusSession session,
     FocusSessionsCompanion changes, {
     SessionEventData? event,
-  }) {
-    return (_db.update(_db.focusSessions)
-          ..where((t) => t.id.equals(session.id)))
+  }) async {
+    if (event != null) await _appendEvent(session.id, event);
+    await (_db.update(_db.focusSessions)..where((t) => t.id.equals(session.id)))
         .write(changes.copyWith(
-      events: event == null
-          ? const Value.absent()
-          : Value([...session.events, event]),
       updatedAt: Value(_now().toUtc()),
       dirty: const Value(true),
     ));
+  }
+
+  /// Voegt een event toe aan de ruwe json. Zo blijven bestaande events met
+  /// onbekende waarden of onleesbare delen letterlijk bewaard, in plaats van
+  /// door de converter herschreven te worden.
+  Future<void> _appendEvent(String id, SessionEventData event) async {
+    final row = await _db
+        .customSelect(
+          'SELECT events FROM focus_sessions WHERE id = ?',
+          variables: [Variable<String>(id)],
+        )
+        .getSingle();
+    Object? decoded;
+    try {
+      decoded = jsonDecode(row.read<String>('events'));
+    } catch (_) {
+      decoded = null;
+    }
+    final events = decoded is List ? [...decoded] : <Object?>[];
+    events.add(event.toJson());
+    await _db.customUpdate(
+      'UPDATE focus_sessions SET events = ? WHERE id = ?',
+      variables: [Variable<String>(jsonEncode(events)), Variable<String>(id)],
+      updates: {_db.focusSessions},
+    );
   }
 
   /// Gaat naar een volgende toestand en legt de overgang vast in `events`.
