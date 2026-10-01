@@ -29,3 +29,12 @@ in `test/data/partial_indexes_test.dart`.
 
 Schrijf alleen via de repositories in `lib/data/repositories/`. Maak nooit zelf
 een tweede `AppDatabase`, gebruik `databaseProvider`.
+
+### Test op een toestel
+
+De integratietest opent het echte databasebestand, sluit het en opent het
+opnieuw. Draai hem op een toestel of emulator:
+
+```bash
+flutter test integration_test -d <device>
+```
