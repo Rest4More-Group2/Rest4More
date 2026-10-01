@@ -24,3 +24,9 @@ dart run drift_dev schema dump lib/data/database/app_database.dart drift_schemas
 
 Schrijf alleen via de repositories in `lib/data/repositories/`. Maak nooit zelf
 een tweede `AppDatabase`, gebruik `databaseProvider`.
+
+```bash
+dart run drift_dev schema generate drift_schemas/ test/data/generated/
+```
+
+Draai dit na elke nieuwe dump, voor `test/data/migration_test.dart`.
