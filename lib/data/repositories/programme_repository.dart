@@ -96,13 +96,13 @@ class ProgrammeRepository {
     });
   }
 
-  Future<void> createDays(String enrollmentId, List<DaySeed> seeds) {
+  Future<void> createDays(String enrollmentId, List<DaySeed> seeds) async {
     for (final seed in seeds) {
       if (seed.dayNumber < 1 || seed.dayNumber > 14) {
         throw InvalidValueError('dayNumber moet 1 tot 14 zijn: ${seed.dayNumber}');
       }
     }
-    return _db.transaction(() async {
+    await _db.transaction(() async {
       final now = _stamp;
       await _db.batch((batch) {
         batch.insertAll(_db.programmeDays, [

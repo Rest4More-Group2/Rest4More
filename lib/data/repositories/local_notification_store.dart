@@ -34,11 +34,11 @@ class LocalNotificationStore {
   final AppDatabase _db;
 
   /// Vervangt alle rijen door de nieuwe planning, in een transactie.
-  Future<void> replaceAll(List<PlannedEntry> entries) {
+  Future<void> replaceAll(List<PlannedEntry> entries) async {
     for (final entry in entries) {
       checkedMinutes(entry.firesAtMinutes, 'firesAtMinutes');
     }
-    return _db.transaction(() async {
+    await _db.transaction(() async {
       await _db.delete(_db.localNotifications).go();
       await _db.batch((batch) {
         batch.insertAll(_db.localNotifications, [

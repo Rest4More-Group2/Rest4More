@@ -110,18 +110,18 @@ class ProfileRepository {
 
   /// Bewaart de voortgang van de intake, zodat die na een onderbreking kan
   /// hervatten.
-  Future<void> saveIntakeStep(int step, {ProfileDraft? answers}) {
+  Future<void> saveIntakeStep(int step, {ProfileDraft? answers}) async {
     if (step < 0) throw InvalidValueError('step mag niet negatief zijn: $step');
     final base = answers?._toCompanion() ?? const ProfilesCompanion();
-    return _write(base.copyWith(intakeStep: Value(step)));
+    await _write(base.copyWith(intakeStep: Value(step)));
   }
 
   Future<void> completeIntake() =>
       _write(ProfilesCompanion(intakeCompletedAt: Value(_stamp)));
 
-  Future<void> setNotification({required bool enabled, int? minutes}) {
+  Future<void> setNotification({required bool enabled, int? minutes}) async {
     checkedMinutes(minutes, 'minutes');
-    return _write(ProfilesCompanion(
+    await _write(ProfilesCompanion(
       notifyProgramme: Value(enabled),
       notifyTimeMinutes: Value.absentIfNull(minutes),
     ));

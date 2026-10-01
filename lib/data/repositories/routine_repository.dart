@@ -79,9 +79,9 @@ class RoutineRepository {
     WeekdayMask days,
     int? startMinutes,
     bool autoStart,
-  ) {
+  ) async {
     checkedMinutes(startMinutes, 'startMinutes');
-    return _write(
+    await _write(
       routineId,
       RoutinesCompanion(
         daysMask: Value(days.value),
