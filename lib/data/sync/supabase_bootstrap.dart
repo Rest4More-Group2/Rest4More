@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'sync_remote.dart';
@@ -11,11 +12,18 @@ const _anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 /// gewoon lokaal verder, zonder synchronisatie.
 Future<SyncRemote?> initSupabaseRemote() async {
   final key = _publishableKey.isNotEmpty ? _publishableKey : _anonKey;
-  if (_url.isEmpty || key.isEmpty) return null;
+  if (_url.isEmpty || key.isEmpty) {
+    if (kDebugMode) {
+      debugPrint('[sync] uit: geen SUPABASE_URL of sleutel meegegeven '
+          '(url leeg: ${_url.isEmpty}, sleutel leeg: ${key.isEmpty})');
+    }
+    return null;
+  }
   try {
     await Supabase.initialize(url: _url, publishableKey: key);
     return SupabaseSyncRemote(Supabase.instance.client);
-  } on Exception {
+  } on Exception catch (error) {
+    if (kDebugMode) debugPrint('[sync] uit: Supabase starten mislukt: $error');
     return null;
   }
 }

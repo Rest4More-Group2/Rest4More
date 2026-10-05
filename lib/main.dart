@@ -16,6 +16,7 @@ import 'screens/nfc_scan_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final remote = await initSupabaseRemote();
+  if (kDebugMode && remote != null) debugPrint('[sync] Supabase gestart');
   final container = ProviderContainer(
     overrides: [
       if (remote != null) syncRemoteProvider.overrideWithValue(remote),
