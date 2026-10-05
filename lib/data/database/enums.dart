@@ -76,6 +76,7 @@ enum PreferredActivity implements DbEnum {
   reading('reading'),
   preparation('preparation'),
   quietSitting('quiet_sitting'),
+  breathing('breathing'),
   custom('custom'),
   unknown('unknown');
 
