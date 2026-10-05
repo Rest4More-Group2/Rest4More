@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:rest4more/screens/focus_moment_screen.dart';
+
 import 'screens/app_root.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
@@ -72,17 +75,16 @@ class MyApp extends StatelessWidget {
       title: 'Rest For More',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.background,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
       ),
       home: const AppRoot(),
       routes: {
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
-        '/authorizationIOS': (context) =>
-            const AuthorizationIosScreen(),
+        '/authorizationIOS': (context) => const AuthorizationIosScreen(),
         '/nfcScan': (context) => const NfcScanScreen(),
+        '/prototype': (context) =>
+            const MyHomePage(title: 'Rest For More Prototype'),
       },
     );
   }
