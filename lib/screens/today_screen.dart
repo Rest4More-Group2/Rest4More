@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'make_it_smaller_screen.dart';
 
 /// Add google_fonts with: flutter pub add google_fonts
 /// This screen can be pushed from your existing app; it creates no nested app.
@@ -67,10 +68,29 @@ class _TodayScreenState extends State<TodayScreen> {
     }
   }
 
-  void _makeSmaller() {
-    setState(() => _minutes = widget.smallerMinutes);
-    widget.onMakeSmaller?.call(_minutes);
+  Future<void> _makeSmaller() async {
+  final selectedMinutes = await Navigator.push<int>(
+    context,
+    MaterialPageRoute<int>(
+      builder: (context) => MakeItSmallerScreen(
+        originalMinutes: widget.minutes,
+        smallerMinutes: widget.smallerMinutes,
+      ),
+    ),
+  );
+
+  if (!mounted || selectedMinutes == null) return;
+
+  setState(() {
+    _minutes = selectedMinutes;
+  });
+
+  if (selectedMinutes == widget.smallerMinutes &&
+      selectedMinutes < widget.minutes) {
+    widget.onMakeSmaller?.call(selectedMinutes);
+    _startStep();
   }
+}
 
   void _startStep() {
     if (widget.onStartStep != null) {
