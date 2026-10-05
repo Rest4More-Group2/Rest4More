@@ -381,6 +381,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  google_fonts:
+    dependency: "direct main"
+    description:
+      name: google_fonts
+      sha256: fdbbfbbb1a62f376ab29fa9627561d389751fb984da0b630ce3326e272911c8a
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.0.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -443,6 +451,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
+      sha256: "9a62a50b50b769a737bc0a8ff381f333529df3ab746b2f6b02e83760231455ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
       sha256: eaac480a35ec0814146c2c48d96aaa829e0e44a7662c88ae84c9edf4bc35651f
       url: "https://pub.dev"
     source: hosted
@@ -487,6 +499,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  intl:
+    dependency: transitive
   integration_test:
     dependency: "direct dev"
     description: flutter
@@ -512,6 +526,10 @@ packages:
     dependency: transitive
     description:
       name: jni
+      sha256: "6b9ca0602fef0230e83149afbe3f9f8227e94f2bbe84a1da4f14d699742f402d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
       sha256: f038e58b4dc2c9037f50e233175086337e0b305e356d28211bf55f21c504cbd3
       url: "https://pub.dev"
     source: hosted
@@ -520,6 +538,10 @@ packages:
     dependency: transitive
     description:
       name: jni_flutter
+      sha256: c399ad579bfba12eb20c924f7a23160a42902f3023a871e1cad40a8a679656a4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
       sha256: b2310cdd4c18c65c081ab141a41efa94aa26c65431803703ece51996f174f351
       url: "https://pub.dev"
     source: hosted
@@ -676,6 +698,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  path:
+    dependency: transitive
+    description:
+      name: objective_c
+      sha256: b7fb95a6d9a4f009edd63dc5ac69f07420b23a16161c6dd8660290b59c602e8e
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.5.0"
+  package_config:
+    dependency: transitive
+    description:
+      name: package_config
+      sha256: ffcf4cf3d6c0b74ac43708d9f56625506e8a68aa935abe9d267a7330f320eb5d
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   passkeys_platform_interface:
     dependency: transitive
     description:
@@ -693,6 +731,7 @@ packages:
     source: hosted
     version: "1.9.1"
   path_provider:
+    dependency: transitive
     dependency: "direct main"
     description:
       name: path_provider
@@ -832,6 +871,10 @@ packages:
     dependency: transitive
     description:
       name: record_use
+      sha256: "2551bd8eecfe95d14ae75f6021ad0248be5c27f138c2ec12fcb52b500b3ba1ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
       sha256: "1cb8564af8d43b464294411db9217f5ec04891c6f22ee2c32d73ae05e88a6bd2"
       url: "https://pub.dev"
     source: hosted

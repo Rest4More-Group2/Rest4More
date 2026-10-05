@@ -17,6 +17,7 @@ import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
+import 'screens/app_shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,17 +60,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Rest For More',
       debugShowCheckedModeBanner: false,
-      title: 'AppBlock Prototype',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.background,
+        ),
       ),
       initialRoute: '/',
       routes: {
         '/': (context) => const WelcomeScreen(),
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
-        '/authorizationIOS': (context) => const AuthorizationIosScreen(),
+        '/authorizationIOS': (context) =>
+            const AuthorizationIosScreen(),
         '/nfcScan': (context) => const NfcScanScreen(),
       },
     );
