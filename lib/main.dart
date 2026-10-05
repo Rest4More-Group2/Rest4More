@@ -39,6 +39,8 @@ Future<void> main() async {
   if (kDebugMode && gdprMode.isNotEmpty) {
     await runDebugGdpr(container, gdprMode);
   }
+  // Bewaartermijn: oude zacht verwijderde rijen echt wissen.
+  await container.read(retentionServiceProvider).purgeOldTombstones();
   // Start de synchronisatie. Zonder Supabase-gegevens doet dit niets.
   container.read(syncSchedulerProvider);
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));

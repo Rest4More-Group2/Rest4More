@@ -97,3 +97,12 @@ flutter run --dart-define-from-file=env.json --dart-define=DEBUG_SYNC=true --dar
 Met `DEBUG_GDPR=delete` wordt daarna ook alles in de cloud gewist. Zonder
 `DEBUG_GDPR` gebeurt er niets. In de console verschijnen regels met `[gdpr]`,
 nooit de inhoud van de gegevens.
+
+## Bewaartermijn: verwijderde rijen na 2 jaar wissen
+
+- Lokaal: `RetentionService` wist bij het opstarten zacht verwijderde rijen
+  ouder dan 2 jaar. Een verwijdering die nog niet naar de server is gestuurd
+  blijft staan zolang er toestemming voor synchronisatie is.
+- Server: `supabase/migrations/20261005000003_purge_old_tombstones.sql` maakt
+  `purge_old_tombstones()` en plant die dagelijks om 03:17 met `pg_cron`. Zet
+  de extensie `pg_cron` zo nodig eerst aan in het dashboard (Integrations).

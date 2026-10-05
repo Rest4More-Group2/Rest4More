@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/sync/cloud_data_service.dart';
+import '../data/sync/retention_service.dart';
 import '../data/sync/sync_engine.dart';
 import '../data/sync/sync_remote.dart';
 import '../data/sync/sync_scheduler.dart';
@@ -45,3 +46,7 @@ final cloudDataServiceProvider = Provider(
     ref.watch(profileRepositoryProvider),
   ),
 );
+
+/// Wist zacht verwijderde rijen na 2 jaar. Draai dit bij het opstarten.
+final retentionServiceProvider =
+    Provider((ref) => RetentionService(ref.watch(databaseProvider)));
