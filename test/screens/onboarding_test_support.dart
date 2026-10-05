@@ -34,3 +34,34 @@ Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
   await tester.pump();
   return database;
 }
+
+/// Zoals `testWidgets`, maar haalt na afloop de schermen weg en laat de
+/// database-stromen netjes sluiten. Anders blijft er een timer van de database
+/// hangen en faalt de test, ook al klopt alles.
+void screenTest(String description, Future<void> Function(WidgetTester) body) {
+  testWidgets(description, (tester) async {
+    await body(tester);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 10));
+  });
+}
+
+/// Wacht tot de app klaar is, ook als er echte I/O bij zit (zoals het laden van
+/// de inhoud van het programma). `pumpAndSettle` alleen laat daar de klok
+/// doorlopen zonder dat de I/O ooit klaar komt.
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 100; i++) {
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pump(const Duration(milliseconds: 100));
+    // Klaar zodra het laadscherm weg is, plus nog een paar beelden voor de rest.
+    if (i > 3 && find.byType(CircularProgressIndicator).evaluate().isEmpty) {
+      break;
+    }
+  }
+  for (var i = 0; i < 5; i++) {
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}

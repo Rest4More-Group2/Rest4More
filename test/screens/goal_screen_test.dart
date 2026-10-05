@@ -7,7 +7,7 @@ import 'package:rest4more/screens/onboarding/obstacle_screen.dart';
 import 'onboarding_test_support.dart';
 
 void main() {
-  testWidgets('Continue bewaart de gekozen doelstelling en gaat verder',
+  screenTest('Continue bewaart de gekozen doelstelling en gaat verder',
       (tester) async {
     final db = await pumpScreen(tester, const GoalScreen());
 
@@ -22,7 +22,7 @@ void main() {
     expect(find.byType(ObstacleScreen), findsOneWidget);
   });
 
-  testWidgets('zonder te kiezen wordt het voorgeselecteerde doel bewaard',
+  screenTest('zonder te kiezen wordt het voorgeselecteerde doel bewaard',
       (tester) async {
     final db = await pumpScreen(tester, const GoalScreen());
     await tester.tap(find.text('Continue'));
@@ -30,7 +30,7 @@ void main() {
     expect((await ProfileRepository(db).get()).primaryGoal, PrimaryGoal.phone);
   });
 
-  testWidgets('een eerder antwoord wordt weer getoond', (tester) async {
+  screenTest('een eerder antwoord wordt weer getoond', (tester) async {
     final first = await pumpScreen(tester, const GoalScreen());
     await tester.tap(find.text('Use less social media'));
     await tester.pump();

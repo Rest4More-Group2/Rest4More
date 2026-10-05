@@ -18,7 +18,7 @@ Future<void> tapText(WidgetTester tester, String text) async {
 }
 
 void main() {
-  testWidgets('obstakel: de eerst gekozen optie wordt bewaard', (tester) async {
+  screenTest('obstakel: de eerst gekozen optie wordt bewaard', (tester) async {
     final db = await pumpScreen(tester, const ObstacleScreen());
     await tester.tap(find.text('Planning'));
     await tester.pump();
@@ -30,7 +30,7 @@ void main() {
     expect(find.byType(RhythmScreen), findsOneWidget);
   });
 
-  testWidgets('obstakel: een eerder antwoord staat weer geselecteerd',
+  screenTest('obstakel: een eerder antwoord staat weer geselecteerd',
       (tester) async {
     final db = await pumpScreen(tester, const ObstacleScreen());
     await tester.tap(find.text('Phone as alarm'));
@@ -43,7 +43,7 @@ void main() {
     expect((await ProfileRepository(db).get()).obstacle, Obstacle.alarm);
   });
 
-  testWidgets('ritme: na middernacht wordt bewaard', (tester) async {
+  screenTest('ritme: na middernacht wordt bewaard', (tester) async {
     final db = await pumpScreen(tester, const RhythmScreen());
     await tester.tap(find.text('After midnight'));
     await tester.pump();
@@ -54,7 +54,7 @@ void main() {
     expect(find.byType(ActivitiesScreen), findsOneWidget);
   });
 
-  testWidgets('activiteiten: de eerst gekozen optie wordt bewaard',
+  screenTest('activiteiten: de eerst gekozen optie wordt bewaard',
       (tester) async {
     final db = await pumpScreen(tester, const ActivitiesScreen());
     await tester.tap(find.text('Paper reading'));
@@ -68,14 +68,14 @@ void main() {
     expect(find.byType(PlanScreen), findsOneWidget);
   });
 
-  testWidgets('plan: het bekijken van het plan wordt onthouden', (tester) async {
+  screenTest('plan: het bekijken van het plan wordt onthouden', (tester) async {
     final db = await pumpScreen(tester, const PlanScreen());
     await tapText(tester, 'Start your plan');
     expect((await ProfileRepository(db).get()).intakeStep, 5);
     expect(find.byType(ReminderScreen), findsOneWidget);
   });
 
-  testWidgets('herinnering aan: Done bewaart de tijd en opent de app',
+  screenTest('herinnering aan: Done bewaart de tijd en opent de app',
       (tester) async {
     final db = await pumpScreen(tester, const ReminderScreen());
     await tapText(tester, 'Done');
@@ -88,7 +88,7 @@ void main() {
     expect(find.byType(ReminderScreen), findsNothing);
   });
 
-  testWidgets('herinnering uit: er wordt niets ingepland', (tester) async {
+  screenTest('herinnering uit: er wordt niets ingepland', (tester) async {
     final db = await pumpScreen(tester, const ReminderScreen());
     await tapText(tester, 'Maybe later');
 
@@ -98,7 +98,7 @@ void main() {
     expect(find.byType(AppShell), findsOneWidget);
   });
 
-  testWidgets('de hele onboarding van begin tot eind vult het profiel',
+  screenTest('de hele onboarding van begin tot eind vult het profiel',
       (tester) async {
     final db = await pumpScreen(tester, const WelcomeScreen());
     await tapText(tester, 'Get started');

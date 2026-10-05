@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sample_noor",
+    "synthetic": true,
+    "age_band": "16-17",
+    "goal": "phone",
+    "obstacle": "scrolling",
+    "rhythm": "regular",
+    "anchor": "brushing my teeth",
+    "activity": "reading a few pages",
+    "activity_material": "your book",
+    "restnest": true,
+    "card": true,
+    "notification_time": "21:00",
+    "bedtime": "22:30",
+    "putaway_minutes": 30
+  },
+  {
+    "id": "sample_mila",
+    "synthetic": true,
+    "age_band": "25-39",
+    "goal": "routine",
+    "obstacle": "planning",
+    "rhythm": "variable",
+    "anchor": "tidying up after the evening",
+    "activity": "preparing your things for tomorrow",
+    "activity_material": "your things for tomorrow",
+    "restnest": false,
+    "card": false,
+    "notification_time": "20:45",
+    "bedtime": null,
+    "putaway_minutes": 15
+  },
+  {
+    "id": "sample_sam",
+    "synthetic": true,
+    "age_band": "18-24",
+    "goal": "social",
+    "obstacle": "availability",
+    "rhythm": "variable",
+    "anchor": "arriving at the library",
+    "activity": "working on your chosen task",
+    "activity_material": "your study materials",
+    "restnest": false,
+    "card": true,
+    "notification_time": "13:15",
+    "bedtime": null,
+    "putaway_minutes": 45
+  }
+]

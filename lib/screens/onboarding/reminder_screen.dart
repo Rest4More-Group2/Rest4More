@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/providers/plan_providers.dart';
 import '../app_shell.dart';
 
 class ReminderScreen extends ConsumerStatefulWidget {
@@ -48,6 +49,13 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
           reminderMinutes: reminderTime.hour * 60 + reminderTime.minute,
         );
     ref.invalidate(intakeProgressProvider);
+    // Maak het persoonlijke plan. Een fout hier stopt de gebruiker niet: de
+    // volgende keer dat de app opent wordt het opnieuw geprobeerd.
+    try {
+      await ref.read(planServiceProvider).ensurePlan();
+    } on Object {
+      // zie boven
+    }
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const AppShell()),

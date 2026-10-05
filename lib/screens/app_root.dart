@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/intake/intake_service.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/providers/plan_providers.dart';
 
 import 'app_shell.dart';
 import 'onboarding/activities_screen.dart';
@@ -47,6 +48,13 @@ class _AppRootState extends ConsumerState<AppRoot> {
 
     final navigator = Navigator.of(context);
     if (progress.completed) {
+      // Mislukte of nog niet gemaakte plannen komen hier alsnog tot stand.
+      try {
+        await ref.read(planServiceProvider).ensurePlan();
+      } on Object {
+        // De app werkt ook zonder plan, met de standaardtekst.
+      }
+      if (!mounted) return;
       navigator.pushReplacement(_instant(const AppShell()));
       return;
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'today_screen.dart' show TodayScreen, RestPalette, RestType;
+import 'today_screen.dart' show RestPalette, RestType;
+import 'today_tab.dart';
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
 
@@ -36,7 +37,7 @@ class _AppShellState extends State<AppShell> {
     body: IndexedStack(
       index: _selectedTab,
       children: [
-        TodayScreen(onStartStep: widget.onStartStep),
+        TodayTab(onStartStep: widget.onStartStep),
         MomentsScreen(onStartFocus: widget.onStartFocus),
       ],
     ),

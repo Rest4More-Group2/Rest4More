@@ -53,14 +53,14 @@ void main() {
     return db;
   }
 
-  testWidgets('een nieuwe gebruiker begint bij de welkomstpagina',
+  screenTest('een nieuwe gebruiker begint bij de welkomstpagina',
       (tester) async {
     await startAt(tester, (_) async {});
     expect(find.byType(WelcomeScreen), findsOneWidget);
     expect(find.byType(AppShell), findsNothing);
   });
 
-  testWidgets('tijdens het laden is er een rustig laadscherm', (tester) async {
+  screenTest('tijdens het laden is er een rustig laadscherm', (tester) async {
     final gate = Completer<IntakeProgress>();
     await _pumpWith(tester, _FakeIntake(() => gate.future));
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -72,14 +72,14 @@ void main() {
     expect(find.byType(WelcomeScreen), findsOneWidget);
   });
 
-  testWidgets('een onderbroken onboarding gaat verder bij de volgende stap',
+  screenTest('een onderbroken onboarding gaat verder bij de volgende stap',
       (tester) async {
     await startAt(tester, (intake) => intake.saveGoal(1));
     expect(find.byType(ObstacleScreen), findsOneWidget);
     expect(find.byType(AppShell), findsNothing);
   });
 
-  testWidgets('Terug gaat naar de vorige stappen, tot en met het begin',
+  screenTest('Terug gaat naar de vorige stappen, tot en met het begin',
       (tester) async {
     await startAt(tester, (intake) async {
       await intake.saveGoal(0);
@@ -100,7 +100,7 @@ void main() {
     expect(navigator.canPop(), isFalse);
   });
 
-  testWidgets('elke opgeslagen stap opent het juiste scherm', (tester) async {
+  screenTest('elke opgeslagen stap opent het juiste scherm', (tester) async {
     await startAt(tester, (intake) async {
       await intake.saveGoal(0);
       await intake.saveObstacles([0]);
@@ -109,12 +109,12 @@ void main() {
     expect(find.byType(ActivitiesScreen), findsOneWidget);
   });
 
-  testWidgets('plan bekeken: verder bij de herinnering', (tester) async {
+  screenTest('plan bekeken: verder bij de herinnering', (tester) async {
     await startAt(tester, (intake) => intake.savePlanSeen());
     expect(find.byType(ReminderScreen), findsOneWidget);
   });
 
-  testWidgets('afgeronde onboarding gaat meteen naar de app', (tester) async {
+  screenTest('afgeronde onboarding gaat meteen naar de app', (tester) async {
     await startAt(
       tester,
       (intake) => intake.complete(reminderEnabled: true, reminderMinutes: 1320),
@@ -124,7 +124,7 @@ void main() {
     expect(find.byType(GoalScreen), findsNothing);
   });
 
-  testWidgets('een afgeronde onboarding blijft de app tonen, geen Terug naar de intake',
+  screenTest('een afgeronde onboarding blijft de app tonen, geen Terug naar de intake',
       (tester) async {
     await startAt(
       tester,
@@ -134,7 +134,7 @@ void main() {
     expect(navigator.canPop(), isFalse);
   });
 
-  testWidgets('een fout bij het lezen toont een melding met opnieuw proberen',
+  screenTest('een fout bij het lezen toont een melding met opnieuw proberen',
       (tester) async {
     var attempts = 0;
     await _pumpWith(tester, _FakeIntake(() async {
@@ -152,7 +152,7 @@ void main() {
     expect(attempts, 2);
   });
 
-  testWidgets('de onboarding voltooien en opnieuw opstarten opent de app',
+  screenTest('de onboarding voltooien en opnieuw opstarten opent de app',
       (tester) async {
     final db = await startAt(tester, (_) async {});
     await tester.tap(find.text('Get started'));
