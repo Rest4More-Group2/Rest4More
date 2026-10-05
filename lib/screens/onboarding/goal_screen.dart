@@ -1,15 +1,17 @@
 
 import 'obstacle_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
 
-class GoalScreen extends StatefulWidget {
+class GoalScreen extends ConsumerStatefulWidget {
   const GoalScreen({super.key});
 
   @override
-  State<GoalScreen> createState() => _GoalScreenState();
+  ConsumerState<GoalScreen> createState() => _GoalScreenState();
 }
 
-class _GoalScreenState extends State<GoalScreen> {
+class _GoalScreenState extends ConsumerState<GoalScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -17,6 +19,18 @@ class _GoalScreenState extends State<GoalScreen> {
   static const Color borderColor = Color(0xFFE7DDD2);
 
   int selectedGoal = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _showSavedAnswer();
+  }
+
+  /// Laat een eerder gegeven antwoord zien, bijvoorbeeld na terug te zijn gegaan.
+  Future<void> _showSavedAnswer() async {
+    final saved = (await ref.read(intakeServiceProvider).load()).goal;
+    if (saved != null && mounted) setState(() => selectedGoal = saved);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,14 +144,16 @@ class _GoalScreenState extends State<GoalScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                 Navigator.push(
-                   context,
-                 MaterialPageRoute(
-                builder: (context) => const ObstacleScreen(),
-               ),
-             );
-                   },
+                  onPressed: () async {
+                    await ref.read(intakeServiceProvider).saveGoal(selectedGoal);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ObstacleScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,
