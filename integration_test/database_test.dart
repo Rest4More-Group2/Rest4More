@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
 import 'package:rest4more/data/database/enums.dart';
@@ -12,8 +16,7 @@ void main() {
       (tester) async {
     // Een eerdere run kan data hebben achtergelaten in het echte bestand.
     var db = AppDatabase();
-    await db.delete(db.focusSessions).go();
-    await db.delete(db.profiles).go();
+    await _clear(db);
 
     await ProfileRepository(db).upsert(const ProfileDraft(displayName: 'Sam'));
     final session = await FocusSessionRepository(db).start(
@@ -25,8 +28,7 @@ void main() {
 
     db = AppDatabase();
     addTearDown(() async {
-      await db.delete(db.focusSessions).go();
-      await db.delete(db.profiles).go();
+      await _clear(db);
       await db.close();
     });
 
@@ -35,5 +37,27 @@ void main() {
     final open = await FocusSessionRepository(db).findOpen();
     expect(open?.id, session.id);
     expect(open?.state, SessionState.selecting);
+
+    // Het bestand op het toestel is versleuteld, niet gewoon SQLite.
+    final dir = await getApplicationSupportDirectory();
+    final file = File(p.join(dir.path, 'restformore.sqlite'));
+    expect(await file.exists(), isTrue);
+    final header = await file.openRead(0, 15).expand((b) => b).toList();
+    expect(String.fromCharCodes(header), isNot('SQLite format 3'));
   });
+}
+
+/// Maakt de tabellen leeg die de test gebruikt, kinderen eerst, zodat data van
+/// eerdere runs (zoals voorbeelddata) geen verwijzingen laat staan.
+Future<void> _clear(AppDatabase db) async {
+  for (final table in [
+    'local_notifications',
+    'programme_days',
+    'programme_enrollments',
+    'focus_sessions',
+    'consent_records',
+    'profiles',
+  ]) {
+    await db.customStatement('DELETE FROM $table');
+  }
 }

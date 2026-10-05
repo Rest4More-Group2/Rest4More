@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'converters.dart';
+import 'encrypted_database.dart';
 import 'enums.dart';
 import 'tables/accessories.dart';
 import 'tables/block_profiles.dart';
@@ -37,7 +37,7 @@ part 'app_database.g.dart';
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
-      : super(executor ?? driftDatabase(name: 'restformore'));
+      : super(executor ?? openAppDatabase());
 
   @override
   int get schemaVersion => 2;
