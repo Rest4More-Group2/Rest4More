@@ -57,3 +57,16 @@ flutter test integration_test -d <device>
   een fout probeert hij het elke 30 minuten opnieuw zolang de app open is. De
   dag van de laatste gelukte push staat in `shared_preferences`.
 - Er is nog geen pull.
+
+### Synchronisatie testen zonder toestemmingsscherm
+
+Start een debugbuild met de testvlag. Die geeft toestemming en wist de
+"vandaag al gepusht"-markering, zodat er direct wordt gepusht:
+
+```bash
+flutter run --dart-define-from-file=env.json --dart-define=DEBUG_SYNC=true
+```
+
+In de console verschijnt een regel `[sync] ok=... pushed=...`. Controleer daarna
+in de Supabase table editor of `profiles` een rij heeft met een `user_id`. De
+vlag werkt alleen in debugbuilds.

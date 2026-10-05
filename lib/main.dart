@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
+import 'package:rest4more/data/sync/sync_scheduler.dart';
+import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/providers/sync_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
 
@@ -18,6 +21,14 @@ Future<void> main() async {
       if (remote != null) syncRemoteProvider.overrideWithValue(remote),
     ],
   );
+  if (kDebugMode && const bool.fromEnvironment('DEBUG_SYNC')) {
+    // Alleen om de synchronisatie te testen voordat er een toestemmingsscherm
+    // is: geef toestemming en vergeet dat er vandaag al gepusht is.
+    await container
+        .read(profileRepositoryProvider)
+        .recordCloudSyncConsent(DateTime.now());
+    await PreferencesSyncStateStore().clear();
+  }
   // Start de synchronisatie. Zonder Supabase-gegevens doet dit niets.
   container.read(syncSchedulerProvider);
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));

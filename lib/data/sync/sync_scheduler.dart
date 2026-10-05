@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +24,11 @@ class PreferencesSyncStateStore implements SyncStateStore {
   @override
   Future<void> saveSuccessDate(String date) async {
     await (await SharedPreferences.getInstance()).setString(_key, date);
+  }
+
+  /// Vergeet de laatste gelukte push. Alleen voor testen.
+  Future<void> clear() async {
+    await (await SharedPreferences.getInstance()).remove(_key);
   }
 }
 
@@ -64,6 +70,11 @@ class SyncScheduler {
       }
       final result = await _engine.pushDirty();
       lastResult = result;
+      if (kDebugMode) {
+        debugPrint('[sync] ok=${result.ok} pushed=${result.pushed} '
+            'noConsent=${result.skippedNoConsent} table=${result.failedTable} '
+            'error=${result.error}');
+      }
       if (result.ok) {
         await _store.saveSuccessDate(today);
         _scheduleNext(retry: false);
