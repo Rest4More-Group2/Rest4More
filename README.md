@@ -38,3 +38,17 @@ opnieuw. Draai hem op een toestel of emulator:
 ```bash
 flutter test integration_test -d <device>
 ```
+
+## Synchronisatie met Supabase (alleen push)
+
+- De serverkant staat in `supabase/migrations/`. Pas die zelf toe na review:
+  `supabase db push`. Zet ook anonieme aanmelding aan in het Supabase
+  dashboard (Authentication > Sign In / Providers), of gebruik
+  `supabase config push`.
+- `lib/data/sync/sync_engine.dart` stuurt rijen met `dirty = 1` naar de server,
+  ouders eerst, en markeert ze pas schoon na een gelukte upload. Er wordt niets
+  verstuurd zonder `cloud_sync_consent_at` in het profiel.
+- `lib/providers/sync_providers.dart` geeft standaard een remote die altijd
+  faalt. Overschrijf `syncRemoteProvider` met `SupabaseSyncRemote(client)` nadat
+  `Supabase.initialize` is aangeroepen.
+- De engine wordt nog nergens automatisch aangeroepen, en er is nog geen pull.
