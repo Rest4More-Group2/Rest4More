@@ -37,6 +37,6 @@ create extension if not exists pg_cron with schema pg_catalog;
 
 select cron.schedule(
   'purge-old-tombstones',
-  '17 3 * * *',
+  '0 3 * * *',
   $$select public.purge_old_tombstones()$$
 );

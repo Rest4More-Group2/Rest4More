@@ -89,6 +89,6 @@ revoke all on function public.purge_abandoned_anonymous_users() from public, ano
 
 select cron.schedule(
   'purge-abandoned-anonymous-users',
-  '47 3 * * *',
+  '0 3 * * *',
   $$select public.purge_abandoned_anonymous_users()$$
 );
