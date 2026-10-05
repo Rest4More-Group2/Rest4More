@@ -1,14 +1,14 @@
+import 'plan_screen.dart';
 import 'package:flutter/material.dart';
-import 'activities_screen.dart';
 
-class RhythmScreen extends StatefulWidget {
-  const RhythmScreen({super.key});
+class ActivitiesScreen extends StatefulWidget {
+  const ActivitiesScreen({super.key});
 
   @override
-  State<RhythmScreen> createState() => _RhythmScreenState();
+  State<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _RhythmScreenState extends State<RhythmScreen> {
+class _ActivitiesScreenState extends State<ActivitiesScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -16,7 +16,17 @@ class _RhythmScreenState extends State<RhythmScreen> {
   static const Color borderColor = Color(0xFFE7DDD2);
   static const Color yellow = Color(0xFFFFB800);
 
-  int selectedRhythm = 0;
+  final Set<int> selectedActivities = {};
+
+  void toggleActivity(int index) {
+    setState(() {
+      if (selectedActivities.contains(index)) {
+        selectedActivities.remove(index);
+      } else {
+        selectedActivities.add(index);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +41,7 @@ class _RhythmScreenState extends State<RhythmScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Back button
               InkWell(
                 onTap: () {
                   Navigator.pop(context);
@@ -57,8 +68,9 @@ class _RhythmScreenState extends State<RhythmScreen> {
 
               const SizedBox(height: 20),
 
+              // Step indicator
               const Text(
-                'STEP 3 OF 5',
+                'STEP 4 OF 5',
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -68,8 +80,9 @@ class _RhythmScreenState extends State<RhythmScreen> {
 
               const SizedBox(height: 10),
 
+              // Title
               const Text(
-                'When does your day\nusually wind down?',
+                'What kind of activities\nappeal to you?',
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -81,8 +94,8 @@ class _RhythmScreenState extends State<RhythmScreen> {
               const SizedBox(height: 14),
 
               const Text(
-                'Tell us roughly when your energy begins to slip. '
-                'We’ll match your rest plan to your natural rhythm.',
+                'Choose the kinds of restful activities that feel '
+                'natural to you. You can select more than one.',
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -90,62 +103,63 @@ class _RhythmScreenState extends State<RhythmScreen> {
                 ),
               ),
 
-              const SizedBox(height: 26),
+              const SizedBox(height: 28),
 
-              RhythmOptionCard(
-                icon: Icons.wb_twilight_outlined,
-                title: '8:00 – 10:00 PM',
-                description: 'I usually start winding down early.',
-                isSelected: selectedRhythm == 0,
+              // Quiet moments
+              ActivityOptionCard(
+                icon: Icons.self_improvement_rounded,
+                title: 'Quiet moments',
+                description:
+                    'Slow down with a few peaceful minutes away from your screen.',
+                isSelected: selectedActivities.contains(0),
                 onTap: () {
-                  setState(() {
-                    selectedRhythm = 0;
-                  });
+                  toggleActivity(0);
                 },
               ),
 
               const SizedBox(height: 14),
 
-              RhythmOptionCard(
-                icon: Icons.nightlight_outlined,
-                title: '10:00 PM – 12:00 AM',
-                description: 'My evenings usually continue a little longer.',
-                isSelected: selectedRhythm == 1,
+              // Paper reading
+              ActivityOptionCard(
+                icon: Icons.menu_book_rounded,
+                title: 'Paper reading',
+                description:
+                    'Put the phone aside and spend some time with a physical book.',
+                isSelected: selectedActivities.contains(1),
                 onTap: () {
-                  setState(() {
-                    selectedRhythm = 1;
-                  });
+                  toggleActivity(1);
                 },
               ),
 
               const SizedBox(height: 14),
 
-              RhythmOptionCard(
-                icon: Icons.bedtime_outlined,
-                title: 'After midnight',
-                description: 'I normally wind down quite late at night.',
-                isSelected: selectedRhythm == 2,
+              // Breathing
+              ActivityOptionCard(
+                icon: Icons.air_rounded,
+                title: 'Evening breathing routines',
+                description:
+                    'Use simple breathing exercises to settle your body and mind.',
+                isSelected: selectedActivities.contains(2),
                 onTap: () {
-                  setState(() {
-                    selectedRhythm = 2;
-                  });
+                  toggleActivity(2);
                 },
               ),
 
               const Spacer(),
 
+              // Continue button
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ActivitiesScreen(),
-                      ),
-                    );
-                  },
+                 onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const PlanScreen(),
+    ),
+  );
+},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,
@@ -173,14 +187,14 @@ class _RhythmScreenState extends State<RhythmScreen> {
   }
 }
 
-class RhythmOptionCard extends StatelessWidget {
+class ActivityOptionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const RhythmOptionCard({
+  const ActivityOptionCard({
     super.key,
     required this.icon,
     required this.title,
@@ -200,38 +214,40 @@ class RhythmOptionCard extends StatelessWidget {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: isSelected
-              ? _RhythmScreenState.cardBackground
-              : _RhythmScreenState.background,
+              ? _ActivitiesScreenState.cardBackground
+              : _ActivitiesScreenState.background,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
-                ? _RhythmScreenState.brown
-                : _RhythmScreenState.borderColor,
+                ? _ActivitiesScreenState.brown
+                : _ActivitiesScreenState.borderColor,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
+            // Icon
             Container(
               width: 42,
               height: 42,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? _RhythmScreenState.brown.withValues(alpha: 0.10)
-                    : _RhythmScreenState.cardBackground,
+                    ? _ActivitiesScreenState.brown.withValues(alpha: 0.10)
+                    : _ActivitiesScreenState.cardBackground,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 color: isSelected
-                    ? _RhythmScreenState.yellow
-                    : _RhythmScreenState.brown,
+                    ? _ActivitiesScreenState.yellow
+                    : _ActivitiesScreenState.brown,
                 size: 23,
               ),
             ),
 
             const SizedBox(width: 14),
 
+            // Text
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +255,7 @@ class RhythmOptionCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      color: _RhythmScreenState.darkBrown,
+                      color: _ActivitiesScreenState.darkBrown,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -248,7 +264,7 @@ class RhythmOptionCard extends StatelessWidget {
                   Text(
                     description,
                     style: const TextStyle(
-                      color: _RhythmScreenState.brown,
+                      color: _ActivitiesScreenState.brown,
                       fontSize: 12,
                       height: 1.4,
                     ),
@@ -259,18 +275,19 @@ class RhythmOptionCard extends StatelessWidget {
 
             const SizedBox(width: 10),
 
+            // Selection indicator
             Container(
               width: 20,
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? _RhythmScreenState.brown
+                    ? _ActivitiesScreenState.brown
                     : Colors.transparent,
                 border: Border.all(
                   color: isSelected
-                      ? _RhythmScreenState.brown
-                      : _RhythmScreenState.borderColor,
+                      ? _ActivitiesScreenState.brown
+                      : _ActivitiesScreenState.borderColor,
                 ),
               ),
               child: isSelected
