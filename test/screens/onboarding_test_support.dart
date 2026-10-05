@@ -55,7 +55,7 @@ Future<void> settle(WidgetTester tester) async {
         () => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pump(const Duration(milliseconds: 100));
     // Klaar zodra het laadscherm weg is, plus nog een paar beelden voor de rest.
-    if (i > 3 && find.byType(CircularProgressIndicator).evaluate().isEmpty) {
+    if (i > 15 && find.byType(CircularProgressIndicator).evaluate().isEmpty) {
       break;
     }
   }

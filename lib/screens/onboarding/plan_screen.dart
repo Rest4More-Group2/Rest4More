@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/providers/plan_providers.dart';
 import 'reminder_screen.dart';
 
 class PlanScreen extends ConsumerStatefulWidget {
@@ -208,50 +209,78 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
     );
   }
 
+  /// Dagen per fase, zoals op de tabbladen.
+  static const _ranges = [(1, 4), (5, 9), (10, 14)];
+
   Widget _buildPhaseContent() {
+    // Het echte plan als dat er is, anders de vaste tekst van het ontwerp.
+    final preview = ref.watch(planPreviewProvider).value;
+    final (first, last) = _ranges[selectedPhase];
+    final items = preview == null
+        ? null
+        : [
+            for (final d in preview.daysIn(first, last))
+              _PlanItem('Day ${d.day}: ${d.title}', d.action),
+          ];
+    final reason = preview?.reason;
+
     if (selectedPhase == 0) {
-      return const _PhaseContent(
+      return _PhaseContent(
         icon: Icons.spa_outlined,
         phase: 'PHASE 1',
         title: 'Create some space',
         description:
             'Start small by creating a little distance between you and your phone.',
-        activities: [
-          'Put your phone away for 10 minutes',
-          'Take one quiet moment',
-          'Notice how your evening feels',
-        ],
+        items: items ??
+            const [
+              _PlanItem('Put your phone away for 10 minutes'),
+              _PlanItem('Take one quiet moment'),
+              _PlanItem('Notice how your evening feels'),
+            ],
+        reason: reason,
       );
     }
 
     if (selectedPhase == 1) {
-      return const _PhaseContent(
+      return _PhaseContent(
         icon: Icons.nightlight_outlined,
         phase: 'PHASE 2',
         title: 'Build your rhythm',
         description:
             'Turn your first small steps into a simple evening routine.',
-        activities: [
-          'Begin winding down earlier',
-          'Choose a screen-free activity',
-          'Repeat your evening routine',
-        ],
+        items: items ??
+            const [
+              _PlanItem('Begin winding down earlier'),
+              _PlanItem('Choose a screen-free activity'),
+              _PlanItem('Repeat your evening routine'),
+            ],
+        reason: reason,
       );
     }
 
-    return const _PhaseContent(
+    return _PhaseContent(
       icon: Icons.auto_awesome_outlined,
       phase: 'PHASE 3',
       title: 'Make it yours',
       description:
           'Strengthen the habits that work best for you and your rest.',
-      activities: [
-        'Keep your preferred routine',
-        'Reflect on what helped most',
-        'Prepare for life after day 14',
-      ],
+      items: items ??
+          const [
+            _PlanItem('Keep your preferred routine'),
+            _PlanItem('Reflect on what helped most'),
+            _PlanItem('Prepare for life after day 14'),
+          ],
+      reason: reason,
     );
   }
+}
+
+/// Eén regel in een fase: een titel en eventueel wat de gebruiker die dag doet.
+class _PlanItem {
+  const _PlanItem(this.title, [this.detail]);
+
+  final String title;
+  final String? detail;
 }
 
 class _PhaseContent extends StatelessWidget {
@@ -259,19 +288,25 @@ class _PhaseContent extends StatelessWidget {
   final String phase;
   final String title;
   final String description;
-  final List<String> activities;
+  final List<_PlanItem> items;
+
+  /// Waarom dit plan bij de gebruiker past, als het echte plan bekend is.
+  final String? reason;
 
   const _PhaseContent({
     required this.icon,
     required this.phase,
     required this.title,
     required this.description,
-    required this.activities,
+    required this.items,
+    this.reason,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    // Scrollen, want een fase met echte dagen is langer dan de vaste tekst.
+    return SingleChildScrollView(
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
@@ -322,8 +357,21 @@ class _PhaseContent extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        ...activities.map(
-          (activity) => Padding(
+        if (reason != null) ...[
+          Text(
+            reason!,
+            style: const TextStyle(
+              color: _PlanScreenState.brown,
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        ...items.map(
+          (item) => Padding(
             padding: const EdgeInsets.only(bottom: 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,12 +383,29 @@ class _PhaseContent extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    activity,
-                    style: const TextStyle(
-                      color: _PlanScreenState.darkBrown,
-                      fontSize: 13,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          color: _PlanScreenState.darkBrown,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (item.detail != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.detail!,
+                          style: const TextStyle(
+                            color: _PlanScreenState.darkBrown,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -348,6 +413,7 @@ class _PhaseContent extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }
