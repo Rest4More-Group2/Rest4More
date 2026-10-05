@@ -84,3 +84,16 @@ vlag werkt alleen in debugbuilds.
   gegevens staan, gemarkeerd als nog te uploaden voor een nieuw account.
 - Er is nog geen scherm voor. Back-ups van Supabase kunnen gewiste gegevens nog
   een tijd bevatten, neem dat op in de privacyverklaring.
+
+### Export en verwijdering proberen op de echte server
+
+Alleen debugbuilds. Combineer met `DEBUG_SYNC=true`, zodat er data en
+toestemming zijn:
+
+```bash
+flutter run --dart-define-from-file=env.json --dart-define=DEBUG_SYNC=true --dart-define=DEBUG_GDPR=export
+```
+
+Met `DEBUG_GDPR=delete` wordt daarna ook alles in de cloud gewist. Zonder
+`DEBUG_GDPR` gebeurt er niets. In de console verschijnen regels met `[gdpr]`,
+nooit de inhoud van de gegevens.

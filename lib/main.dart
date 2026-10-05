@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/sync/debug_gdpr.dart';
 import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
@@ -33,6 +34,10 @@ Future<void> main() async {
     await PreferencesSyncStateStore().clear();
     final seeded = await seedDebugData(container.read(databaseProvider));
     debugPrint('[sync] voorbeelddata aangemaakt: $seeded');
+  }
+  const gdprMode = String.fromEnvironment('DEBUG_GDPR');
+  if (kDebugMode && gdprMode.isNotEmpty) {
+    await runDebugGdpr(container, gdprMode);
   }
   // Start de synchronisatie. Zonder Supabase-gegevens doet dit niets.
   container.read(syncSchedulerProvider);
