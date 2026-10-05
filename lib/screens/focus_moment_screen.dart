@@ -19,17 +19,9 @@ class FocusMomentScreen extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: FilledButton(
-              onPressed:
-                  onStartFocus ??
-                  () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'The focus session is not connected yet.',
-                        ),
-                      ),
-                    );
-                  },
+              onPressed: () {
+  Navigator.pushNamed(context, '/prototype');
+},
               style: FilledButton.styleFrom(
                 backgroundColor: RestPalette.primary,
                 foregroundColor: RestPalette.background,
