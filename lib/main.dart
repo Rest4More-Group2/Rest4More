@@ -6,7 +6,7 @@ import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
-import 'screens/today_screen.dart';
+import 'screens/app_shell.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const TodayScreen(),
+       '/': (context) => const AppShell(),
         '/prototype': (context) =>
             const MyHomePage(title: 'AppBlock Prototype'),
         '/block': (context) => const BlockedScreen(),

@@ -3,10 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'make_it_smaller_screen.dart';
 
-/// Add google_fonts with: flutter pub add google_fonts
-/// This screen can be pushed from your existing app; it creates no nested app.
 class TodayScreen extends StatefulWidget {
   const TodayScreen({
     super.key,
@@ -24,28 +23,29 @@ class TodayScreen extends StatefulWidget {
     this.onStartStep,
     this.onMakeSmaller,
     this.onWhyStep,
-    this.onDestinationSelected,
   }) : assert(day >= 1 && day <= totalDays),
-       assert(minutes > 0 && smallerMinutes > 0 && smallerMinutes <= minutes);
+       assert(
+         minutes > 0 &&
+             smallerMinutes > 0 &&
+             smallerMinutes <= minutes,
+       );
 
   final int day;
   final int totalDays;
   final int minutes;
   final int smallerMinutes;
+
   final String greeting;
   final String invitation;
   final String description;
   final String explanation;
 
-  /// Connect this to your actual moment/timer flow. The argument is the
-  /// current duration, including any change made with "Make it smaller".
+  /// Connect this to the actual moment/timer flow.
   final ValueChanged<int>? onStartStep;
-  final ValueChanged<int>? onMakeSmaller;
-  final VoidCallback? onWhyStep;
 
-  /// 0 = Today, 1 = Moments, 2 = Progress, 3 = Profile.
-  /// The parent app owns destination changes and their screens.
-  final ValueChanged<int>? onDestinationSelected;
+  final ValueChanged<int>? onMakeSmaller;
+
+  final VoidCallback? onWhyStep;
 
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -63,44 +63,48 @@ class _TodayScreenState extends State<TodayScreen> {
   @override
   void didUpdateWidget(covariant TodayScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.minutes != widget.minutes || oldWidget.day != widget.day) {
+
+    if (oldWidget.minutes != widget.minutes ||
+        oldWidget.day != widget.day) {
       _minutes = widget.minutes;
     }
   }
 
   Future<void> _makeSmaller() async {
-  final selectedMinutes = await Navigator.push<int>(
-    context,
-    MaterialPageRoute<int>(
-      builder: (context) => MakeItSmallerScreen(
-        originalMinutes: widget.minutes,
-        smallerMinutes: widget.smallerMinutes,
+    final selectedMinutes = await Navigator.push<int>(
+      context,
+      MaterialPageRoute<int>(
+        builder: (context) => MakeItSmallerScreen(
+          originalMinutes: widget.minutes,
+          smallerMinutes: widget.smallerMinutes,
+        ),
       ),
-    ),
-  );
+    );
 
-  if (!mounted || selectedMinutes == null) return;
+    if (!mounted || selectedMinutes == null) return;
 
-  setState(() {
-    _minutes = selectedMinutes;
-  });
+    setState(() {
+      _minutes = selectedMinutes;
+    });
 
-  if (selectedMinutes == widget.smallerMinutes &&
-      selectedMinutes < widget.minutes) {
-    widget.onMakeSmaller?.call(selectedMinutes);
-    _startStep();
+    if (selectedMinutes == widget.smallerMinutes &&
+        selectedMinutes < widget.minutes) {
+      widget.onMakeSmaller?.call(selectedMinutes);
+      _startStep();
+    }
   }
-}
 
   void _startStep() {
     if (widget.onStartStep != null) {
       widget.onStartStep!(_minutes);
       return;
     }
-    // Preview feedback only: a real rest session is not started here.
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Connect onStartStep to your rest session screen.'),
+        content: Text(
+          'Connect onStartStep to your rest session screen.',
+        ),
       ),
     );
   }
@@ -110,6 +114,7 @@ class _TodayScreenState extends State<TodayScreen> {
       widget.onWhyStep!();
       return;
     }
+
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: RestPalette.background,
@@ -117,7 +122,9 @@ class _TodayScreenState extends State<TodayScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (context) => SafeArea(
         top: false,
@@ -127,9 +134,15 @@ class _TodayScreenState extends State<TodayScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Why this step?', style: RestType.serif(30)),
+              Text(
+                'Why this step?',
+                style: RestType.serif(30),
+              ),
               const SizedBox(height: 16),
-              Text(widget.explanation, style: RestType.sans(16)),
+              Text(
+                widget.explanation,
+                style: RestType.sans(16),
+              ),
               const SizedBox(height: 24),
               RestActionButton(
                 label: 'Got it',
@@ -154,26 +167,23 @@ class _TodayScreenState extends State<TodayScreen> {
       ),
       child: Scaffold(
         backgroundColor: RestPalette.background,
-        bottomNavigationBar: RestBottomNavigation(
-          onSelected: (index) {
-            if (widget.onDestinationSelected != null) {
-              widget.onDestinationSelected!(index);
-            } else if (index != 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Connect onDestinationSelected to your tabs.'),
-                ),
-              );
-            }
-          },
-        ),
+
+        // Bottom navigation is NOT handled here anymore.
+        // The AppShell owns the navigation between:
+        // Today, Moments, Progress and Profile.
+
         body: SafeArea(
           bottom: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Reference proportions, with a capped width for larger devices.
-              final width = math.min(constraints.maxWidth, 520.0);
-              final scale = (width / 390).clamp(0.85, 1.34).toDouble();
+              final width = math.min(
+                constraints.maxWidth,
+                520.0,
+              );
+
+              final scale =
+                  (width / 390).clamp(0.85, 1.34).toDouble();
+
               return SingleChildScrollView(
                 child: Align(
                   alignment: Alignment.topCenter,
@@ -181,10 +191,14 @@ class _TodayScreenState extends State<TodayScreen> {
                     width: width,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        24 * scale, 32 * scale, 24 * scale, 40 * scale,
+                        24 * scale,
+                        32 * scale,
+                        24 * scale,
+                        40 * scale,
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.stretch,
                         children: [
                           Text(
                             'DAY ${widget.day} OF ${widget.totalDays}',
@@ -194,39 +208,65 @@ class _TodayScreenState extends State<TodayScreen> {
                               weight: FontWeight.w600,
                             ),
                           ),
+
                           SizedBox(height: 8 * scale),
-                          Text(widget.greeting, style: RestType.serif(40 * scale)),
+
+                          Text(
+                            widget.greeting,
+                            style: RestType.serif(
+                              40 * scale,
+                            ),
+                          ),
+
                           SizedBox(height: 26 * scale),
+
                           InvitationCard(
                             title: widget.invitation,
                             description: widget.description,
                             scale: scale,
                           ),
+
                           SizedBox(height: 46 * scale),
-                          QuietMomentCard(minutes: _minutes, scale: scale),
+
+                          QuietMomentCard(
+                            minutes: _minutes,
+                            scale: scale,
+                          ),
+
                           SizedBox(height: 48 * scale),
+
                           RestActionButton(
                             label: 'Start today’s step',
                             onPressed: _startStep,
                             scale: scale,
                           ),
+
                           SizedBox(height: 22 * scale),
+
                           RestActionButton(
                             label: 'Make it smaller',
                             onPressed: _makeSmaller,
                             outlined: true,
                             scale: scale,
                           ),
+
                           SizedBox(height: 34 * scale),
+
                           Center(
                             child: TextButton(
                               onPressed: _showWhy,
                               style: TextButton.styleFrom(
-                                foregroundColor: RestPalette.accent,
-                                minimumSize: const Size(48, 48),
-                                textStyle: RestType.sans(16 * scale),
+                                foregroundColor:
+                                    RestPalette.accent,
+                                minimumSize:
+                                    const Size(48, 48),
+                                textStyle: RestType.sans(
+                                  16 * scale,
+                                ),
                               ),
-                              child: const Text('Why this step?'),
+                              child: const Text(
+                                'Why this step?',
+                              ),
                             ),
                           ),
                         ],
@@ -243,6 +283,10 @@ class _TodayScreenState extends State<TodayScreen> {
   }
 }
 
+// -----------------------------------------------------------------------------
+// COLORS
+// -----------------------------------------------------------------------------
+
 class RestPalette {
   static const background = Color(0xFFFAF8F5);
   static const surface = Color(0xFFECE7DB);
@@ -253,26 +297,35 @@ class RestPalette {
   static const badge = Color(0xFFF1E0BD);
 }
 
-/// Font families inferred from the screenshot, not extracted from Figma.
+// -----------------------------------------------------------------------------
+// TYPOGRAPHY
+// -----------------------------------------------------------------------------
+
 class RestType {
-  static TextStyle serif(double size) => GoogleFonts.cormorantGaramond(
-    fontSize: size,
-    fontWeight: FontWeight.w400,
-    color: RestPalette.ink,
-    height: 1.12,
-  );
+  static TextStyle serif(double size) =>
+      GoogleFonts.cormorantGaramond(
+        fontSize: size,
+        fontWeight: FontWeight.w400,
+        color: RestPalette.ink,
+        height: 1.12,
+      );
 
   static TextStyle sans(
     double size, {
     Color color = RestPalette.ink,
     FontWeight weight = FontWeight.w400,
-  }) => GoogleFonts.manrope(
-    fontSize: size,
-    fontWeight: weight,
-    color: color,
-    height: 1.45,
-  );
+  }) =>
+      GoogleFonts.manrope(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: 1.45,
+      );
 }
+
+// -----------------------------------------------------------------------------
+// INVITATION CARD
+// -----------------------------------------------------------------------------
 
 class InvitationCard extends StatelessWidget {
   const InvitationCard({
@@ -287,55 +340,107 @@ class InvitationCard extends StatelessWidget {
   final double scale;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.all(20 * scale),
-    decoration: BoxDecoration(
-      color: RestPalette.surface,
-      borderRadius: BorderRadius.circular(18 * scale),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 4 * scale),
-          decoration: const BoxDecoration(
-            color: RestPalette.badge,
-            borderRadius: BorderRadius.all(Radius.circular(100)),
-          ),
-          child: Text(
-            'TODAY’S INVITATION',
-            style: RestType.sans(
-              10.5 * scale,
-              color: RestPalette.primary,
-              weight: FontWeight.w600,
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20 * scale),
+      decoration: BoxDecoration(
+        color: RestPalette.surface,
+        borderRadius: BorderRadius.circular(
+          18 * scale,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10 * scale,
+              vertical: 4 * scale,
+            ),
+            decoration: const BoxDecoration(
+              color: RestPalette.badge,
+              borderRadius: BorderRadius.all(
+                Radius.circular(100),
+              ),
+            ),
+            child: Text(
+              'TODAY’S INVITATION',
+              style: RestType.sans(
+                10.5 * scale,
+                color: RestPalette.primary,
+                weight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 14 * scale),
-        Text(title, style: RestType.serif(27 * scale)),
-        SizedBox(height: 14 * scale),
-        Text(description, style: RestType.sans(14 * scale)),
-      ],
-    ),
-  );
+
+          SizedBox(height: 14 * scale),
+
+          Text(
+            title,
+            style: RestType.serif(
+              27 * scale,
+            ),
+          ),
+
+          SizedBox(height: 14 * scale),
+
+          Text(
+            description,
+            style: RestType.sans(
+              14 * scale,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
+// -----------------------------------------------------------------------------
+// QUIET MOMENT CARD
+// -----------------------------------------------------------------------------
+
 class QuietMomentCard extends StatelessWidget {
-  const QuietMomentCard({super.key, required this.minutes, this.scale = 1});
+  const QuietMomentCard({
+    super.key,
+    required this.minutes,
+    this.scale = 1,
+  });
+
   final int minutes;
   final double scale;
 
   @override
-  Widget build(BuildContext context) => Container(
-    constraints: BoxConstraints(minHeight: 66 * scale),
-    padding: EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 20 * scale),
-    decoration: BoxDecoration(
-      border: Border.all(color: RestPalette.border),
-      borderRadius: BorderRadius.circular(18 * scale),
-    ),
-    child: Text('$minutes minute quiet moment', style: RestType.serif(22 * scale)),
-  );
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 66 * scale,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 20 * scale,
+        vertical: 20 * scale,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: RestPalette.border,
+        ),
+        borderRadius: BorderRadius.circular(
+          18 * scale,
+        ),
+      ),
+      child: Text(
+        '$minutes minute quiet moment',
+        style: RestType.serif(
+          22 * scale,
+        ),
+      ),
+    );
+  }
 }
+
+// -----------------------------------------------------------------------------
+// ACTION BUTTON
+// -----------------------------------------------------------------------------
 
 class RestActionButton extends StatelessWidget {
   const RestActionButton({
@@ -345,6 +450,7 @@ class RestActionButton extends StatelessWidget {
     this.outlined = false,
     this.scale = 1,
   });
+
   final String label;
   final VoidCallback onPressed;
   final bool outlined;
@@ -353,144 +459,58 @@ class RestActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = ButtonStyle(
-      minimumSize: WidgetStatePropertyAll(Size(double.infinity, 52 * scale)),
-      padding: WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 20 * scale, vertical: 13 * scale),
-      ),
-      textStyle: WidgetStatePropertyAll(
-        RestType.sans(16 * scale, weight: FontWeight.w600),
-      ),
-      foregroundColor: WidgetStatePropertyAll(
-        outlined ? RestPalette.primary : RestPalette.background,
-      ),
-      backgroundColor: WidgetStatePropertyAll(
-        outlined ? Colors.transparent : RestPalette.primary,
-      ),
-      shape: const WidgetStatePropertyAll(StadiumBorder()),
-      side: WidgetStatePropertyAll(
-        outlined ? const BorderSide(color: RestPalette.primary) : BorderSide.none,
-      ),
-      elevation: const WidgetStatePropertyAll(0),
-    );
-    return outlined
-        ? OutlinedButton(onPressed: onPressed, style: style, child: Text(label))
-        : FilledButton(onPressed: onPressed, style: style, child: Text(label));
-  }
-}
-
-class RestBottomNavigation extends StatelessWidget {
-  const RestBottomNavigation({super.key, required this.onSelected});
-  final ValueChanged<int> onSelected;
-  static const _labels = ['Today', 'Moments', 'Progress', 'Profile'];
-
-  @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
-      color: RestPalette.surface,
-      border: Border(top: BorderSide(color: RestPalette.border)),
-    ),
-    child: SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 6, 4, 8),
-        child: Row(
-          children: List.generate(4, (index) {
-            final color = index == 0 ? RestPalette.primary : RestPalette.accent;
-            return Expanded(
-              child: Semantics(
-                selected: index == 0,
-                child: TextButton(
-                  onPressed: () => onSelected(index),
-                  style: TextButton.styleFrom(
-                    foregroundColor: color,
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ExcludeSemantics(
-                        child: SizedBox.square(
-                          dimension: 24,
-                          child: CustomPaint(painter: _RestIconPainter(index, color)),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(_labels[index], style: RestType.sans(11, color: color)),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
+      minimumSize: WidgetStatePropertyAll(
+        Size(
+          double.infinity,
+          52 * scale,
         ),
       ),
-    ),
-  );
-}
+      padding: WidgetStatePropertyAll(
+        EdgeInsets.symmetric(
+          horizontal: 20 * scale,
+          vertical: 13 * scale,
+        ),
+      ),
+      textStyle: WidgetStatePropertyAll(
+        RestType.sans(
+          16 * scale,
+          weight: FontWeight.w600,
+        ),
+      ),
+      foregroundColor: WidgetStatePropertyAll(
+        outlined
+            ? RestPalette.primary
+            : RestPalette.background,
+      ),
+      backgroundColor: WidgetStatePropertyAll(
+        outlined
+            ? Colors.transparent
+            : RestPalette.primary,
+      ),
+      shape: const WidgetStatePropertyAll(
+        StadiumBorder(),
+      ),
+      side: WidgetStatePropertyAll(
+        outlined
+            ? const BorderSide(
+                color: RestPalette.primary,
+              )
+            : BorderSide.none,
+      ),
+      elevation:
+          const WidgetStatePropertyAll(0),
+    );
 
-/// Original vector drawings approximating the four outline icons in the design.
-class _RestIconPainter extends CustomPainter {
-  const _RestIconPainter(this.index, this.color);
-  final int index;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.scale(size.width / 24, size.height / 24);
-    final pen = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.9
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-    switch (index) {
-      case 0:
-        canvas.drawCircle(const Offset(12, 12), 3.6, pen);
-        for (var i = 0; i < 8; i++) {
-          final angle = i * math.pi / 4;
-          canvas.drawLine(
-            Offset(12 + 7.3 * math.cos(angle), 12 + 7.3 * math.sin(angle)),
-            Offset(12 + 9.6 * math.cos(angle), 12 + 9.6 * math.sin(angle)),
-            pen,
+    return outlined
+        ? OutlinedButton(
+            onPressed: onPressed,
+            style: style,
+            child: Text(label),
+          )
+        : FilledButton(
+            onPressed: onPressed,
+            style: style,
+            child: Text(label),
           );
-        }
-        break;
-      case 1:
-        for (final y in [5.0, 9.0, 13.0]) {
-          canvas.drawOval(Rect.fromCenter(center: Offset(9.5, y), width: 5, height: 5), pen);
-          canvas.drawOval(Rect.fromCenter(center: Offset(14.5, y), width: 5, height: 5), pen);
-        }
-        canvas.drawLine(const Offset(12, 15), const Offset(12, 21), pen);
-        canvas.drawPath(
-          Path()..moveTo(12, 20)..quadraticBezierTo(6, 21, 6, 16)
-            ..quadraticBezierTo(11, 16, 12, 20)
-            ..quadraticBezierTo(18, 21, 18, 16)
-            ..quadraticBezierTo(13, 16, 12, 20),
-          pen,
-        );
-        break;
-      case 2:
-        canvas.drawCircle(const Offset(12, 12), 9, pen);
-        canvas.drawPath(
-          Path()..moveTo(16, 7)..lineTo(14, 14)..lineTo(8, 17)
-            ..lineTo(10, 10)..close(),
-          pen,
-        );
-        break;
-      case 3:
-        canvas.drawCircle(const Offset(12, 7.5), 4, pen);
-        canvas.drawPath(
-          Path()..moveTo(4.5, 21)..cubicTo(4.5, 10, 19.5, 10, 19.5, 21),
-          pen,
-        );
-        break;
-    }
-    canvas.restore();
   }
-
-  @override
-  bool shouldRepaint(covariant _RestIconPainter oldDelegate) =>
-      oldDelegate.index != index || oldDelegate.color != color;
 }
