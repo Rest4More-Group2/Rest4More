@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
 import '../database/enums.dart';
+import 'consent_repository.dart';
 import 'repository_support.dart';
 
 /// Antwoorden die worden bijgewerkt. Alleen velden die niet null zijn worden
@@ -64,10 +65,28 @@ class ProfileDraft {
   }
 }
 
+/// Cloudsynchronisatie mag niet voor deze gebruiker (leeftijd onbekend of
+/// jonger dan 16).
+class CloudSyncNotAllowedError implements Exception {
+  const CloudSyncNotAllowedError();
+
+  @override
+  String toString() => 'CloudSyncNotAllowedError';
+}
+
 /// Het profiel van de gebruiker. Er is precies een rij, die bij eerste gebruik
 /// wordt aangemaakt.
 class ProfileRepository {
   ProfileRepository(this._db, {this._now = DateTime.now});
+
+  /// Cloudsynchronisatie vraagt een bekende leeftijd van 16 of ouder. De
+  /// Nederlandse leeftijd voor digitale toestemming is 16 (AVG art. 8).
+  static bool isCloudSyncAllowedFor(AgeBand? band) =>
+      band == AgeBand.age16To17 ||
+      band == AgeBand.age18To24 ||
+      band == AgeBand.age25To39 ||
+      band == AgeBand.age40To54 ||
+      band == AgeBand.age55Plus;
 
   final AppDatabase _db;
   final Clock _now;
@@ -106,14 +125,33 @@ class ProfileRepository {
     ));
   }
 
-  Future<void> upsert(ProfileDraft draft) => _write(draft._toCompanion());
+  Future<void> upsert(ProfileDraft draft) => _writeAnswers(draft._toCompanion(), draft);
+
+  /// Schrijft antwoorden. Wordt de leeftijd onder de grens gezet terwijl er
+  /// toestemming is, dan wordt die toestemming meteen ingetrokken. De data in
+  /// de cloud moet de aanroeper apart laten wissen (`CloudDataService`).
+  Future<void> _writeAnswers(ProfilesCompanion changes, ProfileDraft? draft) {
+    return _db.transaction(() async {
+      final band = draft?.ageBand;
+      final blocked = band != null && !isCloudSyncAllowedFor(band);
+      final profile = await get();
+      final withdraw = blocked && profile.cloudSyncConsentAt != null;
+      await _write(withdraw
+          ? changes.copyWith(cloudSyncConsentAt: const Value(null))
+          : changes);
+      if (withdraw) {
+        await ConsentRepository(_db, now: _now)
+            .record(ConsentPurpose.cloudSync, ConsentStatus.withdrawn);
+      }
+    });
+  }
 
   /// Bewaart de voortgang van de intake, zodat die na een onderbreking kan
   /// hervatten.
   Future<void> saveIntakeStep(int step, {ProfileDraft? answers}) async {
     if (step < 0) throw InvalidValueError('step mag niet negatief zijn: $step');
     final base = answers?._toCompanion() ?? const ProfilesCompanion();
-    await _write(base.copyWith(intakeStep: Value(step)));
+    await _writeAnswers(base.copyWith(intakeStep: Value(step)), answers);
   }
 
   Future<void> completeIntake() =>
@@ -127,9 +165,25 @@ class ProfileRepository {
     ));
   }
 
-  /// Zet het moment van toestemming voor synchronisatie. Null trekt de
-  /// toestemming in.
-  Future<void> recordCloudSyncConsent(DateTime? at) => _write(
-        ProfilesCompanion(cloudSyncConsentAt: Value(at?.toUtc())),
+  /// Zet het moment van toestemming voor synchronisatie en legt het vast als
+  /// bewijs, met de versie van de privacytekst. Null trekt de toestemming in.
+  /// Gooit [CloudSyncNotAllowedError] als de leeftijd onbekend is of onder de
+  /// 16 ligt.
+  Future<void> recordCloudSyncConsent(
+    DateTime? at, {
+    String policyVersion = currentCloudSyncPolicyVersion,
+  }) {
+    return _db.transaction(() async {
+      final profile = await get();
+      if (at != null && !isCloudSyncAllowedFor(profile.ageBand)) {
+        throw const CloudSyncNotAllowedError();
+      }
+      await _write(ProfilesCompanion(cloudSyncConsentAt: Value(at?.toUtc())));
+      await ConsentRepository(_db, now: _now).record(
+        ConsentPurpose.cloudSync,
+        at == null ? ConsentStatus.withdrawn : ConsentStatus.granted,
+        policyVersion: policyVersion,
       );
+    });
+  }
 }

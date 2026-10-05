@@ -97,8 +97,9 @@ class SyncScheduler {
       if (result.ok) {
         await _store.saveSuccessDate(today);
         _scheduleNext(retry: false);
-      } else if (result.skippedNoConsent) {
-        // Geen toestemming: niets te doen, we kijken bij de volgende start.
+      } else if (result.skippedNoConsent || result.skippedAgeGate) {
+        // Geen toestemming of leeftijdsgrens: niets te doen, we kijken bij de
+        // volgende start.
       } else {
         _scheduleNext(retry: true);
       }

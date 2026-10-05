@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:rest4more/data/database/app_database.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/repositories/focus_session_repository.dart';
+import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/programme_repository.dart';
 
 /// Klok die tests zelf laten lopen.
@@ -57,4 +58,12 @@ Future<String> enrollWithDays(ProgrammeRepository repo) async {
       ),
   ]);
   return enrollment.id;
+}
+
+/// Geeft toestemming voor cloudsynchronisatie. Zet eerst een leeftijd van 16
+/// of ouder, want zonder die weigert de leeftijdsgrens de toestemming.
+Future<void> grantConsent(AppDatabase db, {DateTime? at, DateTime Function()? now}) async {
+  final repo = ProfileRepository(db, now: now ?? DateTime.now);
+  await repo.upsert(const ProfileDraft(ageBand: AgeBand.age25To39));
+  await repo.recordCloudSyncConsent(at ?? DateTime.now());
 }

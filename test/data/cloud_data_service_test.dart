@@ -25,7 +25,7 @@ void main() {
     state = MemoryStateStore()..date = '2026-03-02';
     profiles = ProfileRepository(db);
     service = CloudDataService(db, remote, state, profiles);
-    await profiles.recordCloudSyncConsent(DateTime.now());
+    await grantConsent(db);
     await RoutineRepository(db).create(mode: 'focus', name: 'Avond');
   });
   tearDown(() => db.close());
@@ -89,7 +89,7 @@ void main() {
     expect(result.skippedNoConsent, isTrue);
     expect(remote.calls, isEmpty);
 
-    await profiles.recordCloudSyncConsent(DateTime.now());
+    await grantConsent(db);
     await SyncEngine(db, remote).pushDirty();
     expect(remote.rowsOf('routines'), hasLength(1));
   });

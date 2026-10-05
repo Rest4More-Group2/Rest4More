@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
-import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/sync_engine.dart';
 
@@ -15,14 +14,15 @@ void main() {
 
   test('voorbeelddata vult elke tabel en gaat in een keer naar de server',
       () async {
-    await ProfileRepository(db).recordCloudSyncConsent(DateTime.now());
     expect(await seedDebugData(db), isTrue);
+    await grantConsent(db);
 
     final remote = FakeRemote();
     final result = await SyncEngine(db, remote).pushDirty();
     expect(result.ok, isTrue);
     expect(remote.tables, [
       'profiles',
+      'consent_records',
       'block_profiles',
       'routines',
       'accessories',

@@ -382,3 +382,24 @@ enum EntitlementStatus implements DbEnum {
   @override
   final String id;
 }
+
+enum ConsentPurpose implements DbEnum {
+  cloudSync('cloud_sync'),
+  unknown('unknown');
+
+  const ConsentPurpose(this.id);
+
+  @override
+  final String id;
+}
+
+enum ConsentStatus implements DbEnum {
+  granted('granted'),
+  withdrawn('withdrawn'),
+  unknown('unknown');
+
+  const ConsentStatus(this.id);
+
+  @override
+  final String id;
+}

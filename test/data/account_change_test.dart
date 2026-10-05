@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
-import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/routine_repository.dart';
 import 'package:rest4more/data/sync/sync_engine.dart';
 
@@ -19,7 +18,7 @@ void main() {
     remote = FakeRemote();
     state = MemoryStateStore();
     engine = SyncEngine(db, remote, state: state);
-    await ProfileRepository(db).recordCloudSyncConsent(DateTime.now());
+    await grantConsent(db);
     await RoutineRepository(db).create(mode: 'focus', name: 'Avond');
   });
   tearDown(() => db.close());

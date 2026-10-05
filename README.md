@@ -119,3 +119,19 @@ nooit de inhoud van de gegevens.
 - Komt een opgeruimde gebruiker terug, dan maakt de app een nieuw anoniem
   account en stuurt alle lokale gegevens opnieuw mee (`SyncEngine` onthoudt
   het laatste account-id).
+
+## Leeftijdsgrens en bewijs van toestemming
+
+- **Onder de 16 geen cloudsync** (Nederlandse leeftijd voor digitale toestemming,
+  AVG art. 8). Zonder bekende leeftijd ook niet. Dit wordt op drie plaatsen
+  afgedwongen: `ProfileRepository.recordCloudSyncConsent` weigert (gooit
+  `CloudSyncNotAllowedError`), een leeftijd onder 16 trekt bestaande toestemming
+  meteen in, en `SyncEngine` verstuurt niets (`PushResult.skippedAgeGate`). Data
+  die al in de cloud staat moet de aanroeper apart laten wissen met
+  `CloudDataService.deleteCloudData()`.
+- **Bewijs van toestemming**: elke toestemming of intrekking wordt als rij in
+  `consent_records` vastgelegd, met de tekstversie
+  (`currentCloudSyncPolicyVersion`). Verhoog die versie als de privacytekst
+  verandert; `ConsentRepository.needsReconsent` laat dan opnieuw vragen. De
+  tabel gaat mee naar de server (`20261005000005_consent_records.sql`).
+- Lokaal schema is nu versie 2, met een geteste migratie van v1.

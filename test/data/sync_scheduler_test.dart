@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
-import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/routine_repository.dart';
 import 'package:rest4more/data/sync/sync_engine.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
@@ -36,8 +35,7 @@ void main() {
   late TestClock clock;
   late SyncScheduler scheduler;
 
-  Future<void> consent() =>
-      ProfileRepository(db).recordCloudSyncConsent(DateTime.now());
+  Future<void> consent() => grantConsent(db);
 
   setUp(() {
     db = memoryDb();

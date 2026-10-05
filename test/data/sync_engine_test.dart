@@ -4,7 +4,6 @@ import 'package:rest4more/data/database/converters.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/repositories/block_profile_repository.dart';
 import 'package:rest4more/data/repositories/focus_session_repository.dart';
-import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/routine_repository.dart';
 import 'package:rest4more/data/sync/sync_engine.dart';
 import 'package:rest4more/data/sync/sync_remote.dart';
@@ -75,7 +74,7 @@ void main() {
   tearDown(() => db.close());
 
   Future<void> consent() =>
-      ProfileRepository(db, now: clock.call).recordCloudSyncConsent(clock.current);
+      grantConsent(db, at: clock.current, now: clock.call);
 
   Future<int> dirtyCount(String table) async {
     final rows = await db
@@ -109,11 +108,22 @@ void main() {
 
     final result = await engine.pushDirty();
     expect(result.ok, isTrue);
-    expect(result.pushed, 4);
+    expect(result.pushed, 5);
     expect(remote.signedIn, 1);
-    expect(remote.tables,
-        ['profiles', 'block_profiles', 'routines', 'focus_sessions']);
-    for (final t in ['profiles', 'block_profiles', 'routines', 'focus_sessions']) {
+    expect(remote.tables, [
+      'profiles',
+      'consent_records',
+      'block_profiles',
+      'routines',
+      'focus_sessions',
+    ]);
+    for (final t in [
+      'profiles',
+      'consent_records',
+      'block_profiles',
+      'routines',
+      'focus_sessions',
+    ]) {
       expect(await dirtyCount(t), 0, reason: t);
     }
   });
@@ -242,7 +252,7 @@ void main() {
       await repo.create(mode: 'focus', name: 'r$i');
     }
     final result = await SyncEngine(db, remote, batchSize: 2).pushDirty();
-    expect(result.pushed, 6);
+    expect(result.pushed, 7);
     expect(remote.rowsOf('routines'), hasLength(5));
     expect(await dirtyCount('routines'), 0);
   });

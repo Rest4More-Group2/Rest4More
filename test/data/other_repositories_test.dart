@@ -101,6 +101,7 @@ void main() {
 
     test('meldingen en toestemming', () async {
       final repo = ProfileRepository(db, now: clock.call);
+      await repo.upsert(const ProfileDraft(ageBand: AgeBand.age25To39));
       await repo.setNotification(enabled: true, minutes: 20 * 60 + 30);
       final profile = await repo.get();
       expect(profile.notifyProgramme, isTrue);

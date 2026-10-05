@@ -6,6 +6,7 @@ import 'converters.dart';
 import 'enums.dart';
 import 'tables/accessories.dart';
 import 'tables/block_profiles.dart';
+import 'tables/consent_records.dart';
 import 'tables/entitlements.dart';
 import 'tables/focus_sessions.dart';
 import 'tables/ios_selections.dart';
@@ -32,13 +33,14 @@ part 'app_database.g.dart';
   ProgrammeDays,
   LocalNotifications,
   Entitlements,
+  ConsentRecords,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? driftDatabase(name: 'restformore'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -60,8 +62,13 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           // Gewoonte bij elke schemawijziging: verhoog `schemaVersion`, voeg
           // precies een stap toe voor die versie, en maak een nieuwe dump met
-          // `dart run drift_dev schema dump lib/data/database/app_database.dart
-          // drift_schemas/`. Oude dumps blijven staan voor de migratietests.
+          // `flutter pub run drift_dev schema dump
+          // lib/data/database/app_database.dart drift_schemas/`. Oude dumps
+          // blijven staan voor de migratietests.
+          if (from < 2) {
+            // v2: bewijs van toestemming.
+            await m.createTable(consentRecords);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

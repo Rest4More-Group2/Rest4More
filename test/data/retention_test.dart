@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/repositories/focus_session_repository.dart';
-import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/programme_repository.dart';
 import 'package:rest4more/data/repositories/routine_repository.dart';
 import 'package:rest4more/data/sync/retention_service.dart';
@@ -59,8 +58,7 @@ void main() {
 
   test('met toestemming blijft een nog niet gepushte verwijdering staan',
       () async {
-    await ProfileRepository(db, now: clock.call)
-        .recordCloudSyncConsent(clock.current);
+    await grantConsent(db, at: clock.current, now: clock.call);
     await deletedRoutine(DateTime(2023, 1, 1), dirty: true);
     await deletedRoutine(DateTime(2023, 1, 1), dirty: false);
     await retention.purgeOldTombstones();

@@ -12,6 +12,7 @@ class PushResult {
   const PushResult({
     this.pushed = 0,
     this.skippedNoConsent = false,
+    this.skippedAgeGate = false,
     this.failedTable,
     this.error,
   });
@@ -20,10 +21,13 @@ class PushResult {
 
   /// Er is geen toestemming voor synchronisatie, dus er is niets verstuurd.
   final bool skippedNoConsent;
+
+  /// De leeftijd is onbekend of onder de 16, dus er is niets verstuurd.
+  final bool skippedAgeGate;
   final String? failedTable;
   final Object? error;
 
-  bool get ok => error == null && !skippedNoConsent;
+  bool get ok => error == null && !skippedNoConsent && !skippedAgeGate;
 }
 
 class _SyncTable {
@@ -66,6 +70,7 @@ class SyncEngine {
   late final List<_SyncTable> _tables = [
     _SyncTable('profiles', _db.profiles,
         bools: {'owns_restnest', 'owns_card', 'notify_programme'}),
+    _SyncTable('consent_records', _db.consentRecords),
     _SyncTable('block_profiles', _db.blockProfiles, json: {'items': <Object?>[]}),
     _SyncTable('routines', _db.routines,
         bools: {'auto_start', 'enabled'}, json: {'steps': null}),
@@ -78,20 +83,30 @@ class SyncEngine {
         json: {'snapshot': <String, Object?>{}}),
   ];
 
-  Future<bool> _hasConsent() async {
+  /// Mag er gesynchroniseerd worden? Vraagt toestemming en een bekende
+  /// leeftijd van 16 of ouder (AVG art. 8, Nederlandse grens).
+  Future<({bool consent, bool ageOk})> _gate() async {
     final rows = await _db
         .customSelect(
-          'SELECT 1 AS ok FROM profiles WHERE deleted_at IS NULL '
-          'AND cloud_sync_consent_at IS NOT NULL LIMIT 1',
+          'SELECT cloud_sync_consent_at, age_band FROM profiles '
+          'WHERE deleted_at IS NULL LIMIT 1',
           readsFrom: {_db.profiles},
         )
         .get();
-    return rows.isNotEmpty;
+    if (rows.isEmpty) return (consent: false, ageOk: false);
+    final row = rows.single;
+    const adult = {'16_17', '18_24', '25_39', '40_54', '55_plus'};
+    return (
+      consent: row.read<String?>('cloud_sync_consent_at') != null,
+      ageOk: adult.contains(row.read<String?>('age_band')),
+    );
   }
 
   /// Stuurt alle `dirty` rijen. Doet niets zonder toestemming.
   Future<PushResult> pushDirty() async {
-    if (!await _hasConsent()) return const PushResult(skippedNoConsent: true);
+    final gate = await _gate();
+    if (!gate.consent) return const PushResult(skippedNoConsent: true);
+    if (!gate.ageOk) return const PushResult(skippedAgeGate: true);
 
     var pushed = 0;
     String? current;

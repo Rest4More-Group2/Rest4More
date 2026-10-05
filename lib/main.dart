@@ -28,12 +28,14 @@ Future<void> main() async {
   if (kDebugMode && const bool.fromEnvironment('DEBUG_SYNC')) {
     // Alleen om de synchronisatie te testen voordat er een toestemmingsscherm
     // is: geef toestemming en vergeet dat er vandaag al gepusht is.
+    // Eerst de voorbeelddata: die zet een leeftijd van 16 of ouder, anders
+    // weigert de leeftijdsgrens de toestemming.
+    final seeded = await seedDebugData(container.read(databaseProvider));
+    debugPrint('[sync] voorbeelddata aangemaakt: $seeded');
     await container
         .read(profileRepositoryProvider)
         .recordCloudSyncConsent(DateTime.now());
     await PreferencesSyncStateStore().clear();
-    final seeded = await seedDebugData(container.read(databaseProvider));
-    debugPrint('[sync] voorbeelddata aangemaakt: $seeded');
   }
   const gdprMode = String.fromEnvironment('DEBUG_GDPR');
   if (kDebugMode && gdprMode.isNotEmpty) {

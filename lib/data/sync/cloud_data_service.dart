@@ -18,6 +18,7 @@ class CloudDataService {
 
   static const _syncedTables = [
     'profiles',
+    'consent_records',
     'block_profiles',
     'routines',
     'accessories',
