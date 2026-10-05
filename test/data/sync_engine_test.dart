@@ -16,6 +16,19 @@ class FakeRemote implements SyncRemote {
   Object? failWith;
   void Function()? onUpsert;
   var signedIn = 0;
+  var activity = 0;
+  Object? activityFails;
+
+  String? userId = 'user-1';
+
+  @override
+  String? get currentUserId => userId;
+
+  @override
+  Future<void> recordActivity() async {
+    if (activityFails != null) throw activityFails!;
+    activity++;
+  }
 
   @override
   Future<void> ensureSignedIn() async => signedIn++;

@@ -6,6 +6,13 @@ abstract interface class SyncRemote {
   /// Zorgt voor een sessie, zodat de server `user_id` kan vullen.
   Future<void> ensureSignedIn();
 
+  /// Id van de ingelogde gebruiker op de server, of null zonder sessie.
+  String? get currentUserId;
+
+  /// Laat de server weten dat dit account nog in gebruik is, zodat het niet
+  /// als verlaten wordt opgeruimd.
+  Future<void> recordActivity();
+
   /// Voegt rijen toe of werkt ze bij op `id`.
   Future<void> upsert(String table, List<Map<String, Object?>> rows);
 
@@ -28,6 +35,12 @@ class SyncUnavailableError implements Exception {
 
 class UnavailableSyncRemote implements SyncRemote {
   const UnavailableSyncRemote();
+
+  @override
+  String? get currentUserId => null;
+
+  @override
+  Future<void> recordActivity() => throw const SyncUnavailableError();
 
   @override
   Future<void> ensureSignedIn() => throw const SyncUnavailableError();
@@ -55,6 +68,14 @@ class SupabaseSyncRemote implements SyncRemote {
     if (_client.auth.currentSession == null) {
       await _client.auth.signInAnonymously();
     }
+  }
+
+  @override
+  String? get currentUserId => _client.auth.currentUser?.id;
+
+  @override
+  Future<void> recordActivity() async {
+    await _client.rpc('record_activity');
   }
 
   @override

@@ -19,6 +19,14 @@ class MemoryStateStore implements SyncStateStore {
 
   @override
   Future<void> clear() async => date = null;
+
+  String? userId;
+
+  @override
+  Future<String?> lastUserId() async => userId;
+
+  @override
+  Future<void> saveUserId(String id) async => userId = id;
 }
 
 void main() {

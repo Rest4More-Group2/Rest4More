@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
+import 'sync_scheduler.dart';
 import 'sync_remote.dart';
 
 /// Uitkomst van een push. Fouten worden teruggegeven, niet gegooid: de rijen
@@ -49,10 +50,16 @@ class _SyncTable {
 /// `dirty` en geen `user_id` in de payload, de server vult die. Entitlements
 /// en de lokale-only tabellen worden nooit verstuurd.
 class SyncEngine {
-  SyncEngine(this._db, this._remote, {this.batchSize = 100});
+  SyncEngine(
+    this._db,
+    this._remote, {
+    this.batchSize = 100,
+    this._state,
+  });
 
   final AppDatabase _db;
   final SyncRemote _remote;
+  final SyncStateStore? _state;
   final int batchSize;
 
   /// Ouders eerst, want kinderen verwijzen naar hun rij op de server.
@@ -90,13 +97,50 @@ class SyncEngine {
     String? current;
     try {
       await _remote.ensureSignedIn();
+      await _handleAccountChange();
       for (final table in _tables) {
         current = table.name;
         pushed += await _pushTable(table);
       }
+      await _recordActivity();
       return PushResult(pushed: pushed);
     } on Exception catch (error) {
       return PushResult(pushed: pushed, failedTable: current, error: error);
+    }
+  }
+
+  /// Als het serveraccount een ander is dan de vorige keer (bijvoorbeeld omdat
+  /// het oude als verlaten is opgeruimd), bestaan de lokale gegevens daar niet.
+  /// Markeer ze dan allemaal opnieuw als te versturen.
+  Future<void> _handleAccountChange() async {
+    final state = _state;
+    final userId = _remote.currentUserId;
+    if (state == null || userId == null) return;
+    final previous = await state.lastUserId();
+    if (previous != null && previous != userId) await markAllDirty();
+    if (previous != userId) await state.saveUserId(userId);
+  }
+
+  /// Markeert alle gesynchroniseerde rijen als nog te versturen.
+  Future<void> markAllDirty() async {
+    await _db.transaction(() async {
+      for (final table in _tables) {
+        await _db.customUpdate(
+          'UPDATE ${table.name} SET dirty = 1',
+          updates: {table.table},
+          updateKind: UpdateKind.update,
+        );
+      }
+    });
+  }
+
+  /// Dagelijkse hartslag naar de server. Mislukt dit, dan is de push zelf
+  /// nog steeds gelukt.
+  Future<void> _recordActivity() async {
+    try {
+      await _remote.recordActivity();
+    } on Exception {
+      // Niet kritiek: de volgende dagelijkse push probeert het opnieuw.
     }
   }
 

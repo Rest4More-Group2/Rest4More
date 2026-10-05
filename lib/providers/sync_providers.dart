@@ -15,7 +15,11 @@ final syncRemoteProvider =
     Provider<SyncRemote>((ref) => const UnavailableSyncRemote());
 
 final syncEngineProvider = Provider(
-  (ref) => SyncEngine(ref.watch(databaseProvider), ref.watch(syncRemoteProvider)),
+  (ref) => SyncEngine(
+    ref.watch(databaseProvider),
+    ref.watch(syncRemoteProvider),
+    state: PreferencesSyncStateStore(),
+  ),
 );
 
 /// Pusht hooguit een keer per dag, bij het openen van de app. Doet niets

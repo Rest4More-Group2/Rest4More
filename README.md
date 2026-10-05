@@ -106,3 +106,16 @@ nooit de inhoud van de gegevens.
 - Server: `supabase/migrations/20261005000003_purge_old_tombstones.sql` maakt
   `purge_old_tombstones()` en plant die dagelijks om 03:17 met `pg_cron`. Zet
   de extensie `pg_cron` zo nodig eerst aan in het dashboard (Integrations).
+
+## Verlaten anonieme accounts
+
+- `supabase/migrations/20261005000004_abandoned_anonymous_accounts.sql` wist
+  dagelijks (03:47, `pg_cron`) anonieme accounts zonder activiteit in 12
+  maanden, met al hun gegevens. Activiteit is de laatste van aanmaken, laatste
+  aanmelding, laatste sessie en `profiles.synced_at`.
+- De app raakt `profiles.synced_at` dagelijks aan via `record_activity()` na
+  een gelukte push, ook als er niets te uploaden valt. Zonder toestemming voor
+  synchronisatie is er geen servercopy en dus ook geen account om op te ruimen.
+- Komt een opgeruimde gebruiker terug, dan maakt de app een nieuw anoniem
+  account en stuurt alle lokale gegevens opnieuw mee (`SyncEngine` onthoudt
+  het laatste account-id).

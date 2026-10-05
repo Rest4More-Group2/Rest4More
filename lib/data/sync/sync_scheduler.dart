@@ -15,6 +15,11 @@ abstract interface class SyncStateStore {
 
   /// Vergeet de laatste gelukte push.
   Future<void> clear();
+
+  /// Id van het serveraccount waar de lokale gegevens het laatst naartoe
+  /// zijn gestuurd.
+  Future<String?> lastUserId();
+  Future<void> saveUserId(String id);
 }
 
 class PreferencesSyncStateStore implements SyncStateStore {
@@ -27,6 +32,17 @@ class PreferencesSyncStateStore implements SyncStateStore {
   @override
   Future<void> saveSuccessDate(String date) async {
     await (await SharedPreferences.getInstance()).setString(_key, date);
+  }
+
+  static const _userKey = 'sync_last_user_id';
+
+  @override
+  Future<String?> lastUserId() async =>
+      (await SharedPreferences.getInstance()).getString(_userKey);
+
+  @override
+  Future<void> saveUserId(String id) async {
+    await (await SharedPreferences.getInstance()).setString(_userKey, id);
   }
 
   @override
