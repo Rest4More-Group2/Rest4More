@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/sync/cloud_data_service.dart';
 import '../data/sync/sync_engine.dart';
 import '../data/sync/sync_remote.dart';
 import '../data/sync/sync_scheduler.dart';
 import 'database_providers.dart';
+import 'repository_providers.dart';
 
 /// Standaard is er geen server. Vervang dit door een `SupabaseSyncRemote` als
 /// Supabase is geinitialiseerd.
@@ -33,3 +35,13 @@ final syncSchedulerProvider = Provider<SyncScheduler?>((ref) {
   scheduler.maybePush();
   return scheduler;
 });
+
+/// Export en verwijdering van de cloudgegevens.
+final cloudDataServiceProvider = Provider(
+  (ref) => CloudDataService(
+    ref.watch(databaseProvider),
+    ref.watch(syncRemoteProvider),
+    PreferencesSyncStateStore(),
+    ref.watch(profileRepositoryProvider),
+  ),
+);

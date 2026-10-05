@@ -12,6 +12,9 @@ abstract interface class SyncStateStore {
   /// Lokale datum (`YYYY-MM-DD`) van de laatste gelukte push, of null.
   Future<String?> lastSuccessDate();
   Future<void> saveSuccessDate(String date);
+
+  /// Vergeet de laatste gelukte push.
+  Future<void> clear();
 }
 
 class PreferencesSyncStateStore implements SyncStateStore {
@@ -26,7 +29,7 @@ class PreferencesSyncStateStore implements SyncStateStore {
     await (await SharedPreferences.getInstance()).setString(_key, date);
   }
 
-  /// Vergeet de laatste gelukte push. Alleen voor testen.
+  @override
   Future<void> clear() async {
     await (await SharedPreferences.getInstance()).remove(_key);
   }

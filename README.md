@@ -72,3 +72,15 @@ De vlag maakt ook een keer voorbeelddata aan in elke gesynchroniseerde tabel
 dagen). In de console verschijnt een regel `[sync] ok=... pushed=...`. Controleer daarna
 in de Supabase table editor of `profiles` een rij heeft met een `user_id`. De
 vlag werkt alleen in debugbuilds.
+
+## AVG: cloudgegevens exporteren en verwijderen
+
+- Serverkant: `supabase/migrations/20261005000002_gdpr_functions.sql` met
+  `export_my_data()` (alle rijen van de gebruiker als json) en
+  `delete_my_data()` (wist alle rijen echt en daarna het account). Pas toe met
+  `supabase db push`.
+- App: `CloudDataService` (`cloudDataServiceProvider`) heeft `exportAsJson()` en
+  `deleteCloudData()`. Verwijderen zet synchronisatie uit en laat de lokale
+  gegevens staan, gemarkeerd als nog te uploaden voor een nieuw account.
+- Er is nog geen scherm voor. Back-ups van Supabase kunnen gewiste gegevens nog
+  een tijd bevatten, neem dat op in de privacyverklaring.

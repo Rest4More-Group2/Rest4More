@@ -16,6 +16,9 @@ class MemoryStateStore implements SyncStateStore {
 
   @override
   Future<void> saveSuccessDate(String date) async => this.date = date;
+
+  @override
+  Future<void> clear() async => date = null;
 }
 
 void main() {

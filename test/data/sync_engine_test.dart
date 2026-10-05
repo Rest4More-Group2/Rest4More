@@ -27,6 +27,21 @@ class FakeRemote implements SyncRemote {
     calls.add((table, rows));
   }
 
+  Map<String, Object?> exportData = {'profiles': <Object?>[]};
+  var deleted = 0;
+
+  @override
+  Future<Map<String, Object?>> exportMyData() async {
+    if (failWith != null) throw failWith!;
+    return exportData;
+  }
+
+  @override
+  Future<void> deleteMyData() async {
+    if (failWith != null) throw failWith!;
+    deleted++;
+  }
+
   List<String> get tables => calls.map((c) => c.$1).toList();
   List<Map<String, Object?>> rowsOf(String table) =>
       [for (final c in calls) if (c.$1 == table) ...c.$2];

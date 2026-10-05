@@ -8,6 +8,13 @@ abstract interface class SyncRemote {
 
   /// Voegt rijen toe of werkt ze bij op `id`.
   Future<void> upsert(String table, List<Map<String, Object?>> rows);
+
+  /// Alle cloudgegevens van de gebruiker, voor het recht op inzage en
+  /// overdraagbaarheid.
+  Future<Map<String, Object?>> exportMyData();
+
+  /// Wist alle cloudgegevens en het account op de server, en meldt lokaal af.
+  Future<void> deleteMyData();
 }
 
 /// De remote is er nog niet. Gooit altijd, zodat geen enkele rij per ongeluk
@@ -28,6 +35,13 @@ class UnavailableSyncRemote implements SyncRemote {
   @override
   Future<void> upsert(String table, List<Map<String, Object?>> rows) =>
       throw const SyncUnavailableError();
+
+  @override
+  Future<Map<String, Object?>> exportMyData() =>
+      throw const SyncUnavailableError();
+
+  @override
+  Future<void> deleteMyData() => throw const SyncUnavailableError();
 }
 
 /// Supabase-implementatie. Meldt zich anoniem aan als er nog geen sessie is.
@@ -46,5 +60,22 @@ class SupabaseSyncRemote implements SyncRemote {
   @override
   Future<void> upsert(String table, List<Map<String, Object?>> rows) async {
     await _client.from(table).upsert(rows, onConflict: 'id');
+  }
+
+  @override
+  Future<Map<String, Object?>> exportMyData() async {
+    final result = await _client.rpc('export_my_data');
+    return Map<String, Object?>.from(result as Map);
+  }
+
+  @override
+  Future<void> deleteMyData() async {
+    await _client.rpc('delete_my_data');
+    // Het account bestaat niet meer, dus alleen de lokale sessie opruimen.
+    try {
+      await _client.auth.signOut(scope: SignOutScope.local);
+    } on Exception {
+      // De server-kant is al gewist, een mislukte lokale afmelding is niet erg.
+    }
   }
 }
