@@ -189,3 +189,25 @@ flutter run --dart-define-from-file=env.json --dart-define=DEBUG_PULL=true
 ```
 
   Dit maakt de lokale gegevens leeg (de cloud blijft staan) en haalt alles terug.
+
+## Lege lokale database bij het testen (debug)
+
+Met `DEBUG_RESET=true` wordt de lokale database bij het opstarten leeggemaakt
+en vergeet de app de synchronisatiestand, zodat de onboarding weer bij het
+begin start. De cloud blijft ongemoeid. Werkt alleen in debugbuilds. Elke
+start, ook een hot restart (R), wist opnieuw; een hot reload niet.
+
+```bash
+flutter run --dart-define-from-file=env.json --dart-define=DEBUG_RESET=true
+```
+
+In Android Studio: Run, Edit Configurations, kies de Flutter-configuratie voor
+`main.dart`, en zet bij "Additional run args" (Android Studio-veld voor extra
+argumenten):
+
+```
+--dart-define-from-file=env.json --dart-define=DEBUG_RESET=true
+```
+
+Maak daarvoor het liefst een tweede configuratie ("Fresh start"), naast de
+gewone zonder de vlag. Zonder `env.json` laat je het eerste deel weg.
