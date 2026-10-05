@@ -52,6 +52,8 @@ flutter test integration_test -d <device>
   `SUPABASE_PUBLISHABLE_KEY` (of `SUPABASE_ANON_KEY`). Start de app daarom met:
   `flutter run --dart-define-from-file=env.json`. Zonder die waarden werkt de
   app lokaal verder en wordt er niets gesynchroniseerd.
-- `SyncScheduler` pusht 5 seconden na elke lokale wijziging en bij het
-  opstarten, nooit meer dan een push tegelijk.
+- `SyncScheduler` pusht hooguit een keer per dag: bij het openen van de app en
+  als de app weer naar voren komt, zolang het vandaag nog niet is gelukt. Bij
+  een fout probeert hij het elke 30 minuten opnieuw zolang de app open is. De
+  dag van de laatste gelukte push staat in `shared_preferences`.
 - Er is nog geen pull.
