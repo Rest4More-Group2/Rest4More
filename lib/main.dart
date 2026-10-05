@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'screens/onboarding/welcome_screen.dart';
+import 'screens/app_root.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
@@ -67,9 +67,8 @@ class MyApp extends StatelessWidget {
           seedColor: AppColors.background,
         ),
       ),
-      initialRoute: '/',
+      home: const AppRoot(),
       routes: {
-        '/': (context) => const WelcomeScreen(),
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) =>
