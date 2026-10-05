@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'screens/onboarding/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
@@ -58,13 +59,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'AppBlock Prototype',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(title: 'AppBlock Prototype'),
+        '/': (context) => const WelcomeScreen(),
         '/block': (context) => const BlockedScreen(),
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) => const AuthorizationIosScreen(),
