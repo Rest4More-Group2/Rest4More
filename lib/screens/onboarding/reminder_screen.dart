@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
+import '../app_shell.dart';
 
-class ReminderScreen extends StatefulWidget {
+class ReminderScreen extends ConsumerStatefulWidget {
   const ReminderScreen({super.key});
 
   @override
-  State<ReminderScreen> createState() => _ReminderScreenState();
+  ConsumerState<ReminderScreen> createState() => _ReminderScreenState();
 }
 
-class _ReminderScreenState extends State<ReminderScreen> {
+class _ReminderScreenState extends ConsumerState<ReminderScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -19,6 +22,38 @@ class _ReminderScreenState extends State<ReminderScreen> {
     hour: 22,
     minute: 0,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _showSavedAnswer();
+  }
+
+  /// Laat een eerder gegeven antwoord zien.
+  Future<void> _showSavedAnswer() async {
+    final saved = await ref.read(intakeServiceProvider).load();
+    final minutes = saved.reminderMinutes;
+    if (!mounted || minutes == null) return;
+    setState(() {
+      reminderEnabled = saved.reminderEnabled;
+      reminderTime = TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
+    });
+  }
+
+  /// Sluit de onboarding af en gaat naar de app. De herinnering wordt hier
+  /// alleen bewaard, het inplannen bij het systeem volgt later.
+  Future<void> _finish({required bool withReminder}) async {
+    await ref.read(intakeServiceProvider).complete(
+          reminderEnabled: withReminder,
+          reminderMinutes: reminderTime.hour * 60 + reminderTime.minute,
+        );
+    ref.invalidate(intakeProgressProvider);
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AppShell()),
+      (route) => false,
+    );
+  }
 
   Future<void> _selectTime() async {
     final TimeOfDay? picked = await showTimePicker(
@@ -229,9 +264,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Later this will open the Today screen.
-                  },
+                  onPressed: () => _finish(withReminder: reminderEnabled),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,
@@ -255,9 +288,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {
-                    // Later this will also open the Today screen.
-                  },
+                  onPressed: () => _finish(withReminder: false),
                   child: const Text(
                     'Maybe later',
                     style: TextStyle(

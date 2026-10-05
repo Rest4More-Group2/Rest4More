@@ -1,14 +1,16 @@
 import 'plan_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
 
-class ActivitiesScreen extends StatefulWidget {
+class ActivitiesScreen extends ConsumerStatefulWidget {
   const ActivitiesScreen({super.key});
 
   @override
-  State<ActivitiesScreen> createState() => _ActivitiesScreenState();
+  ConsumerState<ActivitiesScreen> createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends State<ActivitiesScreen> {
+class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -17,6 +19,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
   static const Color yellow = Color(0xFFFFB800);
 
   final Set<int> selectedActivities = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _showSavedAnswer();
+  }
+
+  /// Laat een eerder gegeven antwoord zien. Alleen de eerste keuze wordt bewaard.
+  Future<void> _showSavedAnswer() async {
+    final saved = (await ref.read(intakeServiceProvider).load()).activity;
+    if (saved != null && mounted) setState(() => selectedActivities.add(saved));
+  }
 
   void toggleActivity(int index) {
     setState(() {
@@ -152,14 +166,18 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                 onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const PlanScreen(),
-    ),
-  );
-},
+                  onPressed: () async {
+                    await ref
+                        .read(intakeServiceProvider)
+                        .saveActivities(selectedActivities);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PlanScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,

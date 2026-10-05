@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
 import 'activities_screen.dart';
 
-class RhythmScreen extends StatefulWidget {
+class RhythmScreen extends ConsumerStatefulWidget {
   const RhythmScreen({super.key});
 
   @override
-  State<RhythmScreen> createState() => _RhythmScreenState();
+  ConsumerState<RhythmScreen> createState() => _RhythmScreenState();
 }
 
-class _RhythmScreenState extends State<RhythmScreen> {
+class _RhythmScreenState extends ConsumerState<RhythmScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -17,6 +19,18 @@ class _RhythmScreenState extends State<RhythmScreen> {
   static const Color yellow = Color(0xFFFFB800);
 
   int selectedRhythm = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _showSavedAnswer();
+  }
+
+  /// Laat een eerder gegeven antwoord zien.
+  Future<void> _showSavedAnswer() async {
+    final saved = (await ref.read(intakeServiceProvider).load()).rhythm;
+    if (saved != null && mounted) setState(() => selectedRhythm = saved);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +152,11 @@ class _RhythmScreenState extends State<RhythmScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await ref
+                        .read(intakeServiceProvider)
+                        .saveRhythm(selectedRhythm);
+                    if (!context.mounted) return;
                     Navigator.push(
                       context,
                       MaterialPageRoute(

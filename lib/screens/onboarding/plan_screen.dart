@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
 import 'reminder_screen.dart';
 
-class PlanScreen extends StatefulWidget {
+class PlanScreen extends ConsumerStatefulWidget {
   const PlanScreen({super.key});
 
   @override
-  State<PlanScreen> createState() => _PlanScreenState();
+  ConsumerState<PlanScreen> createState() => _PlanScreenState();
 }
 
-class _PlanScreenState extends State<PlanScreen> {
+class _PlanScreenState extends ConsumerState<PlanScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -156,7 +158,9 @@ class _PlanScreenState extends State<PlanScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await ref.read(intakeServiceProvider).savePlanSeen();
+                    if (!context.mounted) return;
                     Navigator.push(
                       context,
                       MaterialPageRoute(

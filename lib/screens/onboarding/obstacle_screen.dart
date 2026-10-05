@@ -1,14 +1,16 @@
 import 'rhythm_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/intake_providers.dart';
 
-class ObstacleScreen extends StatefulWidget {
+class ObstacleScreen extends ConsumerStatefulWidget {
   const ObstacleScreen({super.key});
 
   @override
-  State<ObstacleScreen> createState() => _ObstacleScreenState();
+  ConsumerState<ObstacleScreen> createState() => _ObstacleScreenState();
 }
 
-class _ObstacleScreenState extends State<ObstacleScreen> {
+class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -16,6 +18,18 @@ class _ObstacleScreenState extends State<ObstacleScreen> {
   static const Color borderColor = Color(0xFFE7DDD2);
 
   final Set<int> selectedObstacles = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _showSavedAnswer();
+  }
+
+  /// Laat een eerder gegeven antwoord zien. Alleen de eerste keuze wordt bewaard.
+  Future<void> _showSavedAnswer() async {
+    final saved = (await ref.read(intakeServiceProvider).load()).obstacle;
+    if (saved != null && mounted) setState(() => selectedObstacles.add(saved));
+  }
 
   final List<Map<String, dynamic>> obstacles = [
     {
@@ -166,14 +180,18 @@ class _ObstacleScreenState extends State<ObstacleScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await ref
+                        .read(intakeServiceProvider)
+                        .saveObstacles(selectedObstacles);
+                    if (!context.mounted) return;
                     Navigator.push(
-                  context,
+                      context,
                       MaterialPageRoute(
-                   builder: (context) => RhythmScreen(),
-                         ),
-                       );
-},
+                        builder: (context) => RhythmScreen(),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,
