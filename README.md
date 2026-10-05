@@ -135,3 +135,31 @@ nooit de inhoud van de gegevens.
   verandert; `ConsentRepository.needsReconsent` laat dan opnieuw vragen. De
   tabel gaat mee naar de server (`20261005000005_consent_records.sql`).
 - Lokaal schema is nu versie 2, met een geteste migratie van v1.
+
+## Versleutelde lokale database en back-ups
+
+- De database is versleuteld met SQLite3 Multiple Ciphers
+  (`hooks.user_defines.sqlite3.source: sqlite3mc` in `pubspec.yaml`). De sleutel
+  (32 willekeurige bytes) staat in de Keychain (iOS) of Keystore (Android) via
+  `flutter_secure_storage`, nooit in de database of in een back-up.
+- Een bestaand niet-versleuteld bestand wordt bij het openen ter plekke
+  versleuteld. Past de sleutel niet meer bij het bestand (bijvoorbeeld na een
+  herstelde back-up zonder sleutel), dan wordt het bestand opnieuw aangemaakt;
+  bij synchronisatie komen de gegevens terug van de server.
+- Het bestand staat in Application Support. Android: cloudback-up en
+  toestel-naar-toestel-overdracht staan uit (`AndroidManifest.xml` en
+  `res/xml/data_extraction_rules.xml`). iOS: `AppDelegate` sluit die map uit van
+  back-ups. Wissel je van toestel, dan komen de gegevens terug via de cloud (zodra
+  de pull er is).
+- Eerste build haalt de sqlite3mc-bibliotheek op van GitHub (netwerk nodig).
+
+## Cloud wissen na intrekken, lokaal exporteren en wissen
+
+- Toestemming intrekken of een leeftijd onder 16 laat de cloudgegevens niet
+  staan: zolang er geen toestemming is maar wel een bekend serveraccount, wordt
+  de cloud gewist. `CloudDataService.withdrawConsent()` doet dit meteen en
+  `completePendingErasure()` maakt het af, ook bij het openen van de app
+  (`SyncScheduler.beforePush`) en bij een mislukte poging zonder verbinding.
+- `LocalDataService.exportAsJson()` geeft alles op het toestel. `wipeEverything()`
+  trekt eerst de cloud in en maakt daarna alle tabellen leeg met `VACUUM`. Lukt de
+  cloud niet, dan blijft die verwijdering openstaan.

@@ -20,6 +20,9 @@ abstract interface class SyncStateStore {
   /// zijn gestuurd.
   Future<String?> lastUserId();
   Future<void> saveUserId(String id);
+
+  /// Vergeet het serveraccount, bijvoorbeeld nadat de cloudgegevens gewist zijn.
+  Future<void> clearUserId();
 }
 
 class PreferencesSyncStateStore implements SyncStateStore {
@@ -46,6 +49,11 @@ class PreferencesSyncStateStore implements SyncStateStore {
   }
 
   @override
+  Future<void> clearUserId() async {
+    await (await SharedPreferences.getInstance()).remove(_userKey);
+  }
+
+  @override
   Future<void> clear() async {
     await (await SharedPreferences.getInstance()).remove(_key);
   }
@@ -63,12 +71,18 @@ class SyncScheduler {
     this._store, {
     this._now = DateTime.now,
     this.retryInterval = const Duration(minutes: 30),
+    this.beforePush,
   });
 
   final SyncEngine _engine;
   final SyncStateStore _store;
   final DateTime Function() _now;
   final Duration retryInterval;
+
+  /// Loopt eerst, ongeacht de dagelijkse regel. Bedoeld voor het afmaken van een
+  /// nog openstaande verwijdering van cloudgegevens. Mislukt het, dan wordt het
+  /// later opnieuw geprobeerd.
+  final Future<void> Function()? beforePush;
 
   Timer? _timer;
   bool _running = false;
@@ -82,6 +96,14 @@ class SyncScheduler {
     if (_stopped || _running) return;
     _running = true;
     try {
+      if (beforePush != null) {
+        try {
+          await beforePush!();
+        } on Exception {
+          _scheduleNext(retry: true);
+          return;
+        }
+      }
       final today = LocalDate.format(_now());
       if (await _store.lastSuccessDate() == today) {
         _scheduleNext(retry: false);

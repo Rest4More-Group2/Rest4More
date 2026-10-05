@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/sync/cloud_data_service.dart';
+import '../data/sync/local_data_service.dart';
 import '../data/sync/retention_service.dart';
 import '../data/sync/sync_engine.dart';
 import '../data/sync/sync_remote.dart';
@@ -27,9 +28,11 @@ final syncEngineProvider = Provider(
 /// opstarten.
 final syncSchedulerProvider = Provider<SyncScheduler?>((ref) {
   if (ref.watch(syncRemoteProvider) is UnavailableSyncRemote) return null;
+  final cloudData = ref.watch(cloudDataServiceProvider);
   final scheduler = SyncScheduler(
     ref.watch(syncEngineProvider),
     PreferencesSyncStateStore(),
+    beforePush: cloudData.completePendingErasure,
   );
   final observer = SyncLifecycleObserver(scheduler);
   WidgetsBinding.instance.addObserver(observer);
@@ -54,3 +57,12 @@ final cloudDataServiceProvider = Provider(
 /// Wist zacht verwijderde rijen na 2 jaar. Draai dit bij het opstarten.
 final retentionServiceProvider =
     Provider((ref) => RetentionService(ref.watch(databaseProvider)));
+
+/// Lokale export en volledig wissen van alle gegevens op het toestel.
+final localDataServiceProvider = Provider(
+  (ref) => LocalDataService(
+    ref.watch(databaseProvider),
+    ref.watch(cloudDataServiceProvider),
+    PreferencesSyncStateStore(),
+  ),
+);
