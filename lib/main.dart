@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
+import 'package:rest4more/providers/database_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/providers/sync_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
@@ -29,6 +31,8 @@ Future<void> main() async {
         .read(profileRepositoryProvider)
         .recordCloudSyncConsent(DateTime.now());
     await PreferencesSyncStateStore().clear();
+    final seeded = await seedDebugData(container.read(databaseProvider));
+    debugPrint('[sync] voorbeelddata aangemaakt: $seeded');
   }
   // Start de synchronisatie. Zonder Supabase-gegevens doet dit niets.
   container.read(syncSchedulerProvider);

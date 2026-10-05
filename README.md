@@ -67,6 +67,8 @@ Start een debugbuild met de testvlag. Die geeft toestemming en wist de
 flutter run --dart-define-from-file=env.json --dart-define=DEBUG_SYNC=true
 ```
 
-In de console verschijnt een regel `[sync] ok=... pushed=...`. Controleer daarna
+De vlag maakt ook een keer voorbeelddata aan in elke gesynchroniseerde tabel
+(profiel, blokkeerprofiel, routine, kaart, focussessie, programma met 14
+dagen). In de console verschijnt een regel `[sync] ok=... pushed=...`. Controleer daarna
 in de Supabase table editor of `profiles` een rij heeft met een `user_id`. De
 vlag werkt alleen in debugbuilds.
