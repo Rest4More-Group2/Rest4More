@@ -151,32 +151,88 @@ void main() {
   });
 
   group('Today', () {
-    Future<List<ProgrammeDay>> planned(DateTime now) async {
-      clock.current = now;
+    late ProgrammeRepository programme;
+
+    Future<List<ProgrammeDay>> planned() async {
       await finishOnboarding();
       await plans.ensurePlan();
+      programme = ProgrammeRepository(db, now: clock.call);
       return db.select(db.programmeDays).get();
     }
 
-    test('vandaag hoort bij de dag van vandaag', () async {
-      final days = await planned(DateTime(2026, 3, 2, 18));
-      final today = pickToday(days, DateTime(2026, 3, 5, 9))!;
-      expect(today.day, 4);
+    Future<void> complete(List<ProgrammeDay> days, Iterable<int> numbers) async {
+      for (final n in numbers) {
+        await programme.markCompleted(
+            days.firstWhere((d) => d.dayNumber == n).id);
+      }
+    }
+
+    test('een nieuw plan begint bij dag 1', () async {
+      final today = pickToday(await planned())!;
+      expect(today.day, 1);
       expect(today.totalDays, 14);
-      expect(today.title, 'Give the space a purpose');
-      expect(today.action, contains('reading a few pages'));
+      expect(today.finished, isFalse);
+      expect(today.title, 'Your starting point');
       expect(today.explanation, contains('This fits your goal'));
       expect(today.minutes, TodayPlan.defaultMinutes);
     });
 
-    test('voor de start is het dag 1, na het einde dag 14', () async {
-      final days = await planned(DateTime(2026, 3, 2, 18));
-      expect(pickToday(days, DateTime(2026, 3, 1))!.day, 1);
-      expect(pickToday(days, DateTime(2026, 6, 1))!.day, 14);
+    test('de volgende stap is de eerste die nog niet gedaan is', () async {
+      final days = await planned();
+      await complete(days, [1, 2, 3]);
+      final today = pickToday(await db.select(db.programmeDays).get())!;
+      expect(today.day, 4);
+      expect(today.title, 'Give the space a purpose');
+      expect(today.action, contains('reading a few pages'));
+    });
+
+    test('dagen niets doen verandert de stap niet, de datums tellen niet mee',
+        () async {
+      final days = await planned();
+      await complete(days, [1]);
+      // De datums liggen ver in het verleden: er verandert niets.
+      await db.customStatement("UPDATE programme_days SET scheduled_for = '2020-01-01'");
+      expect(pickToday(await db.select(db.programmeDays).get())!.day, 2);
+    });
+
+    test('een geopende maar niet afgeronde stap blijft de huidige', () async {
+      final days = await planned();
+      await programme.markOpened(days.firstWhere((d) => d.dayNumber == 1).id);
+      final today = pickToday(await db.select(db.programmeDays).get())!;
+      expect(today.day, 1);
+      expect(today.status, DayStatus.opened);
+    });
+
+    test('een overgeslagen stap telt als gedaan', () async {
+      final days = await planned();
+      await programme.skip(days.firstWhere((d) => d.dayNumber == 1).id);
+      expect(pickToday(await db.select(db.programmeDays).get())!.day, 2);
+    });
+
+    test('een lege plek vooraan wordt niet overgeslagen', () async {
+      // Dag 3 afgerond zonder 1 en 2: de eerste open stap is nog dag 1.
+      final days = await planned();
+      await complete(days, [3]);
+      expect(pickToday(await db.select(db.programmeDays).get())!.day, 1);
+    });
+
+    test('alles gedaan: de laatste dag met finished', () async {
+      final days = await planned();
+      await complete(days, [for (var i = 1; i <= 14; i++) i]);
+      final today = pickToday(await db.select(db.programmeDays).get())!;
+      expect(today.finished, isTrue);
+      expect(today.day, 14);
+    });
+
+    test('kleine stap als gekozen formaat geeft de kleine duur', () async {
+      final days = await planned();
+      await programme.setSize(days.first.id, DaySize.smaller);
+      final today = pickToday(await db.select(db.programmeDays).get())!;
+      expect(today.minutes, TodayPlan.defaultSmallerMinutes);
     });
 
     test('zonder plan is er niets', () {
-      expect(pickToday(const [], DateTime(2026, 3, 2)), isNull);
+      expect(pickToday(const []), isNull);
     });
 
     test('begroeting volgt het uur', () {

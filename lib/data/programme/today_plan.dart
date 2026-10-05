@@ -1,6 +1,5 @@
 import '../database/app_database.dart';
 import '../database/enums.dart';
-import '../database/local_types.dart';
 
 /// Wat het Today-scherm toont voor de huidige dag.
 class TodayPlan {
@@ -15,6 +14,7 @@ class TodayPlan {
     required this.minutes,
     required this.smallerMinutes,
     required this.status,
+    this.finished = false,
   });
 
   final String dayId;
@@ -30,27 +30,30 @@ class TodayPlan {
   final int smallerMinutes;
   final DayStatus status;
 
+  /// Alle dagen zijn gedaan. De rest van dit object beschrijft de laatste dag.
+  final bool finished;
+
   /// Standaardduur van een stap, tot de gebruiker er zelf een kiest. Het
   /// programma beschrijft acties, geen minuten.
   static const defaultMinutes = 20;
   static const defaultSmallerMinutes = 5;
 }
 
-/// Welke dag hoort bij [now]. Vóór de eerste dag is dat dag 1, na de laatste
-/// de laatste dag.
-TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
+/// De eerstvolgende stap die nog niet is gedaan. Het plan loopt dag voor dag:
+/// wie een paar dagen niets doet, gaat gewoon verder waar hij was gebleven. De
+/// datums in het plan bepalen dit niet. Afgeronde en overgeslagen dagen tellen
+/// als gedaan. Is alles gedaan, dan is dit de laatste dag met [TodayPlan.finished].
+TodayPlan? pickToday(List<ProgrammeDay> days) {
   final usable = [
     for (final d in days)
       if (d.deletedAt == null) d,
   ]..sort((a, b) => a.dayNumber.compareTo(b.dayNumber));
   if (usable.isEmpty) return null;
 
-  final today = LocalDate.format(now);
-  ProgrammeDay chosen = usable.first;
-  for (final d in usable) {
-    // `scheduledFor` is `YYYY-MM-DD`, dus tekstvergelijking klopt.
-    if (d.scheduledFor.compareTo(today) <= 0) chosen = d;
-  }
+  bool done(ProgrammeDay d) =>
+      d.status == DayStatus.completed || d.status == DayStatus.skipped;
+  final next = usable.where((d) => !done(d)).firstOrNull;
+  final chosen = next ?? usable.last;
 
   final content = chosen.snapshot;
   String text(String key) => (content[key] as String?) ?? '';
@@ -70,6 +73,7 @@ TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
         : TodayPlan.defaultMinutes,
     smallerMinutes: TodayPlan.defaultSmallerMinutes,
     status: chosen.status,
+    finished: next == null,
   );
 }
 
