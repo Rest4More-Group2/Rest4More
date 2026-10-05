@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/sync/sync_engine.dart';
 import '../data/sync/sync_remote.dart';
+import '../data/sync/sync_scheduler.dart';
 import 'database_providers.dart';
 
 /// Standaard is er geen server. Vervang dit door een `SupabaseSyncRemote` als
@@ -12,3 +13,15 @@ final syncRemoteProvider =
 final syncEngineProvider = Provider(
   (ref) => SyncEngine(ref.watch(databaseProvider), ref.watch(syncRemoteProvider)),
 );
+
+/// Draait de push na lokale wijzigingen. Doet niets zolang er geen echte
+/// remote is. Lees dit provider een keer bij het opstarten.
+final syncSchedulerProvider = Provider<SyncScheduler?>((ref) {
+  if (ref.watch(syncRemoteProvider) is UnavailableSyncRemote) return null;
+  final scheduler = SyncScheduler(
+    ref.watch(databaseProvider),
+    ref.watch(syncEngineProvider),
+  )..start();
+  ref.onDispose(scheduler.dispose);
+  return scheduler;
+});

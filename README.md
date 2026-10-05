@@ -48,7 +48,10 @@ flutter test integration_test -d <device>
 - `lib/data/sync/sync_engine.dart` stuurt rijen met `dirty = 1` naar de server,
   ouders eerst, en markeert ze pas schoon na een gelukte upload. Er wordt niets
   verstuurd zonder `cloud_sync_consent_at` in het profiel.
-- `lib/providers/sync_providers.dart` geeft standaard een remote die altijd
-  faalt. Overschrijf `syncRemoteProvider` met `SupabaseSyncRemote(client)` nadat
-  `Supabase.initialize` is aangeroepen.
-- De engine wordt nog nergens automatisch aangeroepen, en er is nog geen pull.
+- `lib/main.dart` start Supabase met `SUPABASE_URL` en
+  `SUPABASE_PUBLISHABLE_KEY` (of `SUPABASE_ANON_KEY`). Start de app daarom met:
+  `flutter run --dart-define-from-file=env.json`. Zonder die waarden werkt de
+  app lokaal verder en wordt er niets gesynchroniseerd.
+- `SyncScheduler` pusht 5 seconden na elke lokale wijziging en bij het
+  opstarten, nooit meer dan een push tegelijk.
+- Er is nog geen pull.

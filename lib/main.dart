@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/sync/supabase_bootstrap.dart';
+import 'package:rest4more/providers/sync_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
 
 import 'screens/app_picker_screen.dart';
@@ -7,8 +10,17 @@ import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final remote = await initSupabaseRemote();
+  final container = ProviderContainer(
+    overrides: [
+      if (remote != null) syncRemoteProvider.overrideWithValue(remote),
+    ],
+  );
+  // Start de synchronisatie. Zonder Supabase-gegevens doet dit niets.
+  container.read(syncSchedulerProvider);
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
