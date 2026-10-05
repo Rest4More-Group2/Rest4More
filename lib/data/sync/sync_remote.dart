@@ -16,12 +16,30 @@ abstract interface class SyncRemote {
   /// Voegt rijen toe of werkt ze bij op `id`.
   Future<void> upsert(String table, List<Map<String, Object?>> rows);
 
+  /// Haalt rijen op die na [after] zijn gewijzigd, gesorteerd op
+  /// (`synced_at`, `id`), voor de pull. Zonder [after] begint het bij het begin.
+  /// De rijen zijn de ruwe serverrijen, inclusief `synced_at`.
+  Future<List<Map<String, Object?>>> fetchChanges(
+    String table, {
+    SyncPosition? after,
+    int limit = 200,
+  });
+
   /// Alle cloudgegevens van de gebruiker, voor het recht op inzage en
   /// overdraagbaarheid.
   Future<Map<String, Object?>> exportMyData();
 
   /// Wist alle cloudgegevens en het account op de server, en meldt lokaal af.
   Future<void> deleteMyData();
+}
+
+/// Positie in de wijzigingsvolgorde van de server.
+class SyncPosition {
+  const SyncPosition(this.syncedAt, this.id);
+
+  /// `synced_at` zoals de server die teruggaf.
+  final String syncedAt;
+  final String id;
 }
 
 /// De remote is er nog niet. Gooit altijd, zodat geen enkele rij per ongeluk
@@ -41,6 +59,14 @@ class UnavailableSyncRemote implements SyncRemote {
 
   @override
   Future<void> recordActivity() => throw const SyncUnavailableError();
+
+  @override
+  Future<List<Map<String, Object?>>> fetchChanges(
+    String table, {
+    SyncPosition? after,
+    int limit = 200,
+  }) =>
+      throw const SyncUnavailableError();
 
   @override
   Future<void> ensureSignedIn() => throw const SyncUnavailableError();
@@ -76,6 +102,25 @@ class SupabaseSyncRemote implements SyncRemote {
   @override
   Future<void> recordActivity() async {
     await _client.rpc('record_activity');
+  }
+
+  @override
+  Future<List<Map<String, Object?>>> fetchChanges(
+    String table, {
+    SyncPosition? after,
+    int limit = 200,
+  }) async {
+    var query = _client.from(table).select();
+    if (after != null) {
+      // Alles na de positie: later in tijd, of gelijk in tijd met een grotere id.
+      query = query.or(
+        'synced_at.gt.${after.syncedAt},'
+        'and(synced_at.eq.${after.syncedAt},id.gt.${after.id})',
+      );
+    }
+    final rows =
+        await query.order('synced_at').order('id').limit(limit);
+    return [for (final row in rows) Map<String, Object?>.from(row)];
   }
 
   @override

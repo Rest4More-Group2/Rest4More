@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
 import 'sync_scheduler.dart';
+import 'sync_tables.dart';
 import 'sync_remote.dart';
 
 /// Uitkomst van een push. Fouten worden teruggegeven, niet gegooid: de rijen
@@ -30,24 +31,6 @@ class PushResult {
   bool get ok => error == null && !skippedNoConsent && !skippedAgeGate;
 }
 
-class _SyncTable {
-  const _SyncTable(
-    this.name,
-    this.table, {
-    this.bools = const {},
-    this.json = const {},
-  });
-
-  final String name;
-  final TableInfo table;
-
-  /// Booleankolommen, lokaal opgeslagen als 0 en 1.
-  final Set<String> bools;
-
-  /// Jsonb-kolommen met de waarde als de opgeslagen tekst onleesbaar is.
-  final Map<String, Object?> json;
-}
-
 /// Stuurt lokale wijzigingen naar de server (alleen push).
 ///
 /// Leest de ruwe rijen, zodat onbekende enumwaarden letterlijk meegaan. Geen
@@ -66,22 +49,7 @@ class SyncEngine {
   final SyncStateStore? _state;
   final int batchSize;
 
-  /// Ouders eerst, want kinderen verwijzen naar hun rij op de server.
-  late final List<_SyncTable> _tables = [
-    _SyncTable('profiles', _db.profiles,
-        bools: {'owns_restnest', 'owns_card', 'notify_programme'}),
-    _SyncTable('consent_records', _db.consentRecords),
-    _SyncTable('block_profiles', _db.blockProfiles, json: {'items': <Object?>[]}),
-    _SyncTable('routines', _db.routines,
-        bools: {'auto_start', 'enabled'}, json: {'steps': null}),
-    _SyncTable('accessories', _db.accessories),
-    _SyncTable('focus_sessions', _db.focusSessions,
-        json: {'events': <Object?>[]}),
-    _SyncTable('programme_enrollments', _db.programmeEnrollments,
-        json: {'selection': <String, Object?>{}}),
-    _SyncTable('programme_days', _db.programmeDays,
-        json: {'snapshot': <String, Object?>{}}),
-  ];
+  late final List<SyncTableSpec> _tables = syncTableSpecs(_db);
 
   /// Mag er gesynchroniseerd worden? Vraagt toestemming en een bekende
   /// leeftijd van 16 of ouder (AVG art. 8, Nederlandse grens).
@@ -132,7 +100,10 @@ class SyncEngine {
     final userId = _remote.currentUserId;
     if (state == null || userId == null) return;
     final previous = await state.lastUserId();
-    if (previous != null && previous != userId) await markAllDirty();
+    if (previous != null && previous != userId) {
+      await markAllDirty();
+      await _db.customStatement('DELETE FROM sync_cursors');
+    }
     if (previous != userId) await state.saveUserId(userId);
   }
 
@@ -159,7 +130,7 @@ class SyncEngine {
     }
   }
 
-  Future<int> _pushTable(_SyncTable table) async {
+  Future<int> _pushTable(SyncTableSpec table) async {
     var total = 0;
     while (true) {
       final rows = await _db
@@ -195,7 +166,7 @@ class SyncEngine {
     }
   }
 
-  Map<String, Object?> _payload(_SyncTable table, Map<String, Object?> data) {
+  Map<String, Object?> _payload(SyncTableSpec table, Map<String, Object?> data) {
     final out = <String, Object?>{};
     data.forEach((column, value) {
       if (column == 'dirty') return;

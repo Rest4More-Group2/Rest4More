@@ -10,7 +10,72 @@ import 'package:rest4more/data/sync/sync_remote.dart';
 
 import 'test_support.dart';
 
+/// Nep-server: bewaart rijen per tabel en stempelt `synced_at` oplopend, net
+/// als de trigger op de echte server. Meerdere [FakeRemote]s kunnen er een
+/// delen om twee toestellen na te bootsen.
+class FakeServer {
+  final tables = <String, Map<String, Map<String, Object?>>>{};
+  var _tick = 0;
+
+  /// Stempelt de rij en bewaart hem. Een oudere `updated_at` wordt genegeerd.
+  void store(String table, Map<String, Object?> row) {
+    final rows = tables.putIfAbsent(table, () => {});
+    final existing = rows[row['id']];
+    if (existing != null &&
+        DateTime.parse(row['updated_at'] as String)
+            .isBefore(DateTime.parse(existing['updated_at'] as String))) {
+      return;
+    }
+    _tick++;
+    rows[row['id'] as String] = {
+      ...row,
+      'user_id': 'user-1',
+      'synced_at': DateTime.utc(2026, 1, 1).add(Duration(seconds: _tick))
+          .toIso8601String(),
+    };
+  }
+
+  List<Map<String, Object?>> fetch(
+    String table, {
+    SyncPosition? after,
+    required int limit,
+  }) {
+    final all = (tables[table]?.values.toList() ?? [])
+      ..sort((a, b) {
+        final c = DateTime.parse(a['synced_at'] as String)
+            .compareTo(DateTime.parse(b['synced_at'] as String));
+        return c != 0 ? c : (a['id'] as String).compareTo(b['id'] as String);
+      });
+    final filtered = all.where((row) {
+      if (after == null) return true;
+      final t = DateTime.parse(row['synced_at'] as String);
+      final a = DateTime.parse(after.syncedAt);
+      return t.isAfter(a) ||
+          (t.isAtSameMomentAs(a) && (row['id'] as String).compareTo(after.id) > 0);
+    });
+    return filtered.take(limit).map((r) => Map<String, Object?>.from(r)).toList();
+  }
+}
+
 class FakeRemote implements SyncRemote {
+  FakeRemote({FakeServer? server}) : server = server ?? FakeServer();
+
+  final FakeServer server;
+  final fetches = <(String, SyncPosition?)>[];
+  Object? fetchFailsFor;
+
+  @override
+  Future<List<Map<String, Object?>>> fetchChanges(
+    String table, {
+    SyncPosition? after,
+    int limit = 200,
+  }) async {
+    if (failWith != null) throw failWith!;
+    if (fetchFailsFor == table) throw Exception('fetch $table mislukt');
+    fetches.add((table, after));
+    return server.fetch(table, after: after, limit: limit);
+  }
+
   final calls = <(String, List<Map<String, Object?>>)>[];
   Object? failWith;
   void Function()? onUpsert;
@@ -37,6 +102,9 @@ class FakeRemote implements SyncRemote {
     if (failWith != null) throw failWith!;
     onUpsert?.call();
     calls.add((table, rows));
+    for (final row in rows) {
+      server.store(table, row);
+    }
   }
 
   Map<String, Object?> exportData = {'profiles': <Object?>[]};

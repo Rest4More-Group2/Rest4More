@@ -72,6 +72,7 @@ class SyncScheduler {
     this._now = DateTime.now,
     this.retryInterval = const Duration(minutes: 30),
     this.beforePush,
+    this.pull,
   });
 
   final SyncEngine _engine;
@@ -83,6 +84,11 @@ class SyncScheduler {
   /// nog openstaande verwijdering van cloudgegevens. Mislukt het, dan wordt het
   /// later opnieuw geprobeerd.
   final Future<void> Function()? beforePush;
+
+  /// Haalt eerst de wijzigingen van de server op, daarna wordt gepusht. Zo
+  /// komt een leeg toestel eerst terug op de laatste stand. Mislukt het, dan
+  /// wordt er niet gepusht en later opnieuw geprobeerd.
+  final Future<void> Function()? pull;
 
   Timer? _timer;
   bool _running = false;
@@ -108,6 +114,14 @@ class SyncScheduler {
       if (await _store.lastSuccessDate() == today) {
         _scheduleNext(retry: false);
         return;
+      }
+      if (pull != null) {
+        try {
+          await pull!();
+        } on Exception {
+          _scheduleNext(retry: true);
+          return;
+        }
       }
       final result = await _engine.pushDirty();
       lastResult = result;

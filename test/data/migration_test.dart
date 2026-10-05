@@ -14,13 +14,13 @@ void main() {
 
   test('het huidige schema komt overeen met de dump van de laatste versie',
       () async {
-    final schema = await verifier.schemaAt(2);
+    final schema = await verifier.schemaAt(3);
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
   });
 
-  test('migratie van v1 naar v2 voegt consent_records toe en houdt data',
+  test('migratie van v1 naar de nieuwste versie houdt data en voegt tabellen toe',
       () async {
     final schema = await verifier.schemaAt(1);
     final oldDb = v1.DatabaseAtV1(schema.newConnection());
@@ -33,8 +33,17 @@ void main() {
 
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 2);
+    await verifier.migrateAndValidate(db, 3);
     expect((await db.select(db.routines).getSingle()).id, 'r1');
     expect(await db.select(db.consentRecords).get(), isEmpty);
+    expect(await db.select(db.syncCursors).get(), isEmpty);
+  });
+
+  test('migratie van v2 naar v3 voegt sync_cursors toe', () async {
+    final schema = await verifier.schemaAt(2);
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 3);
+    expect(await db.select(db.syncCursors).get(), isEmpty);
   });
 }

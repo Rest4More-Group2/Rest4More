@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
+import 'package:rest4more/data/sync/debug_pull.dart';
 import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
@@ -36,6 +37,9 @@ Future<void> main() async {
         .read(profileRepositoryProvider)
         .recordCloudSyncConsent(DateTime.now());
     await PreferencesSyncStateStore().clear();
+  }
+  if (kDebugMode && const bool.fromEnvironment('DEBUG_PULL')) {
+    await runDebugPull(container);
   }
   const gdprMode = String.fromEnvironment('DEBUG_GDPR');
   if (kDebugMode && gdprMode.isNotEmpty) {

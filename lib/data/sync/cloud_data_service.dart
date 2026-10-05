@@ -88,6 +88,7 @@ class CloudDataService {
       }
       // Rechten komen van de server en horen bij het verwijderde account.
       await _db.delete(_db.entitlements).go();
+      await _db.delete(_db.syncCursors).go();
     });
     if ((await _profiles.get()).cloudSyncConsentAt != null) {
       await _profiles.recordCloudSyncConsent(null);

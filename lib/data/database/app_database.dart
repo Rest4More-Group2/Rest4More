@@ -15,6 +15,7 @@ import 'tables/profiles.dart';
 import 'tables/programme_days.dart';
 import 'tables/programme_enrollments.dart';
 import 'tables/routines.dart';
+import 'tables/sync_cursors.dart';
 
 part 'app_database.g.dart';
 
@@ -34,13 +35,14 @@ part 'app_database.g.dart';
   LocalNotifications,
   Entitlements,
   ConsentRecords,
+  SyncCursors,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? openAppDatabase());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,6 +70,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) {
             // v2: bewijs van toestemming.
             await m.createTable(consentRecords);
+          }
+          if (from < 3) {
+            // v3: voortgang van de pull per tabel.
+            await m.createTable(syncCursors);
           }
         },
         beforeOpen: (details) async {

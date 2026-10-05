@@ -175,7 +175,7 @@ void main() {
           .save(block.id, Uint8List.fromList([1, 2, 3]));
       final json = jsonDecode(await local.exportAsJson()) as Map;
 
-      expect(json['schema_version'], 2);
+      expect(json['schema_version'], 3);
       for (final table in [
         'profiles',
         'consent_records',

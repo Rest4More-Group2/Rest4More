@@ -163,3 +163,29 @@ nooit de inhoud van de gegevens.
 - `LocalDataService.exportAsJson()` geeft alles op het toestel. `wipeEverything()`
   trekt eerst de cloud in en maakt daarna alle tabellen leeg met `VACUUM`. Lukt de
   cloud niet, dan blijft die verwijdering openstaan.
+
+## Pull (gegevens van de server ophalen)
+
+- `PullEngine` haalt per tabel wijzigingen op via `synced_at` (met `id` als
+  tiebreaker, en 2 minuten overlap omdat de server de tijd bij het begin van een
+  transactie zet). Een nieuwere `updated_at` wint, op de server en lokaal. Opgehaalde
+  rijen zijn nooit `dirty`. Rijen die lokaal niet passen worden overgeslagen en
+  geteld.
+- Een leeg, nieuw aangemaakt lokaal profiel wordt vervangen door dat van de
+  server. Een profiel met gegevens blijft staan en wordt als conflict gemeld.
+- Rechten komen als volledige lijst en vervangen de lokale.
+- De voortgang staat in de tabel `sync_cursors` (schema v3), dus die verdwijnt met
+  de gegevens. Een andere account-id, wissen of intrekken zet hem terug.
+- De scheduler doet bij het openen: openstaande verwijdering, pull, push, in die
+  volgorde, hooguit een keer per dag. Mislukt de pull, dan wordt er niet gepusht.
+- Met anoniem inloggen heeft een herinstallatie een nieuw account, dus de pull
+  helpt daar niet. Hij helpt bij een opnieuw aangemaakte database terwijl de
+  sessie blijft, en straks bij meerdere toestellen met een echt account.
+- Proberen op de echte server (alleen debug), na eerst `DEBUG_SYNC=true` te hebben
+  gedraaid:
+
+```bash
+flutter run --dart-define-from-file=env.json --dart-define=DEBUG_PULL=true
+```
+
+  Dit maakt de lokale gegevens leeg (de cloud blijft staan) en haalt alles terug.

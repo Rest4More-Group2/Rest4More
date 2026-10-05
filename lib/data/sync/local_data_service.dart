@@ -24,6 +24,7 @@ class LocalDataService {
 
   /// Kinderen eerst, zodat verwijzingen het wissen niet blokkeren.
   static const _tablesChildrenFirst = [
+    'sync_cursors',
     'local_notifications',
     'ios_selections',
     'programme_days',
@@ -46,6 +47,7 @@ class LocalDataService {
       'schema_version': _db.schemaVersion,
     };
     for (final table in _tablesChildrenFirst.reversed) {
+      if (table == 'sync_cursors') continue;
       final rows = await _db.customSelect('SELECT * FROM $table').get();
       data[table] = [
         for (final row in rows)

@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/common.dart';
 import 'package:sqlite3/sqlite3.dart' show sqlite3;
 
+import '../sync/sync_scheduler.dart';
+
 /// Bewaart de databasesleutel buiten de database zelf.
 abstract interface class DatabaseKeyStore {
   /// De sleutel als hex (64 tekens), nieuw aangemaakt als er nog geen is.
@@ -76,10 +78,15 @@ void applyDatabaseKey(CommonDatabase db, String hexKey) {
 /// Past de sleutel niet en is het bestand dus onleesbaar, dan wordt het
 /// verwijderd en opnieuw aangemaakt: zonder sleutel zijn de gegevens toch
 /// verloren, en bij synchronisatie komen ze terug van de server.
-Future<QueryExecutor> openEncryptedFile(File file, String hexKey) async {
+Future<QueryExecutor> openEncryptedFile(
+  File file,
+  String hexKey, {
+  Future<void> Function()? onRecreated,
+}) async {
   if (!_keyFits(file, hexKey)) {
     await deleteDatabaseFiles(file);
     _keyFits(file, hexKey);
+    await onRecreated?.call();
   }
   return NativeDatabase.createInBackground(
     file,
@@ -116,7 +123,14 @@ QueryExecutor openAppDatabase({DatabaseKeyStore? keyStore}) {
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, 'restformore.sqlite'));
     await _moveLegacyFile(file);
-    return openEncryptedFile(file, key);
+    return openEncryptedFile(
+      file,
+      key,
+      // De gegevens zijn weg, het serveraccount niet. Vergeet dat account niet
+      // als "openstaande verwijdering": de cloudgegevens zijn juist de kans om
+      // alles terug te halen met de pull.
+      onRecreated: PreferencesSyncStateStore().clearUserId,
+    );
   });
 }
 

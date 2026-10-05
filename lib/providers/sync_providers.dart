@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/sync/cloud_data_service.dart';
 import '../data/sync/local_data_service.dart';
+import '../data/sync/pull_engine.dart';
 import '../data/sync/retention_service.dart';
 import '../data/sync/sync_engine.dart';
 import '../data/sync/sync_remote.dart';
@@ -14,6 +16,10 @@ import 'repository_providers.dart';
 /// Supabase is geinitialiseerd.
 final syncRemoteProvider =
     Provider<SyncRemote>((ref) => const UnavailableSyncRemote());
+
+final pullEngineProvider = Provider(
+  (ref) => PullEngine(ref.watch(databaseProvider), ref.watch(syncRemoteProvider)),
+);
 
 final syncEngineProvider = Provider(
   (ref) => SyncEngine(
@@ -33,6 +39,16 @@ final syncSchedulerProvider = Provider<SyncScheduler?>((ref) {
     ref.watch(syncEngineProvider),
     PreferencesSyncStateStore(),
     beforePush: cloudData.completePendingErasure,
+    pull: () async {
+      final result = await ref.read(pullEngineProvider).pull();
+      if (kDebugMode) {
+        debugPrint('[sync] pull ok=${result.ok} applied=${result.applied} '
+            'skipped=${result.skipped} conflicts=${result.conflicts.length} '
+            'noSession=${result.skippedNoSession} error=${result.error}');
+      }
+      final error = result.error;
+      if (error != null) throw error;
+    },
   );
   final observer = SyncLifecycleObserver(scheduler);
   WidgetsBinding.instance.addObserver(observer);
