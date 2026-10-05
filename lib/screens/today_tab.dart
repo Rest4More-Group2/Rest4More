@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/database/enums.dart';
@@ -22,8 +24,45 @@ class TodayTab extends ConsumerStatefulWidget {
   ConsumerState<TodayTab> createState() => _TodayTabState();
 }
 
-class _TodayTabState extends ConsumerState<TodayTab> {
+class _TodayTabState extends ConsumerState<TodayTab>
+    with WidgetsBindingObserver {
   String? _offeredFor;
+  Timer? _midnight;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleMidnight();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _midnight?.cancel();
+    super.dispose();
+  }
+
+  /// Een nieuwe dag brengt de volgende stap. Ook als de app open blijft staan.
+  void _scheduleMidnight() {
+    _midnight?.cancel();
+    final now = DateTime.now();
+    final next = DateTime(now.year, now.month, now.day + 1, 0, 0, 1);
+    _midnight = Timer(next.difference(now), () {
+      if (!mounted) return;
+      ref.invalidate(todayPlanProvider);
+      _scheduleMidnight();
+    });
+  }
+
+  /// Terug in de app na een nacht in de achtergrond: opnieuw bepalen.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(todayPlanProvider);
+      _scheduleMidnight();
+    }
+  }
 
   /// Een stap die wordt getoond is aangeboden. Eenmalig per stap.
   void _offer(TodayPlan today) {
@@ -71,6 +110,9 @@ class _TodayTabState extends ConsumerState<TodayTab> {
       data: (today) {
         if (today == null) return TodayScreen(onStartStep: widget.onStartStep);
         if (today.finished) return _PlanFinished(totalDays: today.totalDays);
+        if (today.waitingForTomorrow) {
+          return _DoneForToday(day: today.day);
+        }
         _offer(today);
         return TodayScreen(
           // Nieuwe stap, nieuwe staat.
@@ -129,6 +171,38 @@ class _ConfirmStep extends StatelessWidget {
               onPressed: () => Navigator.pop(context, false),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// De stap van vandaag is gedaan. De volgende is er morgen.
+class _DoneForToday extends StatelessWidget {
+  const _DoneForToday({required this.day});
+
+  /// De volgende stap.
+  final int day;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: RestPalette.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Today’s step is done', style: RestType.serif(34)),
+              const SizedBox(height: 12),
+              Text(
+                'Day $day is ready for you tomorrow. One step a day is enough.',
+                style: RestType.sans(16),
+              ),
+            ],
+          ),
         ),
       ),
     );

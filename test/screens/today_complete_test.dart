@@ -41,7 +41,10 @@ void main() {
         .firstWhere((d) => d.dayNumber == 1);
     expect(day1.status, DayStatus.completed);
     expect(day1.completedAt, isNotNull);
-    expect(find.text('DAY 2 OF 14'), findsOneWidget);
+    // Eén stap per dag: de volgende wacht tot morgen.
+    expect(find.text('Today’s step is done'), findsOneWidget);
+    expect(find.textContaining('Day 2 is ready for you tomorrow'), findsOneWidget);
+    expect(find.text('Start today’s step'), findsNothing);
     expect(find.text('Day 1 is done.'), findsOneWidget);
   });
 }

@@ -152,6 +152,8 @@ void main() {
 
   group('Today', () {
     late ProgrammeRepository programme;
+    // De stappen worden gedaan op 2 maart, de dag erna kijken we weer.
+    final tomorrow = DateTime(2026, 3, 3, 9);
 
     Future<List<ProgrammeDay>> planned() async {
       await finishOnboarding();
@@ -168,7 +170,7 @@ void main() {
     }
 
     test('een nieuw plan begint bij dag 1', () async {
-      final today = pickToday(await planned())!;
+      final today = pickToday(await planned(), tomorrow)!;
       expect(today.day, 1);
       expect(today.totalDays, 14);
       expect(today.finished, isFalse);
@@ -180,7 +182,7 @@ void main() {
     test('de volgende stap is de eerste die nog niet gedaan is', () async {
       final days = await planned();
       await complete(days, [1, 2, 3]);
-      final today = pickToday(await db.select(db.programmeDays).get())!;
+      final today = pickToday(await db.select(db.programmeDays).get(), tomorrow)!;
       expect(today.day, 4);
       expect(today.title, 'Give the space a purpose');
       expect(today.action, contains('reading a few pages'));
@@ -192,13 +194,13 @@ void main() {
       await complete(days, [1]);
       // De datums liggen ver in het verleden: er verandert niets.
       await db.customStatement("UPDATE programme_days SET scheduled_for = '2020-01-01'");
-      expect(pickToday(await db.select(db.programmeDays).get())!.day, 2);
+      expect(pickToday(await db.select(db.programmeDays).get(), tomorrow)!.day, 2);
     });
 
     test('een geopende maar niet afgeronde stap blijft de huidige', () async {
       final days = await planned();
       await programme.markOpened(days.firstWhere((d) => d.dayNumber == 1).id);
-      final today = pickToday(await db.select(db.programmeDays).get())!;
+      final today = pickToday(await db.select(db.programmeDays).get(), tomorrow)!;
       expect(today.day, 1);
       expect(today.status, DayStatus.opened);
     });
@@ -206,20 +208,20 @@ void main() {
     test('een overgeslagen stap telt als gedaan', () async {
       final days = await planned();
       await programme.skip(days.firstWhere((d) => d.dayNumber == 1).id);
-      expect(pickToday(await db.select(db.programmeDays).get())!.day, 2);
+      expect(pickToday(await db.select(db.programmeDays).get(), tomorrow)!.day, 2);
     });
 
     test('een lege plek vooraan wordt niet overgeslagen', () async {
       // Dag 3 afgerond zonder 1 en 2: de eerste open stap is nog dag 1.
       final days = await planned();
       await complete(days, [3]);
-      expect(pickToday(await db.select(db.programmeDays).get())!.day, 1);
+      expect(pickToday(await db.select(db.programmeDays).get(), tomorrow)!.day, 1);
     });
 
     test('alles gedaan: de laatste dag met finished', () async {
       final days = await planned();
       await complete(days, [for (var i = 1; i <= 14; i++) i]);
-      final today = pickToday(await db.select(db.programmeDays).get())!;
+      final today = pickToday(await db.select(db.programmeDays).get(), tomorrow)!;
       expect(today.finished, isTrue);
       expect(today.day, 14);
     });
@@ -227,12 +229,59 @@ void main() {
     test('kleine stap als gekozen formaat geeft de kleine duur', () async {
       final days = await planned();
       await programme.setSize(days.first.id, DaySize.smaller);
-      final today = pickToday(await db.select(db.programmeDays).get())!;
+      final today = pickToday(await db.select(db.programmeDays).get(), tomorrow)!;
       expect(today.minutes, TodayPlan.defaultSmallerMinutes);
     });
 
     test('zonder plan is er niets', () {
-      expect(pickToday(const []), isNull);
+      expect(pickToday(const [], tomorrow), isNull);
+    });
+
+    test('eén stap per dag: vandaag al een stap gedaan, dan wacht de volgende',
+        () async {
+      final days = await planned();
+      await complete(days, [1]);
+      final rows = await db.select(db.programmeDays).get();
+      final sameDay = pickToday(rows, DateTime(2026, 3, 2, 21))!;
+      expect(sameDay.day, 2);
+      expect(sameDay.waitingForTomorrow, isTrue);
+      // De volgende kalenderdag is de stap er wel.
+      final nextDay = pickToday(rows, DateTime(2026, 3, 3, 0, 1))!;
+      expect(nextDay.day, 2);
+      expect(nextDay.waitingForTomorrow, isFalse);
+    });
+
+    test('de grens ligt op middernacht, niet op 24 uur', () async {
+      final days = await planned();
+      clock.current = DateTime(2026, 3, 2, 23, 50);
+      await complete(days, [1]);
+      final rows = await db.select(db.programmeDays).get();
+      expect(pickToday(rows, DateTime(2026, 3, 2, 23, 59))!.waitingForTomorrow, isTrue);
+      expect(pickToday(rows, DateTime(2026, 3, 3, 0, 5))!.waitingForTomorrow, isFalse);
+    });
+
+    test('een stap die gestart maar niet afgerond is, wacht nooit', () async {
+      final days = await planned();
+      await programme.markOpened(days.firstWhere((d) => d.dayNumber == 1).id);
+      final today = pickToday(await db.select(db.programmeDays).get(), DateTime(2026, 3, 2, 20))!;
+      expect(today.waitingForTomorrow, isFalse);
+      expect(today.day, 1);
+    });
+
+    test('alles gedaan wint van wachten', () async {
+      final days = await planned();
+      await complete(days, [for (var i = 1; i <= 14; i++) i]);
+      final today = pickToday(await db.select(db.programmeDays).get(), DateTime(2026, 3, 2, 20))!;
+      expect(today.finished, isTrue);
+      expect(today.waitingForTomorrow, isFalse);
+    });
+
+    test('een stap van gisteren blokkeert vandaag niet', () async {
+      final days = await planned();
+      await complete(days, [1, 2]);
+      final today = pickToday(await db.select(db.programmeDays).get(), DateTime(2026, 3, 9, 8))!;
+      expect(today.day, 3);
+      expect(today.waitingForTomorrow, isFalse);
     });
 
     test('begroeting volgt het uur', () {

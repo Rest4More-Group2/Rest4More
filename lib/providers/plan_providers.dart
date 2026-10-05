@@ -37,5 +37,5 @@ final planPreviewProvider = FutureProvider.autoDispose<PlanPreview?>((ref) async
 /// De huidige dag voor het Today-scherm. Null als er (nog) geen plan is.
 final todayPlanProvider = Provider<AsyncValue<TodayPlan?>>((ref) {
   final days = ref.watch(programmeDaysProvider);
-  return days.whenData((list) => pickToday(list));
+  return days.whenData((list) => pickToday(list, DateTime.now()));
 });

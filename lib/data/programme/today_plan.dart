@@ -15,6 +15,7 @@ class TodayPlan {
     required this.smallerMinutes,
     required this.status,
     this.finished = false,
+    this.waitingForTomorrow = false,
   });
 
   final String dayId;
@@ -33,17 +34,21 @@ class TodayPlan {
   /// Alle dagen zijn gedaan. De rest van dit object beschrijft de laatste dag.
   final bool finished;
 
+  /// Er is vandaag al een stap gedaan. Eén stap per dag: deze is voor morgen.
+  final bool waitingForTomorrow;
+
   /// Standaardduur van een stap, tot de gebruiker er zelf een kiest. Het
   /// programma beschrijft acties, geen minuten.
   static const defaultMinutes = 20;
   static const defaultSmallerMinutes = 5;
 }
 
-/// De eerstvolgende stap die nog niet is gedaan. Het plan loopt dag voor dag:
+/// De eerstvolgende stap die nog niet is gedaan, maximaal één per dag. Het plan
+/// loopt dag voor dag:
 /// wie een paar dagen niets doet, gaat gewoon verder waar hij was gebleven. De
 /// datums in het plan bepalen dit niet. Afgeronde en overgeslagen dagen tellen
 /// als gedaan. Is alles gedaan, dan is dit de laatste dag met [TodayPlan.finished].
-TodayPlan? pickToday(List<ProgrammeDay> days) {
+TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
   final usable = [
     for (final d in days)
       if (d.deletedAt == null) d,
@@ -53,6 +58,13 @@ TodayPlan? pickToday(List<ProgrammeDay> days) {
   bool done(ProgrammeDay d) =>
       d.status == DayStatus.completed || d.status == DayStatus.skipped;
   final next = usable.where((d) => !done(d)).firstOrNull;
+  // Eén stap per kalenderdag (lokale tijd): is er vandaag al een afgerond, dan
+  // wacht de volgende tot morgen.
+  final today = DateTime(now.year, now.month, now.day);
+  final doneToday = usable.any((d) {
+    final at = d.completedAt?.toLocal();
+    return at != null && DateTime(at.year, at.month, at.day) == today;
+  });
   final chosen = next ?? usable.last;
 
   final content = chosen.snapshot;
@@ -74,6 +86,7 @@ TodayPlan? pickToday(List<ProgrammeDay> days) {
     smallerMinutes: TodayPlan.defaultSmallerMinutes,
     status: chosen.status,
     finished: next == null,
+    waitingForTomorrow: next != null && doneToday,
   );
 }
 

@@ -29,6 +29,13 @@ void main() {
       await tester.runAsync(() => programme
           .markCompleted(days!.firstWhere((d) => d.dayNumber == n).id));
     }
+    // Ze zijn dagen geleden afgerond, niet vandaag.
+    await tester.runAsync(() => db.customUpdate(
+          "UPDATE programme_days SET completed_at = '2020-01-02T10:00:00.000Z' "
+          "WHERE status = 'completed'",
+          updates: {db.programmeDays},
+          updateKind: UpdateKind.update,
+        ));
     await tester.runAsync(() => db.customUpdate(
           "UPDATE programme_days SET scheduled_for = '2020-01-01'",
           updates: {db.programmeDays},
