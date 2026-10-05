@@ -69,6 +69,9 @@ void applyDatabaseKey(CommonDatabase db, String hexKey) {
     throw StateError('De databasesleutel past niet bij dit bestand.');
   }
   db.execute('PRAGMA journal_mode = WAL');
+  // Wacht op een lock in plaats van meteen te falen. Bij een hot restart in
+  // de ontwikkeling leeft de oude verbinding nog even naast de nieuwe.
+  db.execute('PRAGMA busy_timeout = 5000');
 }
 
 /// Opent (of maakt) de versleutelde database op [file].

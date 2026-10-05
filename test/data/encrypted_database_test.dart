@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
@@ -91,6 +92,32 @@ void main() {
     db = await open(_keyB);
     expect((await db.select(db.routines).getSingle()).name, 'nieuw');
     addTearDown(db.close);
+  });
+
+  test('een tweede verbinding wacht op een lock in plaats van te falen',
+      () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    final first = await open(_keyA);
+    final second = await open(_keyA);
+    addTearDown(first.close);
+    addTearDown(second.close);
+    await first.customStatement('SELECT 1');
+    await second.customStatement('SELECT 1');
+
+    // De eerste houdt een schrijf-transactie even vast.
+    final holding = first.transaction(() async {
+      await addRoutine(first, 'vast');
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    // De tweede begint ondertussen een schrijf-transactie: wachten, niet falen.
+    await second.transaction(() async {
+      await addRoutine(second, 'daarna');
+    });
+    await holding;
+    expect((await first.select(first.routines).get()).map((r) => r.name),
+        containsAll(['vast', 'daarna']));
   });
 
   test('sleutel is 64 hex-tekens en wordt hergebruikt', () async {
