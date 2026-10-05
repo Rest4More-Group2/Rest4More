@@ -38,6 +38,7 @@ doc/api/
 
 # dotenv environment variables file
 .env*
+env.json
 
 # Avoid committing generated Javascript files:
 *.dart.js
@@ -70,3 +71,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Drift generated code (run build_runner, see README)
+*.g.dart
