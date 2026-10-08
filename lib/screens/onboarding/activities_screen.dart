@@ -50,9 +50,16 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
-            vertical: 20,
+            vertical: 12,
           ),
-          child: Column(
+          // Scrolls when the content is taller than the screen; otherwise the
+          // Spacer keeps the button at the bottom.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
@@ -117,7 +124,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 18),
 
               // Quiet moments
               ActivityOptionCard(
@@ -131,7 +138,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 },
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
               // Paper reading
               ActivityOptionCard(
@@ -145,7 +152,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 },
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
 
               // Breathing
               ActivityOptionCard(
@@ -159,6 +166,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 },
               ),
 
+              // Minimum gap above the button; the Spacer grows it on tall screens.
+              const SizedBox(height: 20),
               const Spacer(),
 
               // Continue button
@@ -196,8 +205,12 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -229,7 +242,7 @@ class ActivityOptionCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
               ? _ActivitiesScreenState.cardBackground

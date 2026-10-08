@@ -154,7 +154,8 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,
-                    childAspectRatio: 1.65,
+                    // Fixed height: fits an icon and a two-line title.
+                    mainAxisExtent: 116,
                   ),
                   itemBuilder: (context, index) {
                     final obstacle = obstacles[index];

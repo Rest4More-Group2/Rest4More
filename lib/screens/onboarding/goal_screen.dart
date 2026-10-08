@@ -40,9 +40,16 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
-            vertical: 20,
+            vertical: 12,
           ),
-          child: Column(
+          // Scrolls when the content is taller than the screen; otherwise the
+          // Spacer keeps the button at the bottom.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Back button
@@ -95,7 +102,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 18),
 
               GoalOptionCard(
                 title: 'Put the phone away earlier',
@@ -109,7 +116,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 },
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               GoalOptionCard(
                 title: 'Build a routine',
@@ -123,7 +130,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 },
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               GoalOptionCard(
                 title: 'Use less social media',
@@ -137,6 +144,8 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 },
               ),
 
+              // Minimum gap above the button; the Spacer grows it on tall screens.
+              const SizedBox(height: 20),
               const Spacer(),
 
               // Continue button
@@ -172,8 +181,12 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
             ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -203,7 +216,7 @@ class GoalOptionCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
               ? _GoalScreenState.cardBackground
@@ -231,7 +244,7 @@ class GoalOptionCard extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                   Text(
                     description,
                     style: TextStyle(
