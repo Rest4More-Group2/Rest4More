@@ -1,7 +1,9 @@
-import 'dart:io' as io;
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rest4more/data/tags/tag_service.dart';
+import 'app_selection.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
 class MyHomePage extends StatefulWidget {
@@ -12,25 +14,44 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   bool isBlocked = false;
   bool _busy = false;
   bool _loading = false;
   bool _statusKnown = false;
+  StreamSubscription<bool>? _tagSub;
   static const platform = MethodChannel(
     'com.example.app_blocking_prototype/blocking',
   );
 
-  bool get _isAndroid => !kIsWeb && io.Platform.isAndroid;
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _tagSub = TagService.blockingChanges.listen((blocking) {
+      if (!mounted) return;
+      setState(() {
+        isBlocked = blocking;
+        _statusKnown = true;
+      });
+    });
     _loadBlockState();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _tagSub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadBlockState();
+  }
+
   Future<void> _loadBlockState() async {
-    if (!_isAndroid) return;
+    if (kIsWeb) return;
     setState(() => _loading = true);
     try {
       final blocked = await platform.invokeMethod<bool>('getBlocking');
@@ -96,14 +117,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _openPairedTags() async {
+    if (kIsWeb) {
+      _showError('Paired tags are available on the mobile app.');
+      return;
+    }
+    await Navigator.pushNamed(context, '/pairedTags');
+  }
+
   Future<void> _chooseApps() async {
     if (kIsWeb) {
       _showError('Choose apps to block on the mobile app.');
       return;
     }
-    await Navigator.pushNamed(
-      context, _isAndroid ? '/picker' : '/authorizationIOS',
-    );
+    await openAppSelection(context);
     if (mounted) await _loadBlockState();
   }
 
@@ -205,6 +232,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   const SizedBox(height: 14),
                   _button(label: 'Scan NFC tag', icon: Icons.nfc,
                     onPressed: disabled ? null : _scanNfcTag, outlined: true),
+                  const SizedBox(height: 14),
+                  _button(label: 'Paired tags', icon: Icons.sell_outlined,
+                    onPressed: disabled ? null : _openPairedTags, outlined: true),
                   const SizedBox(height: 24),
                   Text('A little space. One thing at a time.',
                     textAlign: TextAlign.center,

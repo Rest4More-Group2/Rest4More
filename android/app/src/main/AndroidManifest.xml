@@ -27,6 +27,26 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Tag links: no UI, toggles blocking and closes at once -->
+        <activity
+            android:name=".TagActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@style/TagTheme">
+            <!-- Verified App Link for NFC tag URLs -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="tap.bartvangestel.nl"
+                    android:pathPrefix="/t/" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".BlockActivity"
             android:exported="true"

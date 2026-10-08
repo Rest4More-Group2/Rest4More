@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
 import 'focus_moment_screen.dart';
+import 'tag_moment_screen.dart';
 import 'moments_widgets.dart';
 
 class MomentsScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class MomentsScreen extends StatefulWidget {
 
 class _MomentsScreenState extends State<MomentsScreen> {
   bool _focusSelected = false;
+  bool _tagSelected = false;
 
   void _beginFocus() {
     setState(() => _focusSelected = true);
@@ -25,6 +27,14 @@ class _MomentsScreenState extends State<MomentsScreen> {
           onStartFocus: widget.onStartFocus,
         ),
       ),
+    );
+  }
+
+  void _beginTag() {
+    setState(() => _tagSelected = true);
+
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(builder: (_) => const TagMomentScreen()),
     );
   }
 
@@ -51,7 +61,26 @@ class _MomentsScreenState extends State<MomentsScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _focusCard(),
+                _momentCard(
+                  title: 'Focus',
+                  description:
+                      'Clear your mind to commit to a single quiet workflow.',
+                  iconIndex: 1,
+                  selected: _focusSelected,
+                  onSelect: () => setState(() => _focusSelected = true),
+                  onBegin: _beginFocus,
+                ),
+                const SizedBox(height: 16),
+                _momentCard(
+                  title: 'Tag',
+                  description:
+                      'Set your apps aside with a tap of your tag, and bring '
+                      'them back with the same tap.',
+                  iconIndex: 4,
+                  selected: _tagSelected,
+                  onSelect: () => setState(() => _tagSelected = true),
+                  onBegin: _beginTag,
+                ),
               ],
             ),
           ),
@@ -60,9 +89,16 @@ class _MomentsScreenState extends State<MomentsScreen> {
     ),
   );
 
-  Widget _focusCard() {
+  Widget _momentCard({
+    required String title,
+    required String description,
+    required int iconIndex,
+    required bool selected,
+    required VoidCallback onSelect,
+    required VoidCallback onBegin,
+  }) {
     return Semantics(
-      selected: _focusSelected,
+      selected: selected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeInOut,
@@ -70,7 +106,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
           color: RestPalette.surface,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: _focusSelected
+            color: selected
                 ? RestPalette.primary
                 : Colors.transparent,
             width: 2,
@@ -81,9 +117,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
           borderRadius: BorderRadius.circular(22),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: () {
-              setState(() => _focusSelected = true);
-            },
+            onTap: onSelect,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
               child: Column(
@@ -93,19 +127,19 @@ class _MomentsScreenState extends State<MomentsScreen> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Focus',
+                          title,
                           style: RestType.serif(27).copyWith(
-                            fontWeight: _focusSelected
+                            fontWeight: selected
                                 ? FontWeight.w600
                                 : FontWeight.w400,
                           ),
                         ),
                       ),
                       AnimatedScale(
-                        scale: _focusSelected ? 1.12 : 1,
+                        scale: selected ? 1.12 : 1,
                         duration: const Duration(milliseconds: 220),
-                        child: const RestMomentIcon(
-                          index: 1,
+                        child: RestMomentIcon(
+                          index: iconIndex,
                           color: RestPalette.primary,
                           size: 22,
                         ),
@@ -114,7 +148,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Clear your mind to commit to a single quiet workflow.',
+                    description,
                     style: RestType.sans(
                       16,
                       color: RestPalette.accent,
@@ -124,7 +158,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: _beginFocus,
+                      onPressed: onBegin,
                       style: TextButton.styleFrom(
                         foregroundColor: RestPalette.primary,
                         padding: EdgeInsets.zero,
