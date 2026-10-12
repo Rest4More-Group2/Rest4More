@@ -21,7 +21,19 @@ import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
+import 'screens/paired_tags_screen.dart';
 import 'screens/app_shell.dart';
+
+/// Entry point of the engine behind BlockActivity (see MyApplication.kt). It
+/// only shows the block screen, so it never opens the database or sync.
+@pragma('vm:entry-point')
+void blockMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: BlockedScreen(),
+  ));
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +95,7 @@ class MyApp extends StatelessWidget {
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) => const AuthorizationIosScreen(),
         '/nfcScan': (context) => const NfcScanScreen(),
+        '/pairedTags': (context) => const PairedTagsScreen(),
         '/prototype': (context) =>
             const MyHomePage(title: 'Rest For More Prototype'),
       },

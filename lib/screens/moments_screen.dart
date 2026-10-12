@@ -4,6 +4,7 @@ import 'today_screen.dart' show RestPalette, RestType;
 import 'focus_moment_screen.dart';
 import 'saved_moment_pages.dart';
 import 'session_setup_screen.dart';
+import 'tag_moment_screen.dart';
 import 'moments_widgets.dart';
 
 class MomentsScreen extends StatefulWidget {
@@ -70,6 +71,16 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       arguments: setup.kind.moment,
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                _momentCard(
+                  id: 'tag',
+                  title: 'Tag',
+                  iconIndex: 4,
+                  description:
+                      'Set your apps aside with a tap of your tag, and bring '
+                      'them back with the same tap.',
+                  builder: (_) => const TagMomentScreen(),
                 ),
                 const SizedBox(height: 16),
                 _momentCard(

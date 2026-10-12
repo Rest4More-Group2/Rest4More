@@ -6,6 +6,10 @@ import SwiftUI
 
 @available(iOS 16, *)
 class SceneDelegate: FlutterSceneDelegate {
+    private var channel: FlutterMethodChannel?
+
+    private let tagHost = "tap.bartvangestel.nl"
+
     override func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         super.scene(scene, willConnectTo: session, options: connectionOptions)
 
@@ -15,6 +19,7 @@ class SceneDelegate: FlutterSceneDelegate {
         }
 
         let channel = FlutterMethodChannel(name: "com.example.app_blocking_prototype/blocking", binaryMessenger: controller.binaryMessenger)
+        self.channel = channel
 
         channel.setMethodCallHandler { (call, result) in
             switch call.method {
@@ -40,27 +45,37 @@ class SceneDelegate: FlutterSceneDelegate {
                     result("notDetermined")
                 }
             case "setBlocking":
-                let isBlocking = (call.arguments as? [String: Any])?["isBlocking"] as? Bool ?? false
-                UserDefaults.standard.set(isBlocking, forKey: "isBlocking")
-
-                let store = ManagedSettingsStore()
-                if isBlocking {
-                    // Een moment geeft zijn eigen selectie mee; zonder valt dit
-                    // terug op de oude gedeelde selectie.
-                    let blockArgs = call.arguments as? [String: Any]
-                    let given = blockArgs?["selection"] as? FlutterStandardTypedData
-                    // Met `momentSelection` geldt alleen de keuze van dat moment;
-                    // zonder eigen keuze wordt er dan niets geblokkeerd.
-                    let momentOnly = blockArgs?["momentSelection"] as? Bool ?? false
-                    let stored = given?.data ?? (momentOnly ? nil : UserDefaults.standard.data(forKey: "blockedSelection"))
-                    if let data = stored,
-                       let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: data) {
-                        store.shield.applications = selection.applicationTokens
-                        store.shield.applicationCategories = .specific(selection.categoryTokens)
-                    }
+                let args = call.arguments as? [String: Any]
+                let isBlocking = args?["isBlocking"] as? Bool ?? false
+                // Een moment geeft zijn eigen selectie mee. Met `momentSelection`
+                // geldt alleen die keuze: heeft het moment geen eigen keuze, dan
+                // wordt er niets geblokkeerd (geen terugval op de gedeelde lijst).
+                // Zonder moment geldt de oude gedeelde selectie.
+                let given = args?["selection"] as? FlutterStandardTypedData
+                let momentOnly = args?["momentSelection"] as? Bool ?? false
+                self.applyBlocking(isBlocking, selectionData: given?.data, momentOnly: momentOnly)
+                result(nil)
+            case "getBlocking":
+                result(UserDefaults.standard.bool(forKey: "isBlocking"))
+            case "getKnownTags":
+                result(UserDefaults.standard.stringArray(forKey: "knownTags") ?? [])
+            case "addKnownTag":
+                if let args = call.arguments as? [String: Any],
+                   let raw = args["uuid"] as? String,
+                   let uuid = UUID(uuidString: raw) {
+                    var tags = UserDefaults.standard.stringArray(forKey: "knownTags") ?? []
+                    let id = uuid.uuidString.lowercased()
+                    if !tags.contains(id) { tags.append(id) }
+                    UserDefaults.standard.set(tags, forKey: "knownTags")
+                    result(nil)
                 } else {
-                    store.shield.applications = nil
-                    store.shield.applicationCategories = nil
+                    result(FlutterError(code: "bad_uuid", message: "Not a valid UUID", details: nil))
+                }
+            case "removeKnownTag":
+                if let args = call.arguments as? [String: Any], let raw = args["uuid"] as? String {
+                    var tags = UserDefaults.standard.stringArray(forKey: "knownTags") ?? []
+                    tags.removeAll { $0 == raw.lowercased() }
+                    UserDefaults.standard.set(tags, forKey: "knownTags")
                 }
                 result(nil)
             case "showAppPicker":
@@ -70,19 +85,22 @@ class SceneDelegate: FlutterSceneDelegate {
                 }
                 let args = call.arguments as? [String: Any]
                 // Met `returnSelection` bewaart Flutter de selectie per moment;
-                // zonder blijft het oude gedeelde gedrag.
+                // zonder blijft het oude gedeelde gedrag (UserDefaults).
                 let returnSelection = args?["returnSelection"] as? Bool ?? false
-                var initial = FamilyActivitySelection()
-                if let given = args?["selection"] as? FlutterStandardTypedData,
-                   let decoded = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: given.data) {
-                    initial = decoded
+                var initial: FamilyActivitySelection? = nil
+                if returnSelection {
+                    initial = FamilyActivitySelection()
+                    if let given = args?["selection"] as? FlutterStandardTypedData,
+                       let decoded = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: given.data) {
+                        initial = decoded
+                    }
                 }
                 let hostingController = UIHostingController(rootView: AppPickerHostView(initial: initial, onDone: { selection in
                     let data = try? PropertyListEncoder().encode(selection)
                     if !returnSelection, let data = data {
                         UserDefaults.standard.set(data, forKey: "blockedSelection")
                     }
-                    rootVC.dismiss(animated: true) {
+                    rootVC.dismiss(animated: false) {
                         if returnSelection, let data = data {
                             // De tellingen laten Flutter weten of er echt iets gekozen is.
                             result([
@@ -96,7 +114,9 @@ class SceneDelegate: FlutterSceneDelegate {
                         }
                     }
                 }))
-                rootVC.present(hostingController, animated: true)
+                hostingController.view.backgroundColor = .clear
+                hostingController.modalPresentationStyle = .overFullScreen
+                rootVC.present(hostingController, animated: false)
             case "openSettings":
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
@@ -105,6 +125,60 @@ class SceneDelegate: FlutterSceneDelegate {
             default:
                 result(FlutterMethodNotImplemented)
             }
+        }
+
+        // Cold start: the app was launched by a tag link.
+        if let activity = connectionOptions.userActivities.first(where: {
+            $0.activityType == NSUserActivityTypeBrowsingWeb
+        }), let url = activity.webpageURL {
+            handleTagURL(url)
+        }
+    }
+
+    // Warm start: the app is already running or suspended.
+    override func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        super.scene(scene, continue: userActivity)
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let url = userActivity.webpageURL else { return }
+        handleTagURL(url)
+    }
+
+    private func handleTagURL(_ url: URL) {
+        guard url.scheme == "https", url.host == tagHost else { return }
+        let parts = url.pathComponents.filter { $0 != "/" }
+        guard parts.count == 2, parts[0] == "t",
+              let uuid = UUID(uuidString: parts[1]) else { return }
+
+        let id = uuid.uuidString.lowercased()
+        let known = UserDefaults.standard.stringArray(forKey: "knownTags") ?? []
+        guard known.contains(id) else { return }  // unknown tag: ignore
+
+        let newState = !UserDefaults.standard.bool(forKey: "isBlocking")
+        applyBlocking(newState)
+        channel?.invokeMethod("blockingChanged", arguments: newState)
+    }
+
+    /// Single place that stores and applies the blocking state, used by both
+    /// the `setBlocking` channel call and tag links. A moment can pass its own
+    /// selection; `momentOnly` stops it falling back to the shared list.
+    private func applyBlocking(_ isBlocking: Bool, selectionData: Data? = nil, momentOnly: Bool = false) {
+        UserDefaults.standard.set(isBlocking, forKey: "isBlocking")
+
+        let store = ManagedSettingsStore()
+        if isBlocking {
+            let stored = selectionData ?? (momentOnly ? nil : UserDefaults.standard.data(forKey: "blockedSelection"))
+            if let data = stored,
+               let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: data) {
+                store.shield.applications = selection.applicationTokens
+                store.shield.applicationCategories = .specific(selection.categoryTokens)
+            } else {
+                // Niets gekozen: laat geen oude blokkade van een ander moment staan.
+                store.shield.applications = nil
+                store.shield.applicationCategories = nil
+            }
+        } else {
+            store.shield.applications = nil
+            store.shield.applicationCategories = nil
         }
     }
 }
