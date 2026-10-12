@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/database/app_database.dart';
+import '../data/moments/moment_plans.dart';
+import '../data/moments/moment_profiles.dart';
 import '../data/repositories/accessory_repository.dart';
 import '../data/repositories/block_profile_repository.dart';
 import '../data/repositories/entitlement_repository.dart';
 import '../data/repositories/focus_session_repository.dart';
 import '../data/repositories/local_notification_store.dart';
+import '../data/repositories/moment_plan_repository.dart';
 import '../data/repositories/profile_repository.dart';
 import '../data/repositories/programme_repository.dart';
 import '../data/repositories/routine_repository.dart';
@@ -22,6 +25,23 @@ final blockProfileRepositoryProvider =
 
 final iosSelectionStoreProvider =
     Provider((ref) => IosSelectionStore(ref.watch(databaseProvider)));
+
+final momentProfileServiceProvider = Provider(
+  (ref) => MomentProfileService(
+    ref.watch(blockProfileRepositoryProvider),
+    ref.watch(iosSelectionStoreProvider),
+  ),
+);
+
+final momentPlanRepositoryProvider =
+    Provider((ref) => MomentPlanRepository(ref.watch(databaseProvider)));
+
+final momentPlanStoreProvider = Provider<MomentPlanStore>(
+  (ref) => DbMomentPlanStore(
+    ref.watch(momentPlanRepositoryProvider),
+    legacy: PrefsMomentPlanStore(),
+  ),
+);
 
 final accessoryRepositoryProvider =
     Provider((ref) => AccessoryRepository(ref.watch(databaseProvider)));

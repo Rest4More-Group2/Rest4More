@@ -45,7 +45,15 @@ class SceneDelegate: FlutterSceneDelegate {
 
                 let store = ManagedSettingsStore()
                 if isBlocking {
-                    if let data = UserDefaults.standard.data(forKey: "blockedSelection"),
+                    // Een moment geeft zijn eigen selectie mee; zonder valt dit
+                    // terug op de oude gedeelde selectie.
+                    let blockArgs = call.arguments as? [String: Any]
+                    let given = blockArgs?["selection"] as? FlutterStandardTypedData
+                    // Met `momentSelection` geldt alleen de keuze van dat moment;
+                    // zonder eigen keuze wordt er dan niets geblokkeerd.
+                    let momentOnly = blockArgs?["momentSelection"] as? Bool ?? false
+                    let stored = given?.data ?? (momentOnly ? nil : UserDefaults.standard.data(forKey: "blockedSelection"))
+                    if let data = stored,
                        let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: data) {
                         store.shield.applications = selection.applicationTokens
                         store.shield.applicationCategories = .specific(selection.categoryTokens)
@@ -60,9 +68,32 @@ class SceneDelegate: FlutterSceneDelegate {
                     result(nil)
                     return
                 }
-                let hostingController = UIHostingController(rootView: AppPickerHostView(onDone: {
+                let args = call.arguments as? [String: Any]
+                // Met `returnSelection` bewaart Flutter de selectie per moment;
+                // zonder blijft het oude gedeelde gedrag.
+                let returnSelection = args?["returnSelection"] as? Bool ?? false
+                var initial = FamilyActivitySelection()
+                if let given = args?["selection"] as? FlutterStandardTypedData,
+                   let decoded = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: given.data) {
+                    initial = decoded
+                }
+                let hostingController = UIHostingController(rootView: AppPickerHostView(initial: initial, onDone: { selection in
+                    let data = try? PropertyListEncoder().encode(selection)
+                    if !returnSelection, let data = data {
+                        UserDefaults.standard.set(data, forKey: "blockedSelection")
+                    }
                     rootVC.dismiss(animated: true) {
-                        result(nil)
+                        if returnSelection, let data = data {
+                            // De tellingen laten Flutter weten of er echt iets gekozen is.
+                            result([
+                                "selection": FlutterStandardTypedData(bytes: data),
+                                "apps": selection.applicationTokens.count,
+                                "categories": selection.categoryTokens.count,
+                                "websites": selection.webDomainTokens.count,
+                            ])
+                        } else {
+                            result(nil)
+                        }
                     }
                 }))
                 rootVC.present(hostingController, animated: true)

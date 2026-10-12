@@ -2,6 +2,10 @@ import 'dart:io' as io;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/moments/moment_blocking.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
+import 'package:rest4more/providers/repository_providers.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
 class MyHomePage extends StatefulWidget {
@@ -51,6 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// Het moment dat deze sessie gestart heeft, als de route het meegeeft.
+  MomentKind? get _moment {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    return args is MomentKind ? args : null;
+  }
+
   Future<void> _setBlock() async {
     if (_busy || _loading) return;
     if (kIsWeb) {
@@ -60,7 +70,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final newState = !isBlocked;
     setState(() => _busy = true);
     try {
-      await platform.invokeMethod('setBlocking', {'isBlocking': newState});
+      await MomentBlocking(
+        ProviderScope.containerOf(context).read(momentProfileServiceProvider),
+      ).setBlocking(_moment, newState);
       if (!mounted) return;
       setState(() {
         isBlocked = newState;
@@ -83,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() => _busy = true);
     try {
       final newState = await Navigator.pushNamed(
-        context, '/nfcScan', arguments: isBlocked,
+        context, '/nfcScan', arguments: (isBlocked: isBlocked, moment: _moment),
       );
       if (mounted && newState is bool) {
         setState(() {

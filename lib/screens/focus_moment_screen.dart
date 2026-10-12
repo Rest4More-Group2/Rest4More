@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
+import 'session_setup_screen.dart';
 import 'moments_widgets.dart';
 
 class FocusMomentScreen extends StatelessWidget {
@@ -19,9 +20,19 @@ class FocusMomentScreen extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             child: FilledButton(
-              onPressed: () {
-  Navigator.pushNamed(context, '/prototype');
-},
+              // De timer komt uit een ander onderdeel. Tot dan gaat een
+              // gekozen sessie naar het bestaande prototypescherm.
+              onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => SessionSetupScreen(
+                    onStart: (setup) => Navigator.pushNamed(
+                      context,
+                      '/prototype',
+                      arguments: setup.kind.moment,
+                    ),
+                  ),
+                ),
+              ),
               style: FilledButton.styleFrom(
                 backgroundColor: RestPalette.primary,
                 foregroundColor: RestPalette.background,

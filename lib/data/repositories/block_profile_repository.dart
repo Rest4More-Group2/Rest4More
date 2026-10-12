@@ -18,6 +18,18 @@ class BlockProfileRepository {
         ..orderBy([(t) => OrderingTerm.asc(t.name), (t) => OrderingTerm.asc(t.id)]))
       .watch();
 
+  Stream<BlockProfile?> watchByName(String name) => (_db.select(_db.blockProfiles)
+        ..where((t) => t.name.equals(name) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.id)])
+        ..limit(1))
+      .watchSingleOrNull();
+
+  Future<BlockProfile?> findByName(String name) => (_db.select(_db.blockProfiles)
+        ..where((t) => t.name.equals(name) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.id)])
+        ..limit(1))
+      .getSingleOrNull();
+
   Future<BlockProfile> create({
     required String name,
     BlockContext? context,

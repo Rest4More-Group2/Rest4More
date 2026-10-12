@@ -404,3 +404,15 @@ enum ConsentStatus implements DbEnum {
   @override
   final String id;
 }
+
+/// Welk moment een opgeslagen plan bij hoort.
+enum MomentPlanKind implements DbEnum {
+  evening('evening'),
+  morning('morning'),
+  unknown('unknown');
+
+  const MomentPlanKind(this.id);
+
+  @override
+  final String id;
+}

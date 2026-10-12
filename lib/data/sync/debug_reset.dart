@@ -7,6 +7,7 @@ import 'sync_scheduler.dart';
 const _tablesChildrenFirst = [
   'sync_cursors',
   'local_notifications',
+  'moment_plans',
   'ios_selections',
   'programme_days',
   'programme_enrollments',

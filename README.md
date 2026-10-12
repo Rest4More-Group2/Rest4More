@@ -52,6 +52,10 @@ flutter test integration_test -d <device>
   `SUPABASE_PUBLISHABLE_KEY` (of `SUPABASE_ANON_KEY`). Start de app daarom met:
   `flutter run --dart-define-from-file=env.json`. Zonder die waarden werkt de
   app lokaal verder en wordt er niets gesynchroniseerd.
+- De plannen van Avond en Ochtend (`moment_plans`) synchroniseren mee. Pas
+  vooraf `supabase/migrations/20261012000000_moment_plans.sql` toe, anders
+  mislukt alleen die tabel. Een plan dat nog in `shared_preferences` staat wordt
+  bij het eerste openen overgenomen.
 - `SyncScheduler` pusht hooguit een keer per dag: bij het openen van de app en
   als de app weer naar voren komt, zolang het vandaag nog niet is gelukt. Bij
   een fout probeert hij het elke 30 minuten opnieuw zolang de app open is. De

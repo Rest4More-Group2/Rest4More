@@ -2,9 +2,16 @@ import SwiftUI
 import FamilyControls
 
 struct AppPickerHostView: View {
-    @State private var selection = FamilyActivitySelection()
+    @State private var selection: FamilyActivitySelection
     @State private var isPickerPresented = true
-    var onDone: () -> Void
+    /// Krijgt de gekozen selectie als `PropertyListEncoder`-data.
+    var onDone: (FamilyActivitySelection) -> Void
+
+    init(initial: FamilyActivitySelection = FamilyActivitySelection(),
+         onDone: @escaping (FamilyActivitySelection) -> Void) {
+        _selection = State(initialValue: initial)
+        self.onDone = onDone
+    }
 
     var body: some View {
         NavigationView {
@@ -15,15 +22,8 @@ struct AppPickerHostView: View {
             }
             .familyActivityPicker(isPresented: $isPickerPresented, selection: $selection)
             .navigationBarItems(trailing: Button("Done") {
-                saveAndFinish()
+                onDone(selection)
             })
         }
-    }
-
-    private func saveAndFinish() {
-        if let data = try? PropertyListEncoder().encode(selection) {
-            UserDefaults.standard.set(data, forKey: "blockedSelection")
-        }
-        onDone()
     }
 }
