@@ -4,24 +4,43 @@ import 'plan_selector.dart';
 
 /// Eén dag in het voorbeeldplan.
 class PreviewDay {
-  const PreviewDay({required this.day, required this.title, required this.action});
+  const PreviewDay({
+    required this.day,
+    required this.title,
+    required this.action,
+    this.smallerAction = '',
+  });
 
   final int day;
   final String title;
 
   /// Wat de gebruiker die dag doet, met de eigen antwoorden ingevuld.
   final String action;
+
+  /// De kleinere versie van [action].
+  final String smallerAction;
 }
 
 /// Het plan zoals het straks wordt gemaakt, om te tonen voordat het bestaat.
 /// Gebruikt dezelfde selectie als [PlanService], dus wat je ziet is wat je krijgt.
 class PlanPreview {
-  const PlanPreview({required this.days, required this.reason});
+  const PlanPreview({
+    required this.days,
+    required this.reason,
+    this.smaller = false,
+  });
 
   final List<PreviewDay> days;
 
   /// Waarom dit plan bij de gebruiker past ("We chose this because...").
   final String reason;
+
+  /// De gebruiker koos de kleine stap als standaard.
+  final bool smaller;
+
+  /// De actie zoals de gebruiker hem krijgt: de kleine versie als die is gekozen.
+  String actionFor(PreviewDay day) =>
+      smaller && day.smallerAction.isNotEmpty ? day.smallerAction : day.action;
 
   /// De dagen van [first] tot en met [last].
   List<PreviewDay> daysIn(int first, int last) => [
@@ -49,8 +68,10 @@ class PlanPreview {
             day: day['day'] as int,
             title: day['title'] as String,
             action: day['action'] as String,
+            smallerAction: day['smaller_action'] as String,
           ),
       ],
+      smaller: input.smaller,
       reason: 'Chosen for your goal to $goal and your main obstacle: $obstacle.',
     );
   }

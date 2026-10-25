@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/data/programme/plan_explanation.dart';
+import 'package:rest4more/providers/plan_adjustment_providers.dart';
 import 'package:rest4more/providers/plan_providers.dart';
+import 'adjust_plan_screen.dart';
+import 'plan_why_card.dart';
 import 'reminder_screen.dart';
 
 class PlanScreen extends ConsumerStatefulWidget {
@@ -192,7 +196,14 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
               Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdjustPlanScreen(),
+                      ),
+                    );
+                  },
                   child: const Text(
                     'Adjust plan settings',
                     style: TextStyle(
@@ -220,9 +231,10 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
         ? null
         : [
             for (final d in preview.daysIn(first, last))
-              _PlanItem('Day ${d.day}: ${d.title}', d.action),
+              _PlanItem('Day ${d.day}: ${d.title}', preview.actionFor(d)),
           ];
     final reason = preview?.reason;
+    final explanation = ref.watch(planExplanationProvider).value;
 
     if (selectedPhase == 0) {
       return _PhaseContent(
@@ -238,6 +250,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               _PlanItem('Notice how your evening feels'),
             ],
         reason: reason,
+        explanation: explanation,
       );
     }
 
@@ -255,6 +268,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               _PlanItem('Repeat your evening routine'),
             ],
         reason: reason,
+        explanation: explanation,
       );
     }
 
@@ -271,6 +285,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
             _PlanItem('Prepare for life after day 14'),
           ],
       reason: reason,
+      explanation: explanation,
     );
   }
 }
@@ -292,6 +307,7 @@ class _PhaseContent extends StatelessWidget {
 
   /// Waarom dit plan bij de gebruiker past, als het echte plan bekend is.
   final String? reason;
+  final PlanExplanation? explanation;
 
   const _PhaseContent({
     required this.icon,
@@ -300,6 +316,7 @@ class _PhaseContent extends StatelessWidget {
     required this.description,
     required this.items,
     this.reason,
+    this.explanation,
   });
 
   @override
@@ -358,15 +375,7 @@ class _PhaseContent extends StatelessWidget {
         const SizedBox(height: 20),
 
         if (reason != null) ...[
-          Text(
-            reason!,
-            style: const TextStyle(
-              color: _PlanScreenState.brown,
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-              height: 1.4,
-            ),
-          ),
+          PlanWhyCard(summary: reason, explanation: explanation),
           const SizedBox(height: 16),
         ],
 
