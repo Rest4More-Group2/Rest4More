@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/notifications/notification_permission.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/plan_providers.dart';
 import '../app_shell.dart';
+import 'notification_permission_sheets.dart';
 
 class ReminderScreen extends ConsumerStatefulWidget {
   const ReminderScreen({super.key});
@@ -11,7 +14,8 @@ class ReminderScreen extends ConsumerStatefulWidget {
   ConsumerState<ReminderScreen> createState() => _ReminderScreenState();
 }
 
-class _ReminderScreenState extends ConsumerState<ReminderScreen> {
+class _ReminderScreenState extends ConsumerState<ReminderScreen>
+    with WidgetsBindingObserver {
   static const Color background = Color(0xFFFCFAF7);
   static const Color brown = Color(0xFF8B6043);
   static const Color darkBrown = Color(0xFF5A4338);
@@ -24,10 +28,39 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
     minute: 0,
   );
 
+  /// Bezig met de toestemming, zodat een tweede tik niets dubbel doet.
+  bool _asking = false;
+
+  /// De gebruiker is naar de instellingen gestuurd om meldingen aan te zetten.
+  bool _sentToSettings = false;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _showSavedAnswer();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Terug uit de instellingen: staan meldingen nu aan, dan gaat de gebruiker
+  /// meteen verder met herinnering. Anders blijft het scherm staan en kiest de
+  /// gebruiker zelf opnieuw.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || !_sentToSettings) return;
+    _sentToSettings = false;
+    _continueIfGranted();
+  }
+
+  Future<void> _continueIfGranted() async {
+    final status = await _status();
+    if (!mounted || status != NotificationPermissionStatus.granted) return;
+    await _finish(withReminder: true);
   }
 
   /// Laat een eerder gegeven antwoord zien.
@@ -41,8 +74,67 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
     });
   }
 
-  /// Sluit de onboarding af en gaat naar de app. De herinnering wordt hier
-  /// alleen bewaard, het inplannen bij het systeem volgt later.
+  /// Done: zonder herinnering meteen verder. Met herinnering eerst de
+  /// toestemming voor meldingen, die alleen hier wordt gevraagd.
+  Future<void> _onDone() async {
+    if (!reminderEnabled) return _finish(withReminder: false);
+    if (_asking) return;
+    setState(() => _asking = true);
+    try {
+      final withReminder = await _askPermission();
+      if (withReminder != null) await _finish(withReminder: withReminder);
+    } finally {
+      if (mounted) setState(() => _asking = false);
+    }
+  }
+
+  /// True als de herinnering kan worden ingepland, false om zonder herinnering
+  /// verder te gaan, null om op dit scherm te blijven.
+  ///
+  /// Het venster van het systeem verschijnt alleen na de eigen uitleg, en nooit
+  /// als het systeem het al heeft geblokkeerd: dan wijzen we naar de
+  /// instellingen.
+  Future<bool?> _askPermission() async {
+    final permission = ref.read(notificationPermissionProvider);
+    final time = reminderTime.format(context);
+    final status = await _status();
+    if (!mounted) return null;
+
+    switch (status) {
+      case NotificationPermissionStatus.granted:
+        return true;
+      case NotificationPermissionStatus.blocked:
+        final openSettings = await showNotificationBlocked(context);
+        if (openSettings != true) return openSettings;
+        _sentToSettings = true;
+        final opened = await permission.openSettings().catchError((_) => false);
+        if (opened) return null;
+        _sentToSettings = false;
+        if (mounted) await showNotificationDenied(context);
+        return false;
+      case NotificationPermissionStatus.notDetermined:
+      case NotificationPermissionStatus.denied:
+        final proceed = await showNotificationRationale(context, time: time);
+        if (proceed != true) return proceed;
+        final result = await permission
+            .request()
+            .catchError((_) => NotificationPermissionStatus.denied);
+        if (result == NotificationPermissionStatus.granted) return true;
+        if (mounted) await showNotificationDenied(context);
+        return false;
+    }
+  }
+
+  /// De toestand volgens het systeem. Lukt het vragen niet, dan gaan we uit
+  /// van "nog niet gevraagd": dan volgt eerst de uitleg.
+  Future<NotificationPermissionStatus> _status() => ref
+      .read(notificationPermissionProvider)
+      .status()
+      .catchError((_) => NotificationPermissionStatus.notDetermined);
+
+  /// Sluit de onboarding af en gaat naar de app. [withReminder] is alleen true
+  /// als meldingen zijn toegestaan. De herinnering wordt hier alleen bewaard,
+  /// het inplannen bij het systeem volgt later.
   Future<void> _finish({required bool withReminder}) async {
     await ref.read(intakeServiceProvider).complete(
           reminderEnabled: withReminder,
@@ -159,7 +251,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
 
               const Text(
                 'A gentle reminder can help you make space '
-                'for rest without adding pressure.',
+                'for rest without adding pressure. It is optional: '
+                'you can use everything in the app without it.',
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -272,10 +365,12 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () => _finish(withReminder: reminderEnabled),
+                  onPressed: _asking ? null : _onDone,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: brown,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: brown,
+                    disabledForegroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -296,7 +391,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen> {
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () => _finish(withReminder: false),
+                  onPressed:
+                      _asking ? null : () => _finish(withReminder: false),
                   child: const Text(
                     'Maybe later',
                     style: TextStyle(

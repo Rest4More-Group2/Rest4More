@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/intake/intake_service.dart';
 import 'package:rest4more/providers/intake_providers.dart';
+import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/plan_providers.dart';
 
 import 'app_shell.dart';
@@ -48,6 +49,13 @@ class _AppRootState extends ConsumerState<AppRoot> {
 
     final navigator = Navigator.of(context);
     if (progress.completed) {
+      // Meldingen uitgezet in de instellingen van het toestel: dan staat de
+      // herinnering in het profiel ook uit. Vraagt zelf niets.
+      try {
+        await ref.read(reminderServiceProvider).reconcileWithPermission();
+      } on Object {
+        // De keuze blijft dan zoals hij was.
+      }
       // Mislukte of nog niet gemaakte plannen komen hier alsnog tot stand.
       try {
         await ref.read(planServiceProvider).ensurePlan();

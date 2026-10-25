@@ -3,6 +3,7 @@ import UIKit
 import FamilyControls
 import ManagedSettings
 import SwiftUI
+import UserNotifications
 
 @available(iOS 16, *)
 class SceneDelegate: FlutterSceneDelegate {
@@ -13,6 +14,8 @@ class SceneDelegate: FlutterSceneDelegate {
             print("Could not find FlutterViewController")
             return
         }
+
+        registerNotificationChannel(messenger: controller.binaryMessenger)
 
         let channel = FlutterMethodChannel(name: "com.example.app_blocking_prototype/blocking", binaryMessenger: controller.binaryMessenger)
 
@@ -71,6 +74,51 @@ class SceneDelegate: FlutterSceneDelegate {
                     UIApplication.shared.open(url)
                 }
                 result(nil)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        }
+    }
+
+    /// Toestemming voor meldingen (zie notification_permission.dart). Vraagt
+    /// alleen bij "request"; iOS laat het venster maar een keer zien, daarna
+    /// is "denied" definitief en kan het alleen via Instellingen.
+    private func registerNotificationChannel(messenger: FlutterBinaryMessenger) {
+        let channel = FlutterMethodChannel(name: "rest4more/notifications", binaryMessenger: messenger)
+        let center = UNUserNotificationCenter.current()
+
+        func currentStatus(_ done: @escaping (String) -> Void) {
+            center.getNotificationSettings { settings in
+                let status: String
+                switch settings.authorizationStatus {
+                case .authorized, .provisional, .ephemeral:
+                    status = "granted"
+                case .denied:
+                    status = "blocked"
+                case .notDetermined:
+                    status = "notDetermined"
+                @unknown default:
+                    status = "notDetermined"
+                }
+                DispatchQueue.main.async { done(status) }
+            }
+        }
+
+        channel.setMethodCallHandler { (call, result) in
+            switch call.method {
+            case "status":
+                currentStatus { result($0) }
+            case "request":
+                center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+                    currentStatus { result($0) }
+                }
+            case "openSettings":
+                guard let url = URL(string: UIApplication.openNotificationSettingsURLString),
+                      UIApplication.shared.canOpenURL(url) else {
+                    result(false)
+                    return
+                }
+                UIApplication.shared.open(url) { opened in result(opened) }
             default:
                 result(FlutterMethodNotImplemented)
             }

@@ -2,14 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
+import 'package:rest4more/data/notifications/notification_permission.dart';
 import 'package:rest4more/providers/database_providers.dart';
+import 'package:rest4more/providers/notification_providers.dart';
 
 import '../data/test_support.dart';
 
+/// Toestemming voor meldingen zonder systeem. Onthoudt wat er gevraagd is.
+class FakeNotificationPermission extends NotificationPermission {
+  FakeNotificationPermission(this.current,
+      {NotificationPermissionStatus? afterRequest, this.canOpenSettings = true})
+      : afterRequest = afterRequest ?? current;
+
+  NotificationPermissionStatus current;
+  final NotificationPermissionStatus afterRequest;
+  final bool canOpenSettings;
+  int requests = 0;
+  int settingsOpened = 0;
+
+  @override
+  Future<NotificationPermissionStatus> status() async => current;
+
+  @override
+  Future<NotificationPermissionStatus> request() async {
+    requests++;
+    return current = afterRequest;
+  }
+
+  @override
+  Future<bool> openSettings() async {
+    settingsOpened++;
+    return canOpenSettings;
+  }
+}
+
 /// Een hoog telefoonscherm en een database in het geheugen, zoals de andere
-/// schermtests.
+/// schermtests. Zonder [permission] zijn meldingen al toegestaan.
 Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
-    {AppDatabase? db}) async {
+    {AppDatabase? db, NotificationPermission? permission}) async {
   // De schermen hebben vaste hoogtes. In de testfont (Ahem) lopen sommige
   // kaarten over, dat zegt niets over wat er wordt opgeslagen. Layoutfouten
   // negeren we hier, alle andere fouten blijven de test laten falen.
@@ -27,7 +57,11 @@ Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
   if (db == null) addTearDown(database.close);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(database)],
+      overrides: [
+        databaseProvider.overrideWithValue(database),
+        notificationPermissionProvider.overrideWithValue(permission ??
+            FakeNotificationPermission(NotificationPermissionStatus.granted)),
+      ],
       child: MaterialApp(home: screen),
     ),
   );
