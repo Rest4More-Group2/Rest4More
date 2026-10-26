@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/programme/today_plan.dart';
+import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/plan_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
@@ -91,6 +92,8 @@ class _TodayTabState extends ConsumerState<TodayTab>
     if (done != true || !mounted) return;
 
     await programme.markCompleted(today.dayId);
+    // Geen herinnering meer voor vandaag; de volgende noemt de nieuwe stap.
+    ref.read(reminderServiceProvider).sync();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Day ${today.day} is done.')),

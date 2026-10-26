@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/notifications/notification_permission.dart';
 import 'package:rest4more/providers/intake_providers.dart';
-import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/plan_providers.dart';
 import '../app_shell.dart';
-import 'notification_permission_sheets.dart';
+import 'notification_permission_flow.dart';
 
 class ReminderScreen extends ConsumerStatefulWidget {
   const ReminderScreen({super.key});
@@ -58,7 +57,7 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
   }
 
   Future<void> _continueIfGranted() async {
-    final status = await _status();
+    final status = await reminderPermissionStatus(ref);
     if (!mounted || status != NotificationPermissionStatus.granted) return;
     await _finish(withReminder: true);
   }
@@ -81,60 +80,26 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
     if (_asking) return;
     setState(() => _asking = true);
     try {
-      final withReminder = await _askPermission();
-      if (withReminder != null) await _finish(withReminder: withReminder);
+      final outcome = await askReminderPermission(context, ref,
+          time: reminderTime.format(context));
+      switch (outcome) {
+        case ReminderPermissionOutcome.granted:
+          await _finish(withReminder: true);
+        case ReminderPermissionOutcome.declined:
+          await _finish(withReminder: false);
+        case ReminderPermissionOutcome.sentToSettings:
+          _sentToSettings = true;
+        case ReminderPermissionOutcome.dismissed:
+          break;
+      }
     } finally {
       if (mounted) setState(() => _asking = false);
     }
   }
 
-  /// True als de herinnering kan worden ingepland, false om zonder herinnering
-  /// verder te gaan, null om op dit scherm te blijven.
-  ///
-  /// Het venster van het systeem verschijnt alleen na de eigen uitleg, en nooit
-  /// als het systeem het al heeft geblokkeerd: dan wijzen we naar de
-  /// instellingen.
-  Future<bool?> _askPermission() async {
-    final permission = ref.read(notificationPermissionProvider);
-    final time = reminderTime.format(context);
-    final status = await _status();
-    if (!mounted) return null;
-
-    switch (status) {
-      case NotificationPermissionStatus.granted:
-        return true;
-      case NotificationPermissionStatus.blocked:
-        final openSettings = await showNotificationBlocked(context);
-        if (openSettings != true) return openSettings;
-        _sentToSettings = true;
-        final opened = await permission.openSettings().catchError((_) => false);
-        if (opened) return null;
-        _sentToSettings = false;
-        if (mounted) await showNotificationDenied(context);
-        return false;
-      case NotificationPermissionStatus.notDetermined:
-      case NotificationPermissionStatus.denied:
-        final proceed = await showNotificationRationale(context, time: time);
-        if (proceed != true) return proceed;
-        final result = await permission
-            .request()
-            .catchError((_) => NotificationPermissionStatus.denied);
-        if (result == NotificationPermissionStatus.granted) return true;
-        if (mounted) await showNotificationDenied(context);
-        return false;
-    }
-  }
-
-  /// De toestand volgens het systeem. Lukt het vragen niet, dan gaan we uit
-  /// van "nog niet gevraagd": dan volgt eerst de uitleg.
-  Future<NotificationPermissionStatus> _status() => ref
-      .read(notificationPermissionProvider)
-      .status()
-      .catchError((_) => NotificationPermissionStatus.notDetermined);
-
   /// Sluit de onboarding af en gaat naar de app. [withReminder] is alleen true
-  /// als meldingen zijn toegestaan. De herinnering wordt hier alleen bewaard,
-  /// het inplannen bij het systeem volgt later.
+  /// als meldingen zijn toegestaan. De app plant de herinneringen zodra hij
+  /// opent (zie [AppShell]).
   Future<void> _finish({required bool withReminder}) async {
     await ref.read(intakeServiceProvider).complete(
           reminderEnabled: withReminder,

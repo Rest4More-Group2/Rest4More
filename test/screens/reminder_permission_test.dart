@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/notifications/notification_permission.dart';
 import 'package:rest4more/data/notifications/reminder_service.dart';
+import 'package:rest4more/data/repositories/local_notification_store.dart';
 import 'package:rest4more/data/repositories/profile_repository.dart';
+import 'package:rest4more/data/repositories/programme_repository.dart';
 import 'package:rest4more/screens/app_shell.dart';
 import 'package:rest4more/screens/onboarding/reminder_screen.dart';
 
@@ -154,9 +156,13 @@ void main() {
       final profiles = ProfileRepository(db);
       await profiles.setNotification(enabled: true, minutes: 21 * 60);
 
-      await ReminderService(profiles,
-              FakeNotificationPermission(NotificationPermissionStatus.blocked))
-          .reconcileWithPermission();
+      await ReminderService(
+        profiles,
+        FakeNotificationPermission(NotificationPermissionStatus.blocked),
+        programme: ProgrammeRepository(db),
+        scheduler: FakeReminderScheduler(),
+        store: LocalNotificationStore(db),
+      ).reconcileWithPermission();
 
       final profile = await profiles.get();
       expect(profile.notifyProgramme, isFalse);
@@ -169,9 +175,13 @@ void main() {
       final profiles = ProfileRepository(db);
       await profiles.setNotification(enabled: true, minutes: 21 * 60);
 
-      await ReminderService(profiles,
-              FakeNotificationPermission(NotificationPermissionStatus.granted))
-          .reconcileWithPermission();
+      await ReminderService(
+        profiles,
+        FakeNotificationPermission(NotificationPermissionStatus.granted),
+        programme: ProgrammeRepository(db),
+        scheduler: FakeReminderScheduler(),
+        store: LocalNotificationStore(db),
+      ).reconcileWithPermission();
 
       expect((await profiles.get()).notifyProgramme, isTrue);
     });
