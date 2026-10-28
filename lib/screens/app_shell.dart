@@ -1,25 +1,75 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/providers/notification_providers.dart';
+
+import 'profile_tab.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
 import 'profile_tab.dart';
 
-class AppShell extends StatefulWidget {
+/// De app na de onboarding. Houdt ook de herinneringen voor de dagelijkse stap
+/// bij: bij het openen en elke keer dat de app terugkomt worden ze opnieuw
+/// gepland (nieuwe dag, andere tijdzone, meldingen uitgezet). Een tik op een
+/// herinnering opent Today.
+class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, this.onStartStep, this.onStartFocus});
   final ValueChanged<int>? onStartStep;
   final VoidCallback? onStartFocus;
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
-  int _selectedTab = 0;
+class _AppShellState extends ConsumerState<AppShell>
+    with WidgetsBindingObserver {
+  static const _todayTab = 0;
+  static const _progressTab = 2;
+
+  int _selectedTab = _todayTab;
+  StreamSubscription<int>? _taps;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final reminders = ref.read(reminderServiceProvider);
+    reminders.sync();
+    final scheduler = ref.read(reminderSchedulerProvider);
+    _taps = scheduler.taps.listen(_openedFromReminder);
+    scheduler.launchedFrom().then((id) {
+      if (id != null) _openedFromReminder(id);
+    }, onError: (Object _) {});
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _taps?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final reminders = ref.read(reminderServiceProvider);
+    reminders.reconcileWithPermission().whenComplete(reminders.sync);
+  }
+
+  /// Een tik op een herinnering: naar de stap op Today, ook als er nog een
+  /// scherm boven de app openstaat.
+  void _openedFromReminder(int id) {
+    ref.read(reminderServiceProvider).markOpened(id);
+    if (!mounted) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    setState(() => _selectedTab = _todayTab);
+  }
 
   void _selectTab(int index) {
-    if (index == 2) {
+    if (index == _progressTab) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Progress is not available yet.')),
       );

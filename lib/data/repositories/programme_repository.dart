@@ -56,20 +56,32 @@ class ProgrammeRepository {
 
   static const _live = {EnrollmentStatus.active, EnrollmentStatus.paused};
 
+  SimpleSelectStatement<$ProgrammeEnrollmentsTable, ProgrammeEnrollment>
+      get _liveEnrollment => _db.select(_db.programmeEnrollments)
+        ..where((t) =>
+            t.status.isIn(_live.map((s) => s.id)) & t.deletedAt.isNull())
+        ..limit(1);
+
+  SimpleSelectStatement<$ProgrammeDaysTable, ProgrammeDay> _daysOf(
+          String enrollmentId) =>
+      _db.select(_db.programmeDays)
+        ..where((t) =>
+            t.enrollmentId.equals(enrollmentId) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.dayNumber)]);
+
   /// Volgt de lopende deelname (actief of gepauzeerd).
   Stream<ProgrammeEnrollment?> watchActiveEnrollment() =>
-      (_db.select(_db.programmeEnrollments)
-            ..where((t) =>
-                t.status.isIn(_live.map((s) => s.id)) & t.deletedAt.isNull())
-            ..limit(1))
-          .watchSingleOrNull();
+      _liveEnrollment.watchSingleOrNull();
+
+  /// De lopende deelname (actief of gepauzeerd), eenmalig gelezen.
+  Future<ProgrammeEnrollment?> activeEnrollment() =>
+      _liveEnrollment.getSingleOrNull();
 
   Stream<List<ProgrammeDay>> watchDays(String enrollmentId) =>
-      (_db.select(_db.programmeDays)
-            ..where((t) =>
-                t.enrollmentId.equals(enrollmentId) & t.deletedAt.isNull())
-            ..orderBy([(t) => OrderingTerm.asc(t.dayNumber)]))
-          .watch();
+      _daysOf(enrollmentId).watch();
+
+  Future<List<ProgrammeDay>> days(String enrollmentId) =>
+      _daysOf(enrollmentId).get();
 
   Future<ProgrammeEnrollment> enroll({
     required String contentVersion,

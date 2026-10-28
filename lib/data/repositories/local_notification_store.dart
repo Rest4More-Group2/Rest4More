@@ -68,6 +68,14 @@ class LocalNotificationStore {
     status: Value(NotificationStatus.opened),
   ));
 
+  /// Zoals [markOpened], voor de id die het besturingssysteem teruggeeft.
+  Future<void> markOpenedByOsId(int osNotificationId) =>
+      (_db.update(_db.localNotifications)
+            ..where((t) => t.osNotificationId.equals(osNotificationId)))
+          .write(const LocalNotificationsCompanion(
+        status: Value(NotificationStatus.opened),
+      ));
+
   Stream<List<LocalNotification>> watchScheduled() =>
       (_db.select(_db.localNotifications)
             ..where((t) => t.status.equals(NotificationStatus.scheduled.id))
