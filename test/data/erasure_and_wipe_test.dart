@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/repositories/block_profile_repository.dart';
+import 'package:rest4more/data/repositories/moment_plan_repository.dart';
 import 'package:rest4more/data/repositories/consent_repository.dart';
 import 'package:rest4more/data/repositories/profile_repository.dart';
 import 'package:rest4more/data/repositories/routine_repository.dart';
@@ -175,11 +176,12 @@ void main() {
           .save(block.id, Uint8List.fromList([1, 2, 3]));
       final json = jsonDecode(await local.exportAsJson()) as Map;
 
-      expect(json['schema_version'], 3);
+      expect(json['schema_version'], 4);
       for (final table in [
         'profiles',
         'consent_records',
         'routines',
+        'moment_plans',
         'block_profiles',
         'ios_selections',
         'accessories',
@@ -200,6 +202,8 @@ void main() {
     test('wissen maakt alle tabellen leeg en trekt de cloud in', () async {
       final block = await BlockProfileRepository(db).create(name: 'Studie');
       await IosSelectionStore(db).save(block.id, Uint8List.fromList([9]));
+      await MomentPlanRepository(db).save(MomentPlanKind.evening, '{"version":1}');
+      expect(await db.select(db.momentPlans).get(), isNotEmpty);
 
       final result = await local.wipeEverything();
 
@@ -207,6 +211,7 @@ void main() {
       expect(remote.deleted, 1);
       for (final table in [
         'routines',
+        'moment_plans',
         'block_profiles',
         'ios_selections',
         'consent_records',

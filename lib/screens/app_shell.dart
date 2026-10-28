@@ -9,6 +9,7 @@ import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
+import 'profile_tab.dart';
 
 /// De app na de onboarding. Houdt ook de herinneringen voor de dagelijkse stap
 /// bij: bij het openen en elke keer dat de app terugkomt worden ze opnieuw
@@ -85,7 +86,7 @@ class _AppShellState extends ConsumerState<AppShell>
       children: [
         TodayTab(onStartStep: widget.onStartStep),
         MomentsScreen(onStartFocus: widget.onStartFocus),
-        const SizedBox.shrink(),
+        const SizedBox.shrink(), // Progress: not available yet
         const ProfileTab(),
       ],
     ),

@@ -7,6 +7,11 @@ import 'package:rest4more/providers/repository_providers.dart';
 import 'onboarding/notification_permission_flow.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
+import 'package:rest4more/data/tags/tag_service.dart';
+
+import 'moments_widgets.dart';
+import 'paired_tags_screen.dart';
+
 /// Het profiel. Voor nu alleen de dagelijkse herinnering: aan of uit en hoe
 /// laat.
 class ProfileTab extends ConsumerStatefulWidget {
@@ -26,6 +31,16 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
 
   /// Naar de instellingen gestuurd om meldingen aan te zetten.
   bool _sentToSettings = false;
+
+class ProfileTab extends StatefulWidget {
+  const ProfileTab({super.key});
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  int? _tagCount;
 
   @override
   void initState() {
@@ -104,6 +119,33 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
     final profile = ref.watch(profileProvider).value;
     final enabled = profile?.notifyProgramme ?? false;
     final minutes = profile?.notifyTimeMinutes ?? _defaultMinutes;
+    _loadTagCount();
+  }
+
+  Future<void> _loadTagCount() async {
+    try {
+      final tags = await TagService.getKnownTags();
+      if (mounted) setState(() => _tagCount = tags.length);
+    } catch (e) {
+      debugPrint('MethodChannel error: $e');
+    }
+  }
+
+  Future<void> _openTags() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(builder: (_) => const PairedTagsScreen()),
+    );
+    if (mounted) await _loadTagCount();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final count = _tagCount;
+    final summary = count == null
+        ? 'Pair a tag to start and end moments with a tap.'
+        : count == 0
+            ? 'No tags paired yet.'
+            : count == 1 ? '1 tag paired.' : '$count tags paired.';
 
     return Scaffold(
       backgroundColor: RestPalette.background,
@@ -130,6 +172,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
+                  const SizedBox(height: 8),
+                  Text('Your settings and tags',
+                      style: RestType.sans(16, color: RestPalette.accent)),
+                  const SizedBox(height: 32),
+                  Container(
                     decoration: BoxDecoration(
                       color: RestPalette.surface,
                       borderRadius: BorderRadius.circular(22),
@@ -208,6 +255,45 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                           : 'Reminders are off. You can use everything in '
                               'the app without them.',
                       style: RestType.sans(12, color: RestPalette.accent),
+                    child: Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(22),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: _openTags,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(child: Text('NFC tags',
+                                      style: RestType.serif(27))),
+                                  const RestMomentIcon(
+                                      index: 4,
+                                      color: RestPalette.primary,
+                                      size: 22),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(summary, style: RestType.sans(16,
+                                  color: RestPalette.accent)),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Text('Manage tags', style: RestType.sans(15,
+                                      color: RestPalette.primary,
+                                      weight: FontWeight.w600)),
+                                  const Spacer(),
+                                  const Icon(Icons.chevron_right, size: 24,
+                                      color: RestPalette.primary),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],

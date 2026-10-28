@@ -92,6 +92,25 @@ class _MomentIconPainter extends CustomPainter {
           pen,
         );
         break;
+      case 4:
+        // A tag with signal arcs.
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            const Rect.fromLTWH(3.5, 11, 11, 9.5),
+            const Radius.circular(2.5),
+          ),
+          pen,
+        );
+        for (final r in [4.0, 7.5]) {
+          canvas.drawArc(
+            Rect.fromCircle(center: const Offset(14.5, 9.5), radius: r),
+            -math.pi / 2,
+            math.pi / 2,
+            false,
+            pen,
+          );
+        }
+        break;
     }
     canvas.restore();
   }

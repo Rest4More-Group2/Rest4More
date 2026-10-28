@@ -25,6 +25,7 @@ class RetentionService {
     ('programme_enrollments', _db.programmeEnrollments),
     ('focus_sessions', _db.focusSessions),
     ('routines', _db.routines),
+    ('moment_plans', _db.momentPlans),
     ('accessories', _db.accessories),
     ('block_profiles', _db.blockProfiles),
     ('profiles', _db.profiles),

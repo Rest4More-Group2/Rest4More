@@ -31,7 +31,12 @@ class IllegalTransition implements Exception {
 
 /// Toegestane overgangen. Afronden gaat via `finish`, niet via `transition`.
 const Map<SessionState, Set<SessionState>> sessionTransitions = {
-  SessionState.selecting: {SessionState.awaitingScan, SessionState.completed},
+  // Een sessie met timer slaat het scannen over: van kiezen direct naar activeren.
+  SessionState.selecting: {
+    SessionState.awaitingScan,
+    SessionState.activating,
+    SessionState.completed,
+  },
   SessionState.awaitingScan: {SessionState.activating, SessionState.completed},
   SessionState.activating: {SessionState.active, SessionState.completed},
   SessionState.active: {
@@ -121,6 +126,15 @@ class FocusSessionRepository {
       updatedAt: Value(_now().toUtc()),
       dirty: const Value(true),
     ));
+  }
+
+  /// Legt een gebeurtenis vast zonder de toestand te veranderen, bijvoorbeeld
+  /// dat de gebruiker een app tijdelijk heeft vrijgegeven.
+  Future<void> logEvent(String sessionId, SessionEventData event) {
+    return _db.transaction(() async {
+      final session = await _load(sessionId);
+      await _apply(session, const FocusSessionsCompanion(), event: event);
+    });
   }
 
   /// Voegt een event toe aan de ruwe json. Zo blijven bestaande events met

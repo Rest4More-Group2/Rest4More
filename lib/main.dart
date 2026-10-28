@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:rest4more/screens/focus_moment_screen.dart';
 
 import 'screens/app_root.dart';
 
@@ -21,7 +20,22 @@ import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
+import 'screens/unblock_request_listener.dart';
+import 'screens/paired_tags_screen.dart';
 import 'screens/app_shell.dart';
+
+import 'package:rest4more/data/database/enums.dart';
+import 'package:rest4more/data/repositories/profile_repository.dart';
+/// Entry point of the engine behind BlockActivity (see MyApplication.kt). It
+/// only shows the block screen, so it never opens the database or sync.
+@pragma('vm:entry-point')
+void blockMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: BlockedScreen(),
+  ));
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +46,31 @@ Future<void> main() async {
       if (remote != null) syncRemoteProvider.overrideWithValue(remote),
     ],
   );
+    if (kDebugMode && const bool.fromEnvironment('TEST_CLOUD_SYNC')) {
+    try {
+      final profiles = container.read(profileRepositoryProvider);
+
+      await profiles.upsert(
+        const ProfileDraft(ageBand: AgeBand.age18To24),
+      );
+
+      await profiles.recordCloudSyncConsent(DateTime.now());
+
+      final result =
+          await container.read(syncEngineProvider).pushDirty();
+
+      debugPrint(
+        '[sync-test] ok=${result.ok} '
+        'pushed=${result.pushed} '
+        'noConsent=${result.skippedNoConsent} '
+        'ageBlocked=${result.skippedAgeGate} '
+        'table=${result.failedTable} '
+        'error=${result.error}',
+      );
+    } catch (error) {
+      debugPrint('[sync-test] failed: $error');
+    }
+  }
   if (kDebugMode && const bool.fromEnvironment('DEBUG_RESET')) {
     // Begin met een lege lokale database, bijvoorbeeld om de onboarding opnieuw
     // te testen.
@@ -66,12 +105,20 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
+/// Nodig om vanaf buiten de schermen (het blokkeerscherm) een scherm te openen.
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
+      builder: (context, child) => UnblockRequestListener(
+        navigatorKey: rootNavigatorKey,
+        child: child ?? const SizedBox.shrink(),
+      ),
       title: 'Rest For More',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -83,6 +130,7 @@ class MyApp extends StatelessWidget {
         '/picker': (context) => const AppPickerScreen(),
         '/authorizationIOS': (context) => const AuthorizationIosScreen(),
         '/nfcScan': (context) => const NfcScanScreen(),
+        '/pairedTags': (context) => const PairedTagsScreen(),
         '/prototype': (context) =>
             const MyHomePage(title: 'Rest For More Prototype'),
       },
