@@ -6,6 +6,7 @@ import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/programme/today_plan.dart';
 import 'package:rest4more/providers/plan_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
+import 'daily_timer_screen.dart';
 
 import 'today_screen.dart';
 
@@ -74,24 +75,23 @@ class _TodayTabState extends ConsumerState<TodayTab>
     });
   }
 
-  Future<void> _start(TodayPlan today, int minutes) async {
+    Future<void> _start(TodayPlan today, int minutes) async {
     final programme = ref.read(programmeRepositoryProvider);
+
     await programme.markOpened(today.dayId);
-    widget.onStartStep?.call(minutes);
     if (!mounted) return;
 
-    final done = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: RestPalette.background,
-      showDragHandle: true,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => _ConfirmStep(today: today, minutes: minutes),
+    final done = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => DailyTimerScreen(minutes: minutes),
+      ),
     );
+
     if (done != true || !mounted) return;
 
     await programme.markCompleted(today.dayId);
     if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Day ${today.day} is done.')),
     );
@@ -137,45 +137,7 @@ class _TodayTabState extends ConsumerState<TodayTab>
 
 /// Vraagt of de stap gedaan is. Tijdelijk tot er een echte sessie is: dan
 /// rondt de sessie de stap zelf af.
-class _ConfirmStep extends StatelessWidget {
-  const _ConfirmStep({required this.today, required this.minutes});
 
-  final TodayPlan today;
-  final int minutes;
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Day ${today.day}: ${today.title}', style: RestType.serif(28)),
-            const SizedBox(height: 12),
-            Text(today.action, style: RestType.sans(16)),
-            const SizedBox(height: 8),
-            Text('Take about $minutes minutes, away from your screen.',
-                style: RestType.sans(14, color: RestPalette.accent)),
-            const SizedBox(height: 24),
-            RestActionButton(
-              label: 'Mark as done',
-              onPressed: () => Navigator.pop(context, true),
-            ),
-            const SizedBox(height: 12),
-            RestActionButton(
-              label: 'Not yet',
-              outlined: true,
-              onPressed: () => Navigator.pop(context, false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// De stap van vandaag is gedaan. De volgende is er morgen.
 class _DoneForToday extends StatelessWidget {
