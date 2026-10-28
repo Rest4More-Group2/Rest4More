@@ -124,6 +124,7 @@ class SessionEventData {
     this.fromState,
     this.toState,
     this.errorCode,
+    this.minutes,
   });
 
   /// Tijdstip, altijd UTC.
@@ -133,12 +134,16 @@ class SessionEventData {
   final SessionState? toState;
   final String? errorCode;
 
+  /// Bij `unblockGranted`: hoeveel minuten de gebruiker erbij kreeg.
+  final int? minutes;
+
   Map<String, dynamic> toJson() => {
         'at': at.toUtc().toIso8601String(),
         'event': event.id,
         'from_state': fromState?.id,
         'to_state': toState?.id,
         'error_code': errorCode,
+        if (minutes != null) 'minutes': minutes,
       };
 
   /// Geeft null als de gebeurtenis onleesbaar is (bijvoorbeeld zonder tijd).
@@ -158,6 +163,7 @@ class SessionEventData {
       fromState: state(json['from_state']),
       toState: state(json['to_state']),
       errorCode: errorCode is String ? errorCode : null,
+      minutes: json['minutes'] is int ? json['minutes'] as int : null,
     );
   }
 }

@@ -21,6 +21,7 @@ class CloudDataService {
     'consent_records',
     'block_profiles',
     'routines',
+    'moment_plans',
     'accessories',
     'focus_sessions',
     'programme_enrollments',

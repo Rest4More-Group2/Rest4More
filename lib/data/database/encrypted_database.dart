@@ -53,10 +53,16 @@ void applyDatabaseKey(CommonDatabase db, String hexKey) {
     try {
       db.select('SELECT count(*) FROM sqlite_master');
       return true;
-    } on SqliteException {
+    } on SqliteException catch (e) {
+      // Bezet of op slot is geen verkeerde sleutel: gooi door, anders wordt
+      // een goede database verwijderd omdat een andere verbinding nog bezig is.
+      if (e.resultCode == 5 || e.resultCode == 6) rethrow;
       return false;
     }
   }
+
+  // Wacht op een lock in plaats van meteen te falen.
+  db.execute('PRAGMA busy_timeout = 5000');
 
   if (readable()) {
     // Versleutelen vraagt geen WAL-bestand dat nog gegevens bevat.
@@ -102,7 +108,10 @@ bool _keyFits(File file, String hexKey) {
   try {
     applyDatabaseKey(db, hexKey);
     return true;
-  } on Object {
+  } on StateError {
+    return false;
+  } on SqliteException catch (e) {
+    if (e.resultCode == 5 || e.resultCode == 6) rethrow;
     return false;
   } finally {
     db.close();

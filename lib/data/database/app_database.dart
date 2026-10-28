@@ -11,6 +11,7 @@ import 'tables/entitlements.dart';
 import 'tables/focus_sessions.dart';
 import 'tables/ios_selections.dart';
 import 'tables/local_notifications.dart';
+import 'tables/moment_plans.dart';
 import 'tables/profiles.dart';
 import 'tables/programme_days.dart';
 import 'tables/programme_enrollments.dart';
@@ -36,13 +37,14 @@ part 'app_database.g.dart';
   Entitlements,
   ConsentRecords,
   SyncCursors,
+  MomentPlans,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
       : super(executor ?? openAppDatabase());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -74,6 +76,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             // v3: voortgang van de pull per tabel.
             await m.createTable(syncCursors);
+          }
+          if (from < 4) {
+            // v4: plannen van Avond en Ochtend.
+            await m.createTable(momentPlans);
           }
         },
         beforeOpen: (details) async {

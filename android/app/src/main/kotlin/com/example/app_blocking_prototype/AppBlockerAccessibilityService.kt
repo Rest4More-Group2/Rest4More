@@ -17,8 +17,14 @@ class AppBlockerAccessibilityService : AccessibilityService() {
         val isBlocking = prefs.getBoolean("isBlocking", false)
         val blockedPackages = prefs.getStringSet("blockedPackages", emptySet()) ?: emptySet()
 
-        if (isBlocking && event?.packageName in blockedPackages) {
-            Log.e(appBlocker, "Blocking App: ${event?.packageName}")
+        val pkg = event?.packageName?.toString()
+        // Een bewust tijdelijk vrijgegeven app blijft open tot de tijd om is.
+        val granted = pkg != null && UnblockGrants.isGranted(prefs, pkg, System.currentTimeMillis())
+
+        if (isBlocking && pkg != null && pkg in blockedPackages && !granted) {
+            Log.e(appBlocker, "Blocking App: $pkg")
+            // Het blokkeerscherm weet zo welke app het vrij kan laten geven.
+            prefs.edit().putString("lastBlockedPackage", pkg).apply()
             val intent = Intent(this, BlockActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
             }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/moments/moment_blocking.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
+import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
 
 class NfcScanScreen extends StatefulWidget {
@@ -11,22 +14,25 @@ class NfcScanScreen extends StatefulWidget {
 }
 
 class _NfcScanScreenState extends State<NfcScanScreen> {
-  static const platform = MethodChannel(
-    'com.example.app_blocking_prototype/blocking',
-  );
-
   String _status = 'Checking NFC...';
   bool _canScan = false;
   bool _isBlocked = false;
   bool _started = false;
   bool _sessionActive = false;
+  MomentKind? _moment;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_started) return;
     _started = true;
-    _isBlocked = ModalRoute.of(context)?.settings.arguments == true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is ({bool isBlocked, MomentKind? moment})) {
+      _isBlocked = args.isBlocked;
+      _moment = args.moment;
+    } else {
+      _isBlocked = args == true;
+    }
     _startScan();
   }
 
@@ -78,7 +84,9 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
   Future<void> _toggleBlocking() async {
     final newState = !_isBlocked;
     try {
-      await platform.invokeMethod('setBlocking', {'isBlocking': newState});
+      await MomentBlocking(
+        ProviderScope.containerOf(context).read(momentProfileServiceProvider),
+      ).setBlocking(_moment, newState);
       if (mounted) Navigator.pop(context, newState);
     } catch (e) {
       debugPrint('MethodChannel error: $e');

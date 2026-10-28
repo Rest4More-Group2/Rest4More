@@ -40,4 +40,9 @@ List<SyncTableSpec> syncTableSpecs(AppDatabase db) => [
           json: {'selection': <String, Object?>{}}),
       SyncTableSpec('programme_days', db.programmeDays,
           json: {'snapshot': <String, Object?>{}}),
+      // Als laatste en zonder verwijzingen: lukt deze tabel niet (bijvoorbeeld
+      // omdat de servermigratie nog niet is toegepast), dan blokkeert dat geen
+      // andere tabel.
+      SyncTableSpec('moment_plans', db.momentPlans,
+          json: {'plan': <String, Object?>{}}),
     ];
