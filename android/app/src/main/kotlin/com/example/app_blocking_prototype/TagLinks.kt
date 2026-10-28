@@ -32,7 +32,13 @@ object TagLinks {
         }
 
         val newState = !prefs.getBoolean("isBlocking", false)
-        prefs.edit().putBoolean("isBlocking", newState).apply()
+        val edit = prefs.edit().putBoolean("isBlocking", newState)
+        // Een tag blokkeert alleen de eigen apps van het Tag-moment, niet de
+        // lijst van het moment dat eerder blokkeerde.
+        if (newState) {
+            edit.putStringSet("blockedPackages", prefs.getStringSet("tagPackages", emptySet()) ?: emptySet())
+        }
+        edit.apply()
         Toast.makeText(
             context,
             if (newState) "Blocking on" else "Blocking off",

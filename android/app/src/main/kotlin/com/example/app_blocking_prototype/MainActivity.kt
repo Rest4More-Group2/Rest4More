@@ -22,6 +22,8 @@ class MainActivity : FlutterActivity() {
                 "setBlocking" -> {
                     val isBlocking = call.argument<Boolean>("isBlocking") ?: false
                     val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                    // Een nieuwe of beëindigde blokkade begint schoon.
+                    UnblockGrants.clear(prefs)
                     prefs.edit().putBoolean("isBlocking", isBlocking).apply()
                     result.success(null)
                 }
@@ -39,6 +41,33 @@ class MainActivity : FlutterActivity() {
                     val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
                     val blockedPackages = prefs.getStringSet("blockedPackages", emptySet()) ?: emptySet()
                     result.success(blockedPackages.toList())
+                }
+                // De eigen appkeuze van het Tag-moment, voor tags die de blokkade
+                // starten terwijl de app dicht is. Zie TagLinks.
+                "setTagSelection" -> {
+                    val packages = call.argument<List<String>>("packages") ?: emptyList()
+                    val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                    prefs.edit().putStringSet("tagPackages", packages.toSet()).apply()
+                    result.success(null)
+                }
+                // Geeft één app bewust tijdelijk vrij; zie UnblockGrants.
+                "grantUnblock" -> {
+                    val pkg = call.argument<String>("package")
+                    val minutes = call.argument<Int>("minutes") ?: 0
+                    if (pkg == null || minutes < 1 || minutes > 15) {
+                        result.error("bad_request", "package and 1-15 minutes required", null)
+                    } else {
+                        val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                        UnblockGrants.grant(prefs, pkg, System.currentTimeMillis() + minutes * 60_000L)
+                        result.success(null)
+                    }
+                }
+                // Het blokkeerscherm zet een verzoek klaar; Flutter haalt het één keer op.
+                "takePendingUnblock" -> {
+                    val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                    val pending = prefs.getString("pendingUnblock", null)
+                    prefs.edit().remove("pendingUnblock").apply()
+                    result.success(pending)
                 }
                 "isAccessibilityEnabled" -> result.success(isAccessibilityServiceEnabled())
                 "openAccessibilitySettings" -> {

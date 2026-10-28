@@ -1,7 +1,13 @@
+import 'dart:io' as io;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/database/app_database.dart';
+import '../data/database/enums.dart';
+import '../data/moments/moment_blocking.dart';
 import '../data/moments/moment_plans.dart';
+import '../data/moments/session_runner.dart';
+import '../data/moments/unblock_service.dart';
 import '../data/moments/moment_profiles.dart';
 import '../data/repositories/accessory_repository.dart';
 import '../data/repositories/block_profile_repository.dart';
@@ -40,6 +46,20 @@ final momentPlanStoreProvider = Provider<MomentPlanStore>(
   (ref) => DbMomentPlanStore(
     ref.watch(momentPlanRepositoryProvider),
     legacy: PrefsMomentPlanStore(),
+  ),
+);
+
+final unblockServiceProvider = Provider((ref) => UnblockService());
+
+final sessionRunnerProvider = Provider(
+  (ref) => SessionRunner(
+    ref.watch(focusSessionRepositoryProvider),
+    MomentBlocking(ref.watch(momentProfileServiceProvider)),
+    platform: io.Platform.isIOS
+        ? SessionPlatform.ios
+        : io.Platform.isAndroid
+            ? SessionPlatform.android
+            : SessionPlatform.unknown,
   ),
 );
 

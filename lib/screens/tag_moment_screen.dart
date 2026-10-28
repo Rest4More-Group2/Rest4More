@@ -3,9 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_ios.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/moments/moment_blocking.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
+import 'package:rest4more/data/moments/tag_selection_sync.dart';
 import 'package:rest4more/data/tags/tag_service.dart';
+import 'package:rest4more/providers/repository_providers.dart';
 
-import 'app_selection.dart';
+import 'moment_apps_section.dart';
 import 'moments_widgets.dart';
 import 'paired_tags_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
@@ -58,6 +63,9 @@ class _TagMomentScreenState extends State<TagMomentScreen>
       final active = await TagService.getBlocking();
       final tags = await TagService.getKnownTags();
       if (!mounted) return;
+      // Houd de kopie op het toestel gelijk aan de bewaarde keuze.
+      await TagSelectionSync(_service).mirror();
+      if (!mounted) return;
       setState(() {
         _active = active;
         _tagCount = tags.length;
@@ -74,8 +82,18 @@ class _TagMomentScreenState extends State<TagMomentScreen>
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
+  MomentProfileService get _service =>
+      ProviderScope.containerOf(context).read(momentProfileServiceProvider);
+
+  /// Het Tag-moment heeft zijn eigen lijst met apps, los van de andere
+  /// momenten.
   Future<void> _chooseApps() async {
-    await openAppSelection(context);
+    await chooseMomentApps(
+      context,
+      _service,
+      MomentKind.tag,
+      onMessage: _message,
+    );
   }
 
   Future<void> _pairTag() async {
@@ -122,7 +140,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
               message = 'This is not one of your paired tags.';
             } else {
               final next = !_active;
-              await TagService.setBlocking(next);
+              await MomentBlocking(_service).setBlocking(MomentKind.tag, next);
               if (mounted) setState(() => _active = next);
             }
           } catch (e) {

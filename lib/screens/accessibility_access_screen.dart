@@ -7,7 +7,11 @@ import 'today_screen.dart' show RestPalette, RestType;
 /// Android: blocking apps needs the accessibility service. Once it is on, this
 /// screen moves on to the app list by itself.
 class AccessibilityAccessScreen extends StatefulWidget {
-  const AccessibilityAccessScreen({super.key});
+  const AccessibilityAccessScreen({super.key, this.next});
+
+  /// Het scherm dat volgt zodra de service aan staat. Zonder: de oude, gedeelde
+  /// appkiezer.
+  final WidgetBuilder? next;
 
   @override
   State<AccessibilityAccessScreen> createState() =>
@@ -44,7 +48,9 @@ class _AccessibilityAccessScreenState extends State<AccessibilityAccessScreen>
           await platform.invokeMethod<bool>('isAccessibilityEnabled') ?? false;
       if (!enabled || !mounted) return;
       await Navigator.of(context).pushReplacement<void, void>(
-        MaterialPageRoute<void>(builder: (_) => const AppPickerScreen()),
+        MaterialPageRoute<void>(
+          builder: widget.next ?? (_) => const AppPickerScreen(),
+        ),
       );
     } catch (e) {
       debugPrint('Accessibility check error: $e');

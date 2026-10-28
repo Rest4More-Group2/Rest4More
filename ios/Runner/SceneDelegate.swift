@@ -57,6 +57,32 @@ class SceneDelegate: FlutterSceneDelegate {
                 result(nil)
             case "getBlocking":
                 result(UserDefaults.standard.bool(forKey: "isBlocking"))
+            case "setTagSelection":
+                // De eigen appkeuze van het Tag-moment, voor tag-links die de
+                // blokkade starten zonder dat Flutter draait.
+                let given = (call.arguments as? [String: Any])?["selection"] as? FlutterStandardTypedData
+                if let data = given?.data {
+                    UserDefaults.standard.set(data, forKey: "tagSelection")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: "tagSelection")
+                }
+                result(nil)
+            case "grantUnblock":
+                // iOS kent de namen van de gekozen apps niet, dus de hele blokkade
+                // pauzeert even. Daarna zet reapplyIfExpired hem terug.
+                let minutes = (call.arguments as? [String: Any])?["minutes"] as? Int ?? 0
+                guard minutes >= 1, minutes <= 15 else {
+                    result(FlutterError(code: "bad_request", message: "1-15 minutes required", details: nil))
+                    return
+                }
+                UserDefaults.standard.set(Date().timeIntervalSince1970 + Double(minutes * 60), forKey: "unblockUntil")
+                let store = ManagedSettingsStore()
+                store.shield.applications = nil
+                store.shield.applicationCategories = nil
+                result(nil)
+            case "reapplyIfExpired":
+                self.reapplyIfExpired()
+                result(nil)
             case "getKnownTags":
                 result(UserDefaults.standard.stringArray(forKey: "knownTags") ?? [])
             case "addKnownTag":
@@ -154,7 +180,8 @@ class SceneDelegate: FlutterSceneDelegate {
         guard known.contains(id) else { return }  // unknown tag: ignore
 
         let newState = !UserDefaults.standard.bool(forKey: "isBlocking")
-        applyBlocking(newState)
+        // Alleen de apps van het Tag-moment; zonder eigen keuze blokkeert dit niets.
+        applyBlocking(newState, selectionData: UserDefaults.standard.data(forKey: "tagSelection"), momentOnly: true)
         channel?.invokeMethod("blockingChanged", arguments: newState)
     }
 
@@ -163,10 +190,19 @@ class SceneDelegate: FlutterSceneDelegate {
     /// selection; `momentOnly` stops it falling back to the shared list.
     private func applyBlocking(_ isBlocking: Bool, selectionData: Data? = nil, momentOnly: Bool = false) {
         UserDefaults.standard.set(isBlocking, forKey: "isBlocking")
+        // Een nieuwe of beëindigde blokkade begint schoon: een eerdere tijdelijke
+        // vrijgave geldt daar niet meer.
+        UserDefaults.standard.removeObject(forKey: "unblockUntil")
 
         let store = ManagedSettingsStore()
         if isBlocking {
             let stored = selectionData ?? (momentOnly ? nil : UserDefaults.standard.data(forKey: "blockedSelection"))
+            // Bewaar wat er nu geblokkeerd is, om na een tijdelijke vrijgave terug te zetten.
+            if let stored = stored {
+                UserDefaults.standard.set(stored, forKey: "activeSelection")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "activeSelection")
+            }
             if let data = stored,
                let selection = try? PropertyListDecoder().decode(FamilyActivitySelection.self, from: data) {
                 store.shield.applications = selection.applicationTokens
@@ -177,8 +213,23 @@ class SceneDelegate: FlutterSceneDelegate {
                 store.shield.applicationCategories = nil
             }
         } else {
+            UserDefaults.standard.removeObject(forKey: "activeSelection")
             store.shield.applications = nil
             store.shield.applicationCategories = nil
         }
+    }
+
+    /// Zet de blokkade terug als een tijdelijke vrijgave voorbij is. Flutter
+    /// roept dit aan zodra de app weer naar voren komt en tijdens een sessie.
+    /// Een app kan op iOS niet zelf wakker worden om dit op de seconde te doen;
+    /// dat vergt een DeviceActivity-extensie.
+    private func reapplyIfExpired() {
+        let until = UserDefaults.standard.double(forKey: "unblockUntil")
+        guard until > 0, Date().timeIntervalSince1970 >= until else { return }
+        guard UserDefaults.standard.bool(forKey: "isBlocking") else {
+            UserDefaults.standard.removeObject(forKey: "unblockUntil")
+            return
+        }
+        applyBlocking(true, selectionData: UserDefaults.standard.data(forKey: "activeSelection"), momentOnly: true)
     }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:rest4more/screens/focus_moment_screen.dart';
 
 import 'screens/app_root.dart';
 
@@ -21,6 +20,7 @@ import 'screens/authorization_ios_screen.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
+import 'screens/unblock_request_listener.dart';
 import 'screens/paired_tags_screen.dart';
 import 'screens/app_shell.dart';
 
@@ -78,12 +78,20 @@ Future<void> main() async {
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
+/// Nodig om vanaf buiten de schermen (het blokkeerscherm) een scherm te openen.
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: rootNavigatorKey,
+      builder: (context, child) => UnblockRequestListener(
+        navigatorKey: rootNavigatorKey,
+        child: child ?? const SizedBox.shrink(),
+      ),
       title: 'Rest For More',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

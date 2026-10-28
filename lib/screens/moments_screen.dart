@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
-import 'focus_moment_screen.dart';
+import 'moment_intro_screen.dart';
 import 'saved_moment_pages.dart';
+import 'session_run_screen.dart';
 import 'session_setup_screen.dart';
 import 'tag_moment_screen.dart';
 import 'moments_widgets.dart';
@@ -22,6 +23,14 @@ class _MomentsScreenState extends State<MomentsScreen> {
   void _open(String id, WidgetBuilder builder) {
     setState(() => _selected = id);
     Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: builder));
+  }
+
+  /// Start een sessie met timer. De setup-pagina wordt vervangen door de
+  /// lopende sessie, zodat Terug niet naar de instellingen springt.
+  void _startRun(FocusSetup setup) {
+    Navigator.of(context).pushReplacement<void, void>(
+      MaterialPageRoute<void>(builder: (_) => SessionRunScreen(setup: setup)),
+    );
   }
 
   @override
@@ -49,26 +58,28 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 32),
                 _momentCard(
                   id: 'focus',
-                  title: 'Focus',
-                  iconIndex: 1,
-                  description:
-                      'Clear your mind to commit to a single quiet workflow.',
-                  builder: (_) =>
-                      FocusMomentScreen(onStartFocus: widget.onStartFocus),
+                  title: MomentIntro.focus.title,
+                  iconIndex: MomentIntro.focus.iconIndex,
+                  description: MomentIntro.focus.description,
+                  builder: (_) => MomentIntroScreen(
+                    intro: MomentIntro.focus,
+                    next: (_) => SessionSetupScreen(
+                      kind: SessionKind.focus,
+                      onStart: _startRun,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _momentCard(
                   id: 'reading',
-                  title: 'Reading',
-                  iconIndex: 2,
-                  description: 'Keep distractions away while you read.',
-                  builder: (_) => SessionSetupScreen(
-                    kind: SessionKind.reading,
-                    // Zelfde tijdelijke koppeling als Focus, tot de timer er is.
-                    onStart: (setup) => Navigator.pushNamed(
-                      context,
-                      '/prototype',
-                      arguments: setup.kind.moment,
+                  title: MomentIntro.reading.title,
+                  iconIndex: MomentIntro.reading.iconIndex,
+                  description: MomentIntro.reading.description,
+                  builder: (_) => MomentIntroScreen(
+                    intro: MomentIntro.reading,
+                    next: (_) => SessionSetupScreen(
+                      kind: SessionKind.reading,
+                      onStart: _startRun,
                     ),
                   ),
                 ),
@@ -85,19 +96,24 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 16),
                 _momentCard(
                   id: 'evening',
-                  title: 'Evening',
-                  iconIndex: 3,
-                  description:
-                      'Wind down and put your phone away before bed.',
-                  builder: (_) => const SavedEveningScreen(),
+                  title: MomentIntro.evening.title,
+                  iconIndex: MomentIntro.evening.iconIndex,
+                  description: MomentIntro.evening.description,
+                  builder: (_) => MomentIntroScreen(
+                    intro: MomentIntro.evening,
+                    next: (_) => const SavedEveningScreen(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _momentCard(
                   id: 'morning',
-                  title: 'Morning',
-                  iconIndex: 0,
-                  description: 'Start the day before your phone does.',
-                  builder: (_) => const SavedMorningScreen(),
+                  title: MomentIntro.morning.title,
+                  iconIndex: MomentIntro.morning.iconIndex,
+                  description: MomentIntro.morning.description,
+                  builder: (_) => MomentIntroScreen(
+                    intro: MomentIntro.morning,
+                    next: (_) => const SavedMorningScreen(),
+                  ),
                 ),
               ],
             ),

@@ -10,7 +10,8 @@ enum MomentKind {
   focus('Focus', null),
   reading('Reading', null),
   evening('Evening', BlockContext.evening),
-  morning('Morning', null);
+  morning('Morning', null),
+  tag('Tag', null);
 
   const MomentKind(this.profileName, this.context);
 
