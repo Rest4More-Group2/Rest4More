@@ -295,6 +295,9 @@ class RestPalette {
   static const accent = Color(0xFFAA7657);
   static const border = Color(0xFFE5DCCD);
   static const badge = Color(0xFFF1E0BD);
+
+  /// Het merkgeel (#FFB60A), voor de hoofdactie van het tijdelijk vrijgeven.
+  static const gold = Color(0xFFFFB60A);
 }
 
 // -----------------------------------------------------------------------------

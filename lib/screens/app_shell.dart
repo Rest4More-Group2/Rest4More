@@ -4,6 +4,7 @@ import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
+import 'profile_tab.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key, this.onStartStep, this.onStartFocus});
@@ -18,13 +19,9 @@ class _AppShellState extends State<AppShell> {
   int _selectedTab = 0;
 
   void _selectTab(int index) {
-    if (index > 1) {
+    if (index == 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${index == 2 ? 'Progress' : 'Profile'} is not available yet.',
-          ),
-        ),
+        const SnackBar(content: Text('Progress is not available yet.')),
       );
       return;
     }
@@ -39,6 +36,8 @@ class _AppShellState extends State<AppShell> {
       children: [
         TodayTab(onStartStep: widget.onStartStep),
         MomentsScreen(onStartFocus: widget.onStartFocus),
+        const SizedBox.shrink(), // Progress: not available yet
+        const ProfileTab(),
       ],
     ),
     bottomNavigationBar: DecoratedBox(

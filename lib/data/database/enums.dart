@@ -234,6 +234,7 @@ enum SessionEventType implements DbEnum {
   scanAccepted('scan_accepted'),
   scanRejected('scan_rejected'),
   reconciled('reconciled'),
+  unblockGranted('unblock_granted'),
   unknown('unknown');
 
   const SessionEventType(this.id);
@@ -400,6 +401,18 @@ enum ConsentStatus implements DbEnum {
   unknown('unknown');
 
   const ConsentStatus(this.id);
+
+  @override
+  final String id;
+}
+
+/// Welk moment een opgeslagen plan bij hoort.
+enum MomentPlanKind implements DbEnum {
+  evening('evening'),
+  morning('morning'),
+  unknown('unknown');
+
+  const MomentPlanKind(this.id);
 
   @override
   final String id;
