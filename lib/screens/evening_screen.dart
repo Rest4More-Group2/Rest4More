@@ -105,6 +105,9 @@ class _EveningScreenState extends State<EveningScreen> {
         ),
         MomentSection(
           title: 'Reminders',
+          note: 'Reminders are local notifications. The app can ask, but it '
+              'cannot make you put your phone away, and your phone’s silent '
+              'or Focus modes can still mute them.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -127,22 +130,19 @@ class _EveningScreenState extends State<EveningScreen> {
               ),
             ],
           ),
-          note: 'Reminders are local notifications. The app can ask, but it '
-              'cannot make you put your phone away, and your phone’s silent '
-              'or Focus modes can still mute them.',
         ),
         MomentSection(
           title: 'When blocking ends',
+          note: strict
+              ? 'Strict overnight: blocking stays on until you scan. A timer '
+                  'will not end it for you.'
+              : 'Blocking lifts by itself at bedtime.',
           child: ChoiceChips<EveningEnd>(
             options: EveningEnd.values,
             selected: _plan.end,
             onSelected: (v) => setState(() => _plan = _plan.copyWith(end: v)),
             labelOf: (v) => v.label,
           ),
-          note: strict
-              ? 'Strict overnight: blocking stays on until you scan. A timer '
-                  'will not end it for you.'
-              : 'Blocking lifts by itself at bedtime.',
         ),
         if (preview != null && steps.isNotEmpty)
           MomentSection(

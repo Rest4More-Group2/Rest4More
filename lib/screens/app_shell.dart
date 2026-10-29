@@ -9,10 +9,9 @@ import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
-import 'profile_tab.dart';
 
 /// De app na de onboarding. Houdt ook de herinneringen voor de dagelijkse stap
-/// bij: bij het openen en elke keer dat de app terugkomt worden ze opnieuw
+/// bij: bsij het openen en elke keer dat de app terugkomt worden ze opnieuw
 /// gepland (nieuwe dag, andere tijdzone, meldingen uitgezet). Een tik op een
 /// herinnering opent Today.
 class AppShell extends ConsumerStatefulWidget {

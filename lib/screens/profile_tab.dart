@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/notifications/notification_permission.dart';
+import 'package:rest4more/data/tags/tag_service.dart';
 import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'moments_widgets.dart';
 import 'onboarding/notification_permission_flow.dart';
+import 'paired_tags_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
-import 'package:rest4more/data/tags/tag_service.dart';
-
-import 'moments_widgets.dart';
-import 'paired_tags_screen.dart';
-
-/// Het profiel. Voor nu alleen de dagelijkse herinnering: aan of uit en hoe
-/// laat.
+/// Het profiel: de dagelijkse herinnering (aan of uit en hoe laat) en de
+/// gekoppelde NFC-tags.
 class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});
 
@@ -32,20 +30,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
   /// Naar de instellingen gestuurd om meldingen aan te zetten.
   bool _sentToSettings = false;
 
-class ProfileTab extends StatefulWidget {
-  const ProfileTab({super.key});
-
-  @override
-  State<ProfileTab> createState() => _ProfileTabState();
-}
-
-class _ProfileTabState extends State<ProfileTab> {
   int? _tagCount;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _loadTagCount();
   }
 
   @override
@@ -114,14 +105,6 @@ class _ProfileTabState extends State<ProfileTab> {
   String _format(int minutes) =>
       TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60).format(context);
 
-  @override
-  Widget build(BuildContext context) {
-    final profile = ref.watch(profileProvider).value;
-    final enabled = profile?.notifyProgramme ?? false;
-    final minutes = profile?.notifyTimeMinutes ?? _defaultMinutes;
-    _loadTagCount();
-  }
-
   Future<void> _loadTagCount() async {
     try {
       final tags = await TagService.getKnownTags();
@@ -140,6 +123,9 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = ref.watch(profileProvider).value;
+    final enabled = profile?.notifyProgramme ?? false;
+    final minutes = profile?.notifyTimeMinutes ?? _defaultMinutes;
     final count = _tagCount;
     final summary = count == null
         ? 'Pair a tag to start and end moments with a tap.'
@@ -160,6 +146,9 @@ class _ProfileTabState extends State<ProfileTab> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text('Profile', style: RestType.serif(40)),
+                  const SizedBox(height: 8),
+                  Text('Your settings and tags',
+                      style: RestType.sans(16, color: RestPalette.accent)),
                   const SizedBox(height: 32),
                   Text(
                     'REMINDERS',
@@ -172,11 +161,6 @@ class _ProfileTabState extends State<ProfileTab> {
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
-                  const SizedBox(height: 8),
-                  Text('Your settings and tags',
-                      style: RestType.sans(16, color: RestPalette.accent)),
-                  const SizedBox(height: 32),
-                  Container(
                     decoration: BoxDecoration(
                       color: RestPalette.surface,
                       borderRadius: BorderRadius.circular(22),
@@ -255,6 +239,14 @@ class _ProfileTabState extends State<ProfileTab> {
                           : 'Reminders are off. You can use everything in '
                               'the app without them.',
                       style: RestType.sans(12, color: RestPalette.accent),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: RestPalette.surface,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
                     child: Material(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(22),

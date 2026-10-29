@@ -130,6 +130,8 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
       children: [
         MomentSection(
           title: 'How long',
+          note: 'Ends after $_minutes minutes. Stopping early asks you to '
+              'confirm first and is logged as stopped early.',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -150,8 +152,6 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
               ],
             ],
           ),
-          note: 'Ends after $_minutes minutes. Stopping early asks you to '
-              'confirm first and is logged as stopped early.',
         ),
         MomentAppsSection(kind: kind.moment),
       ],

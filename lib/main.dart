@@ -22,7 +22,6 @@ import 'screens/home_screen.dart';
 import 'screens/nfc_scan_screen.dart';
 import 'screens/unblock_request_listener.dart';
 import 'screens/paired_tags_screen.dart';
-import 'screens/app_shell.dart';
 
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/repositories/profile_repository.dart';
