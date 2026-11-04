@@ -235,6 +235,7 @@ enum SessionEventType implements DbEnum {
   scanRejected('scan_rejected'),
   reconciled('reconciled'),
   unblockGranted('unblock_granted'),
+  unblockEnded('unblock_ended'),
   unknown('unknown');
 
   const SessionEventType(this.id);

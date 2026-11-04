@@ -85,6 +85,12 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     }
                 }
+                // Zet alle tijdelijke vrijgaven meteen weer dicht ("Block apps again").
+                "revokeUnblock" -> {
+                    val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)
+                    UnblockGrants.clear(prefs)
+                    result.success(null)
+                }
                 // Het blokkeerscherm zet een verzoek klaar; Flutter haalt het één keer op.
                 "takePendingUnblock" -> {
                     val prefs = getSharedPreferences("app_blocker_prefs", Context.MODE_PRIVATE)

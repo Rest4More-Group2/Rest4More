@@ -86,6 +86,10 @@ class SceneDelegate: FlutterSceneDelegate {
             case "reapplyIfExpired":
                 self.reapplyIfExpired()
                 result(nil)
+            case "revokeUnblock":
+                // "Block apps again": de pauze meteen beëindigen.
+                self.reapplyUnblocked(force: true)
+                result(nil)
             case "getKnownTags":
                 result(UserDefaults.standard.stringArray(forKey: "knownTags") ?? [])
             case "addKnownTag":
@@ -227,8 +231,14 @@ class SceneDelegate: FlutterSceneDelegate {
     /// Een app kan op iOS niet zelf wakker worden om dit op de seconde te doen;
     /// dat vergt een DeviceActivity-extensie.
     private func reapplyIfExpired() {
+        reapplyUnblocked(force: false)
+    }
+
+    /// Zet een tijdelijk gepauzeerde blokkade terug: als de tijd om is, of
+    /// meteen met [force].
+    private func reapplyUnblocked(force: Bool) {
         let until = UserDefaults.standard.double(forKey: "unblockUntil")
-        guard until > 0, Date().timeIntervalSince1970 >= until else { return }
+        guard until > 0, force || Date().timeIntervalSince1970 >= until else { return }
         guard UserDefaults.standard.bool(forKey: "isBlocking") else {
             UserDefaults.standard.removeObject(forKey: "unblockUntil")
             return

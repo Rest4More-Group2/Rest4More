@@ -77,6 +77,10 @@ class UnblockService {
     return _channel.invokeMethod<String>('takePendingUnblock');
   }
 
+  /// Zet de blokkade meteen weer dicht, ook als de vrijgegeven tijd nog niet
+  /// om is. Geldt voor elke lopende vrijgave.
+  Future<void> revoke() => _channel.invokeMethod<void>('revokeUnblock');
+
   /// iOS: zet de blokkade terug als de vrijgegeven tijd voorbij is.
   Future<void> reapplyIfExpired() async {
     if (!isIos) return;

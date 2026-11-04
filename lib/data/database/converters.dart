@@ -134,7 +134,8 @@ class SessionEventData {
   final SessionState? toState;
   final String? errorCode;
 
-  /// Bij `unblockGranted`: hoeveel minuten de gebruiker erbij kreeg.
+  /// Bij `unblockGranted`: hoeveel minuten de apps vrij zijn. De timer van de
+  /// sessie staat zo lang stil, of tot een `unblockEnded`.
   final int? minutes;
 
   Map<String, dynamic> toJson() => {
