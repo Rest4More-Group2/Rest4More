@@ -7,6 +7,7 @@ import 'package:rest4more/data/moments/moment_schedule.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'end_early_screen.dart';
 import 'moments_form_widgets.dart';
 import 'moments_widgets.dart';
 import 'session_setup_screen.dart';
@@ -16,8 +17,8 @@ import 'today_screen.dart' show RestPalette, RestType;
 enum _Phase { starting, running, ending, finished, failed, releaseFailed }
 
 /// Een lopende sessie met timer (Focus of Reading). Start de blokkade, telt af
-/// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen vraagt
-/// eerst bevestiging en wordt als `stoppedEarly` vastgelegd.
+/// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen gaat via
+/// [EndEarlyScreen] en wordt als `stoppedEarly` vastgelegd.
 class SessionRunScreen extends ConsumerStatefulWidget {
   const SessionRunScreen({super.key, this.setup, this.resume})
       : assert(setup != null || resume != null);
@@ -39,6 +40,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   String? _error;
   Timer? _ticker;
   bool _endedEarly = false;
+  bool _askingToStop = false;
 
   SessionRunner get _runner => ref.read(sessionRunnerProvider);
 
@@ -156,9 +158,19 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     ));
   }
 
+  /// Eerder stoppen gaat via een korte pauze. De timer hier loopt intussen
+  /// gewoon door, dus "Keep going" pakt hem zonder gat weer op.
   Future<void> _askToStop() async {
-    if (_phase != _Phase.running) return;
-    if (await confirmStopEarly(context)) await _finish(early: true);
+    if (_phase != _Phase.running || _askingToStop) return;
+    _askingToStop = true;
+    final end = await Navigator.of(context).push<bool>(MaterialPageRoute<bool>(
+      builder: (_) => const EndEarlyScreen(),
+    ));
+    _askingToStop = false;
+    // De sessie kan intussen vanzelf afgelopen zijn.
+    if (end == true && mounted && _phase == _Phase.running) {
+      await _finish(early: true);
+    }
   }
 
   void _leave() =>

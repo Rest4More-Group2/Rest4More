@@ -144,19 +144,8 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (_step != _Step.done)
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          onPressed: () => Navigator.maybePop(context),
-                          tooltip: 'Cancel and keep it blocked',
-                          style: IconButton.styleFrom(
-                            backgroundColor: RestPalette.surface,
-                            foregroundColor: RestPalette.primary,
-                            minimumSize: const Size(44, 44),
-                          ),
-                          icon: const Icon(Icons.close),
-                        ),
-                      ),
+                      const MomentCloseButton(
+                          tooltip: 'Cancel and keep it blocked'),
                     Expanded(
                       child: switch (_step) {
                         _Step.choose => _chooseStep(),
@@ -385,8 +374,6 @@ class _PauseStepState extends State<_PauseStep>
 
   @override
   Widget build(BuildContext context) {
-    // Wie minder beweging wil, ziet de balk in stappen in plaats van glijdend.
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -412,19 +399,9 @@ class _PauseStepState extends State<_PauseStep>
           label: _ready
               ? 'Pause finished'
               : 'Pause in progress, a few seconds',
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) => LinearProgressIndicator(
-                value: reduceMotion
-                    ? (_controller.value * 5).floor() / 5
-                    : _controller.value,
-                minHeight: 8,
-                backgroundColor: RestPalette.surface,
-                color: RestPalette.primary,
-              ),
-            ),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => BreatheBar(value: _controller.value),
           ),
         ),
         const Spacer(),

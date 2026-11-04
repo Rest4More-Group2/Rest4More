@@ -5,7 +5,7 @@ import 'package:rest4more/providers/repository_providers.dart';
 
 import 'moment_apps_section.dart';
 import 'moments_form_widgets.dart';
-import 'today_screen.dart' show RestPalette, RestType;
+import 'today_screen.dart' show RestType;
 
 /// Soort sessie. Focus en Reading werken hetzelfde; ze verschillen in tekst,
 /// duurkeuzes en welk opgeslagen app-profiel standaard gekozen is.
@@ -191,31 +191,4 @@ class _MinutesStepper extends StatelessWidget {
           ),
         ],
       );
-}
-
-/// Vraagt of de sessie echt eerder moet stoppen. Geeft true als de gebruiker
-/// bevestigt. Wie dit aanroept logt de sessie dan als `stoppedEarly`.
-Future<bool> confirmStopEarly(BuildContext context) async {
-  final stop = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      backgroundColor: RestPalette.background,
-      title: Text('End this session early?', style: RestType.serif(26)),
-      content: Text(
-        'Your apps unlock now. This session will be logged as stopped early.',
-        style: RestType.sans(15),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Keep going'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('End early'),
-        ),
-      ],
-    ),
-  );
-  return stop ?? false;
 }
