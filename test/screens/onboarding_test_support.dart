@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +29,11 @@ Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
   await tester.pumpWidget(
     ProviderScope(
       overrides: [databaseProvider.overrideWithValue(database)],
-      child: MaterialApp(home: screen),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: screen,
+      ),
     ),
   );
   await tester.pump();

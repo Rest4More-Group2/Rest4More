@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:rest4more/theme/app_color.dart';
 
 const _channel = MethodChannel('com.example.app_blocking_prototype/blocking');
@@ -18,7 +19,7 @@ class BlockedScreen extends StatelessWidget {
             Icon(Icons.lock, color: AppColors.background, size: 64),
             const SizedBox(height: 16),
             Text(
-              'This app is blocked',
+              AppLocalizations.of(context).appBlocked,
               style: TextStyle(color: AppColors.background, fontSize: 22),
             ),
             const SizedBox(height: 24),
@@ -38,7 +39,7 @@ class BlockedScreen extends StatelessWidget {
                 shape: const StadiumBorder(),
                 minimumSize: const Size(48, 48),
               ),
-              child: const Text('Open Rest For More'),
+              child: Text(AppLocalizations.of(context).openRestForMore),
             ),
           ],
         ),

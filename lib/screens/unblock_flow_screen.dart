@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -111,8 +112,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       }
     } on Object {
       if (mounted) {
-        setState(() => _error = 'We could not unblock this right now. '
-            'Please try again.');
+        setState(() => _error = AppLocalizations.of(context).unblockFailed);
       }
     } finally {
       if (mounted) setState(() => _working = false);
@@ -148,7 +148,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                         alignment: Alignment.centerLeft,
                         child: IconButton(
                           onPressed: () => Navigator.maybePop(context),
-                          tooltip: 'Cancel and keep it blocked',
+                          tooltip: AppLocalizations.of(context).cancelKeepBlocked,
                           style: IconButton.styleFrom(
                             backgroundColor: RestPalette.surface,
                             foregroundColor: RestPalette.primary,
@@ -183,17 +183,17 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        Text('Which app do you need?', style: RestType.serif(36)),
+        Text(AppLocalizations.of(context).whichAppNeeded, style: RestType.serif(36)),
         const SizedBox(height: 10),
         Text(
-          'Only the one you choose opens, and only for a little while.',
+          AppLocalizations.of(context).onlyOneOpens,
           style: RestType.sans(16, color: RestPalette.accent),
         ),
         const SizedBox(height: 16),
         Expanded(
           child: _loadFailed
               ? Center(
-                  child: Text('Could not read your blocked apps.',
+                  child: Text(AppLocalizations.of(context).couldNotReadBlocked,
                       style: RestType.sans(16)))
               : apps == null
                   ? const Center(
@@ -201,7 +201,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                           color: RestPalette.primary))
                   : apps.isEmpty
                       ? Center(
-                          child: Text('Nothing is blocked right now.',
+                          child: Text(AppLocalizations.of(context).nothingBlocked,
                               style: RestType.sans(16)))
                       : ListView(
                           children: [
@@ -236,7 +236,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        Text('How long do you really need?', style: RestType.serif(36)),
+        Text(AppLocalizations.of(context).howLongNeed, style: RestType.serif(36)),
         const SizedBox(height: 24),
         Expanded(
           child: Row(
@@ -247,14 +247,14 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                 child: RotatedBox(
                   quarterTurns: 3,
                   child: Semantics(
-                    label: 'Minutes to unblock',
-                    value: '$_minutes minutes',
+                    label: AppLocalizations.of(context).minutesToUnblock,
+                    value: AppLocalizations.of(context).minutesCount(_minutes),
                     child: Slider(
                       value: _choice.toDouble(),
                       min: 0,
                       max: (UnblockPolicy.minutes.length - 1).toDouble(),
                       divisions: UnblockPolicy.minutes.length - 1,
-                      label: '$_minutes min',
+                      label: AppLocalizations.of(context).minutesShort(_minutes),
                       activeColor: RestPalette.primary,
                       inactiveColor: RestPalette.surface,
                       onChanged: (v) {
@@ -274,15 +274,13 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('$_minutes', style: RestType.serif(120)),
-                    Text(_minutes == 1 ? 'minute' : 'minutes',
+                    Text(AppLocalizations.of(context).minuteUnit(_minutes),
                         style: RestType.sans(20, color: RestPalette.accent)),
                     const SizedBox(height: 20),
                     Text(
                       name == null
-                          ? 'Your apps will be available until '
-                              '${formatTime(until)}.'
-                          : '$name will be available until '
-                              '${formatTime(until)}.',
+                          ? AppLocalizations.of(context).appsAvailableUntil(formatTime(until))
+                          : AppLocalizations.of(context).nameAvailableUntil(name, formatTime(until)),
                       style: RestType.sans(16),
                     ),
                   ],
@@ -306,7 +304,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
             minimumSize: const Size(double.infinity, 58),
           ),
           child: Text(
-            _working ? 'Unblocking…' : 'Unblock',
+            _working ? AppLocalizations.of(context).unblocking : AppLocalizations.of(context).unblock,
             style: RestType.sans(17,
                 color: RestPalette.ink, weight: FontWeight.w700),
           ),
@@ -322,24 +320,25 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(),
-        Text('Unblocked', textAlign: TextAlign.center,
+        Text(AppLocalizations.of(context).unblocked, textAlign: TextAlign.center,
             style: RestType.serif(44)),
         const SizedBox(height: 12),
         Text(
-          '${name ?? 'Your apps'} ${name == null ? 'are' : 'is'} available '
-          'until ${formatTime(until)}. It locks again by itself.',
+          name == null
+              ? AppLocalizations.of(context).appsNowAvailable(formatTime(until))
+              : AppLocalizations.of(context).appNowAvailable(name, formatTime(until)),
           textAlign: TextAlign.center,
           style: RestType.sans(16, color: RestPalette.accent),
         ),
         const Spacer(),
         MomentPrimaryButton(
-          label: _app != null ? 'Open ${_app!.name}' : 'Done',
+          label: _app != null ? AppLocalizations.of(context).openApp(_app!.name) : AppLocalizations.of(context).done,
           onPressed: _open,
         ),
         if (_app != null)
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Not now'),
+            child: Text(AppLocalizations.of(context).notNow),
           ),
       ],
     );
@@ -347,7 +346,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
 }
 
 /// De pauze: een balk die langzaam vol loopt. Er is niets om te doen en niets
-/// over te slaan; pas daarna verschijnt "Continue". Het aftellen is bewust niet
+/// over te slaan; pas daarna verschijnt AppLocalizations.of(context).continueLabel. Het aftellen is bewust niet
 /// in beeld, dat maakt onrustig.
 class _PauseStep extends StatefulWidget {
   const _PauseStep({required this.duration, required this.onContinue});
@@ -369,7 +368,7 @@ class _PauseStepState extends State<_PauseStep>
             setState(() => _ready = true);
             SemanticsService.sendAnnouncement(
               View.of(context),
-              'You can continue now.',
+              AppLocalizations.of(context).youCanContinueNow,
               TextDirection.ltr,
             );
           }
@@ -394,7 +393,7 @@ class _PauseStepState extends State<_PauseStep>
         Semantics(
           liveRegion: true,
           child: Text(
-            'Take a moment to breathe',
+            AppLocalizations.of(context).takeMomentBreathe,
             textAlign: TextAlign.center,
             style: RestType.serif(40),
           ),
@@ -402,16 +401,16 @@ class _PauseStepState extends State<_PauseStep>
         const SizedBox(height: 12),
         Text(
           _ready
-              ? 'Whenever you are ready.'
-              : 'Is this something you need, or something you reached for?',
+              ? AppLocalizations.of(context).wheneverReady
+              : AppLocalizations.of(context).needOrReachedFor,
           textAlign: TextAlign.center,
           style: RestType.sans(16, color: RestPalette.accent),
         ),
         const SizedBox(height: 40),
         Semantics(
           label: _ready
-              ? 'Pause finished'
-              : 'Pause in progress, a few seconds',
+              ? AppLocalizations.of(context).pauseFinished
+              : AppLocalizations.of(context).pauseInProgress,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(100),
             child: AnimatedBuilder(
@@ -436,7 +435,7 @@ class _PauseStepState extends State<_PauseStep>
             child: ExcludeSemantics(
               excluding: !_ready,
               child: MomentPrimaryButton(
-                label: 'Continue',
+                label: AppLocalizations.of(context).continueLabel,
                 onPressed: widget.onContinue,
               ),
             ),

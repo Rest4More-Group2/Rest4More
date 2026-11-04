@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:rest4more/data/moments/moment_plans.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
@@ -65,10 +67,10 @@ class _EveningScreenState extends State<EveningScreen> {
     final strict = _plan.end == EveningEnd.atNextScan;
     final steps = _plan.steps;
     return MomentPage(
-      title: 'Evening',
-      subtitle: 'Pick your bedtime. We count back from there.',
+      title: AppLocalizations.of(context).momentEveningTitle,
+      subtitle: AppLocalizations.of(context).eveningSubtitle,
       bottom: MomentPrimaryButton(
-        label: 'Save evening',
+        label: AppLocalizations.of(context).saveEvening,
         onPressed: widget.onSave == null || steps.isEmpty
             ? null
             : () => widget.onSave!(_plan),
@@ -76,17 +78,16 @@ class _EveningScreenState extends State<EveningScreen> {
       children: [
         const MomentAppsSection(kind: MomentKind.evening),
         MomentSection(
-          title: 'Bedtime per day',
-          note: 'A bedtime between 00:00 and 05:59 belongs to the evening '
-              'before, so a Friday evening can end on Saturday at 00:30.',
+          title: AppLocalizations.of(context).bedtimePerDay,
+          note: AppLocalizations.of(context).bedtimeNote,
           child: Column(
             children: [
               for (final day in _plan.days)
                 WeekdayTimeRow(
-                  name: weekdayName(day.weekday),
+                  name: localizedWeekday(context, day.weekday),
                   enabled: day.enabled,
                   minutes: day.bedtimeMinutes,
-                  hint: day.bedtimeAfterMidnight ? 'After midnight' : null,
+                  hint: day.bedtimeAfterMidnight ? AppLocalizations.of(context).eveningAfterMidnight : null,
                   onEnabled: (v) => _setDay(day.copyWith(enabled: v)),
                   onMinutes: (m) => _setDay(day.copyWith(bedtimeMinutes: m)),
                 ),
@@ -94,9 +95,8 @@ class _EveningScreenState extends State<EveningScreen> {
           ),
         ),
         MomentSection(
-          title: 'Your evening',
-          note: 'Your evening starts early enough to fit every step before '
-              'bedtime. Putting your phone away comes first.',
+          title: AppLocalizations.of(context).yourEvening,
+          note: AppLocalizations.of(context).yourEveningNote,
           child: RoutineStepsEditor(
             steps: steps,
             library: eveningStepLibrary,
@@ -104,49 +104,46 @@ class _EveningScreenState extends State<EveningScreen> {
           ),
         ),
         MomentSection(
-          title: 'Reminders',
+          title: AppLocalizations.of(context).reminders,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _label('Heads-up before your evening starts'),
+              _label(AppLocalizations.of(context).headsUpBefore),
               ChoiceChips<int>(
                 options: const [15, 30, 45, 60],
                 selected: _plan.windDownLeadMinutes,
                 onSelected: (v) => setState(
                     () => _plan = _plan.copyWith(windDownLeadMinutes: v)),
-                labelOf: (v) => '$v min',
+                labelOf: (v) => AppLocalizations.of(context).minutesShort(v),
               ),
               const SizedBox(height: 16),
-              _label('Second reminder if you have not started'),
+              _label(AppLocalizations.of(context).secondReminder),
               ChoiceChips<int>(
                 options: const [0, 5, 10, 15, 30],
                 selected: _plan.secondReminderMinutes,
                 onSelected: (v) => setState(
                     () => _plan = _plan.copyWith(secondReminderMinutes: v)),
-                labelOf: (v) => v == 0 ? 'Off' : 'After $v min',
+                labelOf: (v) => v == 0 ? AppLocalizations.of(context).off : AppLocalizations.of(context).afterMinutes(v),
               ),
             ],
           ),
-          note: 'Reminders are local notifications. The app can ask, but it '
-              'cannot make you put your phone away, and your phone’s silent '
-              'or Focus modes can still mute them.',
+          note: AppLocalizations.of(context).remindersNote,
         ),
         MomentSection(
-          title: 'When blocking ends',
+          title: AppLocalizations.of(context).whenBlockingEnds,
           child: ChoiceChips<EveningEnd>(
             options: EveningEnd.values,
             selected: _plan.end,
             onSelected: (v) => setState(() => _plan = _plan.copyWith(end: v)),
-            labelOf: (v) => v.label,
+            labelOf: (v) => eveningEndLabel(AppLocalizations.of(context), v),
           ),
           note: strict
-              ? 'Strict overnight: blocking stays on until you scan. A timer '
-                  'will not end it for you.'
-              : 'Blocking lifts by itself at bedtime.',
+              ? AppLocalizations.of(context).strictOvernight
+              : AppLocalizations.of(context).liftsAtBedtime,
         ),
         if (preview != null && steps.isNotEmpty)
           MomentSection(
-            title: 'Your ${weekdayName(preview.day.weekday)} evening',
+            title: AppLocalizations.of(context).yourWeekdayEvening(localizedWeekday(context, preview.day.weekday)),
             child: _timeline(preview.times, strict),
           ),
       ],
@@ -159,21 +156,21 @@ class _EveningScreenState extends State<EveningScreen> {
       children: [
         TimelineRow(
           time: formatTime(times.windDown),
-          title: 'Heads-up',
-          detail: 'A reminder that your evening is about to start.',
+          title: AppLocalizations.of(context).headsUp,
+          detail: AppLocalizations.of(context).headsUpDetail,
         ),
         for (var i = 0; i < _plan.steps.length; i++)
           TimelineRow(
             time: formatTime(clock[i]),
             title: _plan.steps[i].title,
             detail: i == 0
-                ? 'Blocking starts here.'
-                : formatDuration(stepMinutes(_plan.steps[i])),
+                ? AppLocalizations.of(context).blockingStartsHere
+                : localizedDuration(AppLocalizations.of(context), stepMinutes(_plan.steps[i])),
           ),
         TimelineRow(
           time: formatTime(times.bedtime),
-          title: strict ? 'Bedtime' : 'Bedtime · blocking ends',
-          detail: strict ? 'Blocking stays until your next scan.' : null,
+          title: strict ? AppLocalizations.of(context).bedtime : AppLocalizations.of(context).bedtimeBlockingEnds,
+          detail: strict ? AppLocalizations.of(context).blockingStaysUntilScan : null,
           last: true,
         ),
       ],

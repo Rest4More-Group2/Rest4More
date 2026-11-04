@@ -27,7 +27,7 @@ object TagLinks {
         val known = prefs.getStringSet("knownTags", emptySet()) ?: emptySet()
 
         if (uuid !in known) {
-            Toast.makeText(context, "Unknown tag. Pair it in the app first.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.tag_unknown), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -41,7 +41,7 @@ object TagLinks {
         edit.apply()
         Toast.makeText(
             context,
-            if (newState) "Blocking on" else "Blocking off",
+            context.getString(if (newState) R.string.blocking_on else R.string.blocking_off),
             Toast.LENGTH_SHORT
         ).show()
     }

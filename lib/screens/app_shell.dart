@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
@@ -21,7 +22,9 @@ class _AppShellState extends State<AppShell> {
   void _selectTab(int index) {
     if (index == 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Progress is not available yet.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).progressNotAvailable),
+        ),
       );
       return;
     }
@@ -29,7 +32,9 @@ class _AppShellState extends State<AppShell> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
     backgroundColor: RestPalette.background,
     body: IndexedStack(
       index: _selectedTab,
@@ -51,7 +56,12 @@ class _AppShellState extends State<AppShell> {
           padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
           child: Row(
             children: List.generate(4, (index) {
-              const labels = ['Today', 'Moments', 'Progress', 'Profile'];
+              final labels = [
+                l10n.tabToday,
+                l10n.tabMoments,
+                l10n.tabProgress,
+                l10n.tabProfile,
+              ];
               final selected = index == _selectedTab;
               final color = selected ? RestPalette.primary : RestPalette.accent;
               return Expanded(
@@ -112,4 +122,5 @@ class _AppShellState extends State<AppShell> {
       ),
     ),
   );
+  }
 }

@@ -1,7 +1,8 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:rest4more/data/programme/plan_explanation.dart';
 
-/// "Why we chose this for you": de samenvatting en per antwoord wat het met
+/// AppLocalizations.of(context).whyWeChoseThis: de samenvatting en per antwoord wat het met
 /// het plan doet. Gebruikt op het planscherm en bij het aanpassen.
 class PlanWhyCard extends StatelessWidget {
   const PlanWhyCard({super.key, this.summary, this.explanation});
@@ -25,8 +26,8 @@ class PlanWhyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Why we chose this for you',
+          Text(
+            AppLocalizations.of(context).whyWeChoseThis,
             style: TextStyle(
               color: darkBrown,
               fontSize: 14,
@@ -66,8 +67,8 @@ class PlanWhyCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 14),
-          const Text(
-            PlanExplanation.disclaimer,
+          Text(
+            PlanExplanation.disclaimerFor(AppLocalizations.of(context)),
             style: TextStyle(
               color: brown,
               fontSize: 11,

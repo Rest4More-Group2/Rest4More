@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -79,10 +81,11 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       // Er loopt al een sessie: laat die zien in plaats van hem te vervangen.
       if (mounted) _run(e.running);
     } on SessionStartError {
-      _fail('We could not set your apps aside, so nothing was started. '
-          'Check that blocking is allowed for Rest For More and try again.');
+      if (!mounted) return;
+      _fail(AppLocalizations.of(context).sessionStartBlockFailed);
     } on Object {
-      _fail('Something went wrong while starting. Please try again.');
+      if (!mounted) return;
+      _fail(AppLocalizations.of(context).sessionStartFailed);
     }
   }
 
@@ -117,6 +120,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   }
 
   Future<void> _finish({required bool early}) async {
+    final l10n = AppLocalizations.of(context);
     final session = _session;
     if (session == null || _phase == _Phase.ending) return;
     _ticker?.cancel();
@@ -128,7 +132,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     } on ReleaseFailedError {
       if (mounted) setState(() => _phase = _Phase.releaseFailed);
     } on Object {
-      _fail('Something went wrong while ending. Please try again.');
+      _fail(l10n.sessionEndFailed);
     }
   }
 
@@ -140,8 +144,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       if (mounted) setState(() => _phase = _Phase.finished);
     } on Object {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Your apps are still set aside. Please try again.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).appsStillSetAsideTryAgain),
         ));
       }
     }
@@ -174,8 +178,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   Widget build(BuildContext context) {
     final session = _session;
     final title = session?.kind.profileName ??
-        widget.setup?.kind.title ??
-        'Session';
+        widget.setup?.kind.title(AppLocalizations.of(context)) ??
+        AppLocalizations.of(context).sessionTitle;
     final iconIndex = switch (session?.kind.name ?? widget.setup?.kind.name) {
       'reading' => 2,
       _ => 1,
@@ -243,8 +247,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           const SizedBox(height: 20),
           Text(
             _phase == _Phase.starting
-                ? 'Setting your apps aside…'
-                : 'Bringing your apps back…',
+                ? AppLocalizations.of(context).settingAppsAside
+                : AppLocalizations.of(context).bringingAppsBack,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -257,7 +261,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
         return [
           Semantics(
             liveRegion: false,
-            label: '${formatDuration(left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0))} left',
+            label: AppLocalizations.of(context).timeLeft(localizedDuration(AppLocalizations.of(context), left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0))),
             child: Text(
               _clock(left),
               textAlign: TextAlign.center,
@@ -276,13 +280,13 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           ),
           const SizedBox(height: 20),
           Text(
-            'Your apps are set aside until ${formatTime(session.endsAt.toLocal())}.',
+            AppLocalizations.of(context).appsSetAsideUntil(formatTime(session.endsAt.toLocal())),
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
           const SizedBox(height: 28),
           Text(
-            '“Return gently whenever your attention wanders.”',
+            '“${AppLocalizations.of(context).momentFocusStep3}”',
             textAlign: TextAlign.center,
             style: RestType.serif(24).copyWith(fontStyle: FontStyle.italic),
           ),
@@ -290,16 +294,15 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.finished:
         return [
           Text(
-            _endedEarly ? 'Session ended' : 'Well done',
+            _endedEarly ? AppLocalizations.of(context).sessionEnded : AppLocalizations.of(context).wellDone,
             textAlign: TextAlign.center,
             style: RestType.serif(40),
           ),
           const SizedBox(height: 12),
           Text(
             _endedEarly
-                ? 'Your apps are back. That is fine. Begin again whenever '
-                    'you like.'
-                : 'Your time is complete and your apps are back.',
+                ? AppLocalizations.of(context).sessionEndedEarlyBody
+                : AppLocalizations.of(context).sessionCompleteBody,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -307,7 +310,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.failed:
         return [
           Text(
-            _error ?? 'Something went wrong.',
+            _error ?? AppLocalizations.of(context).somethingWentWrong,
             textAlign: TextAlign.center,
             style: RestType.sans(16),
           ),
@@ -315,14 +318,13 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.releaseFailed:
         return [
           Text(
-            'Your apps are still set aside',
+            AppLocalizations.of(context).appsStillSetAside,
             textAlign: TextAlign.center,
             style: RestType.serif(32),
           ),
           const SizedBox(height: 12),
           Text(
-            'The session is over, but we could not bring your apps back. '
-            'Try again, or open Help if it keeps happening.',
+            AppLocalizations.of(context).releaseFailedBody,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -341,7 +343,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
               minimumSize: const Size(double.infinity, 48),
             ),
             child: Text(
-              'Need an app?',
+              AppLocalizations.of(context).needAnApp,
               style: RestType.sans(
                 15,
                 color: RestPalette.primary,
@@ -359,7 +361,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
               minimumSize: const Size(double.infinity, 58),
             ),
             child: Text(
-              'End early',
+              AppLocalizations.of(context).endEarly,
               style: RestType.sans(
                 17,
                 color: RestPalette.primary,
@@ -370,10 +372,10 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
         ];
       case _Phase.finished:
       case _Phase.failed:
-        return [MomentPrimaryButton(label: 'Done', onPressed: _leave)];
+        return [MomentPrimaryButton(label: AppLocalizations.of(context).done, onPressed: _leave)];
       case _Phase.releaseFailed:
         return [
-          MomentPrimaryButton(label: 'Try again', onPressed: _retryRelease),
+          MomentPrimaryButton(label: AppLocalizations.of(context).tryAgain, onPressed: _retryRelease),
         ];
       case _Phase.starting:
       case _Phase.ending:

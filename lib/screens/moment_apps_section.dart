@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
@@ -114,7 +116,7 @@ Future<AppsChoice> _chooseIos(
   return AppsChoice.chosen;
 }
 
-/// Sectie "Apps to block" voor een moment: toont wat gekozen is en opent de
+/// Sectie AppLocalizations.of(context).appsToBlock voor een moment: toont wat gekozen is en opent de
 /// appkiezer. Elk moment heeft zijn eigen keuze.
 class MomentAppsSection extends ConsumerStatefulWidget {
   const MomentAppsSection({super.key, required this.kind, this.onChoose});
@@ -169,14 +171,13 @@ class _MomentAppsSectionState extends ConsumerState<MomentAppsSection> {
     final count = MomentProfileService.androidAppCount(profile);
     final chosen = io.Platform.isIOS ? _iosChosen : count > 0;
     final summary = !chosen
-        ? 'No apps chosen yet.'
+        ? AppLocalizations.of(context).noAppsChosen
         : io.Platform.isIOS
-            ? 'Apps chosen.'
-            : '$count ${count == 1 ? 'app' : 'apps'} chosen.';
+            ? AppLocalizations.of(context).appsChosen
+            : AppLocalizations.of(context).appsChosenCount(count);
     return MomentSection(
-      title: 'Apps to block',
-      note: 'Only used for ${widget.kind.profileName}. The other moments keep '
-          'their own choice.',
+      title: AppLocalizations.of(context).appsToBlock,
+      note: AppLocalizations.of(context).onlyUsedFor(momentKindName(AppLocalizations.of(context), widget.kind)),
       child: Row(
         children: [
           Expanded(child: Text(summary, style: RestType.sans(15))),
@@ -190,7 +191,7 @@ class _MomentAppsSectionState extends ConsumerState<MomentAppsSection> {
               minimumSize: const Size(44, 44),
             ),
             child: Text(
-              chosen ? 'Change' : 'Choose apps',
+              chosen ? AppLocalizations.of(context).change : AppLocalizations.of(context).chooseApps,
               style: RestType.sans(
                 14,
                 color: RestPalette.primary,

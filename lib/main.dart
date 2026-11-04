@@ -4,6 +4,8 @@ import 'screens/app_root.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/providers/locale_providers.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
 import 'package:rest4more/data/sync/debug_pull.dart';
 import 'package:rest4more/data/sync/debug_reset.dart';
@@ -33,6 +35,8 @@ void blockMain() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: BlockedScreen(),
   ));
 }
@@ -108,18 +112,21 @@ Future<void> main() async {
 /// Nodig om vanaf buiten de schermen (het blokkeerscherm) een scherm te openen.
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       navigatorKey: rootNavigatorKey,
       builder: (context, child) => UnblockRequestListener(
         navigatorKey: rootNavigatorKey,
         child: child ?? const SizedBox.shrink(),
       ),
-      title: 'Rest For More',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),

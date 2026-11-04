@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'plan_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,7 +61,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -70,7 +71,7 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -83,8 +84,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
               const SizedBox(height: 20),
 
               // Step indicator
-              const Text(
-                'STEP 4 OF 5',
+              Text(
+                AppLocalizations.of(context).stepOfFive(4),
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -95,8 +96,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
               const SizedBox(height: 10),
 
               // Title
-              const Text(
-                'What kind of activities\nappeal to you?',
+              Text(
+                AppLocalizations.of(context).activitiesTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -107,9 +108,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
 
               const SizedBox(height: 14),
 
-              const Text(
-                'Choose the kinds of restful activities that feel '
-                'natural to you. You can select more than one.',
+              Text(
+                AppLocalizations.of(context).activitiesIntro,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -122,9 +122,9 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
               // Quiet moments
               ActivityOptionCard(
                 icon: Icons.self_improvement_rounded,
-                title: 'Quiet moments',
+                title: AppLocalizations.of(context).activityQuietTitle,
                 description:
-                    'Slow down with a few peaceful minutes away from your screen.',
+                    AppLocalizations.of(context).activityQuietDesc,
                 isSelected: selectedActivities.contains(0),
                 onTap: () {
                   toggleActivity(0);
@@ -136,9 +136,9 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
               // Paper reading
               ActivityOptionCard(
                 icon: Icons.menu_book_rounded,
-                title: 'Paper reading',
+                title: AppLocalizations.of(context).activityReadingTitle,
                 description:
-                    'Put the phone aside and spend some time with a physical book.',
+                    AppLocalizations.of(context).activityReadingDesc,
                 isSelected: selectedActivities.contains(1),
                 onTap: () {
                   toggleActivity(1);
@@ -150,9 +150,9 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
               // Breathing
               ActivityOptionCard(
                 icon: Icons.air_rounded,
-                title: 'Evening breathing routines',
+                title: AppLocalizations.of(context).activityBreathingTitle,
                 description:
-                    'Use simple breathing exercises to settle your body and mind.',
+                    AppLocalizations.of(context).activityBreathingDesc,
                 isSelected: selectedActivities.contains(2),
                 onTap: () {
                   toggleActivity(2);
@@ -186,8 +186,8 @@ class _ActivitiesScreenState extends ConsumerState<ActivitiesScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context).continueLabel,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

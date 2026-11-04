@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import '../database/enums.dart';
 import 'content_catalog.dart';
 import 'plan_input.dart';
@@ -19,124 +21,90 @@ class PlanExplanation {
   final List<PlanReason> reasons;
 
   /// Staat onder elke uitleg. Het plan is een voorstel, geen behandeling.
+  /// Engels; gebruik [disclaimerFor] voor de gekozen taal.
   static const disclaimer =
       'This plan is a suggestion based on your answers, not medical advice. '
       'It can’t promise better sleep, and you can change it whenever you like.';
 
-  /// Zoals op het doelscherm.
-  static const goalLabels = {
-    'phone': 'Put the phone away earlier',
-    'routine': 'Build a routine',
-    'social': 'Use less social media',
-  };
+  static String disclaimerFor(AppLocalizations? l10n) =>
+      (l10n ?? englishL10n()).planDisclaimer;
 
-  /// Zoals op het belemmeringenscherm.
-  static const obstacleLabels = {
-    'scrolling': 'Scrolling',
-    'availability': 'Availability',
-    'thoughts': 'Restless thoughts',
-    'planning': 'Planning',
-    'alarm': 'Phone as alarm',
-    'no_routine': 'No routine',
-  };
+  /// De naam van een activiteit zoals op het activiteitenscherm, op basis van
+  /// de zin die het plan voor die activiteit gebruikt ([PlanInput.activity]).
+  static String? activityLabel(AppLocalizations l10n, String? phrase) {
+    if (phrase == PlanPhrases.forActivity(PreferredActivity.quietSitting, l10n).activity) {
+      return l10n.activityQuietTitle;
+    }
+    if (phrase == PlanPhrases.forActivity(PreferredActivity.reading, l10n).activity) {
+      return l10n.activityReadingTitle;
+    }
+    if (phrase == PlanPhrases.forActivity(PreferredActivity.breathing, l10n).activity) {
+      return l10n.activityBreathingTitle;
+    }
+    return null;
+  }
 
-  /// Zoals op het activiteitenscherm, op [PlanPhrases.activity].
-  static final activityLabels = {
-    PlanPhrases.forActivity(PreferredActivity.quietSitting).activity:
-        'Quiet moments',
-    PlanPhrases.forActivity(PreferredActivity.reading).activity:
-        'Paper reading',
-    PlanPhrases.forActivity(PreferredActivity.breathing).activity:
-        'Evening breathing routines',
-  };
-
-  static const _goalEffect = {
-    'phone':
-        'Each day has one step that puts a little more distance between you '
-            'and your phone in the evening.',
-    'routine':
-        'Each day adds one small, repeatable part to your evening, so it '
-            'slowly becomes a routine.',
-    'social':
-        'Each day helps you notice one automatic check and choose what to do '
-            'instead.',
-  };
+  static String _goalEffect(AppLocalizations l10n, String goal) => switch (goal) {
+        'phone' => l10n.goalEffectPhone,
+        'routine' => l10n.goalEffectRoutine,
+        'social' => l10n.goalEffectSocial,
+        _ => l10n.goalEffectDefault,
+      };
 
   /// Begin van het uitwindvenster (`bedtime_minutes`) naar leesbare tekst.
-  static String? windDownText(int? minutes) => switch (minutes) {
-        1200 => 'between 8 and 10 PM',
-        1320 => 'between 10 PM and midnight',
-        0 => 'after midnight',
-        _ => null,
-      };
+  static String? windDownText(int? minutes, [AppLocalizations? l10n]) {
+    final t = l10n ?? englishL10n();
+    return switch (minutes) {
+      1200 => t.windDownEarly,
+      1320 => t.windDownMid,
+      0 => t.windDownLate,
+      _ => null,
+    };
+  }
 
   factory PlanExplanation.build(
     PlanInput input,
     ContentCatalog catalog, {
     int? windDownStartMinutes,
+    AppLocalizations? l10n,
   }) {
+    final t = l10n ?? englishL10n();
     final reasons = <PlanReason>[
-      PlanReason('Your goal',
-          _goalEffect[input.goal] ?? 'Each day has one step towards your goal.'),
+      PlanReason(t.reasonYourGoal, _goalEffect(t, input.goal)),
     ];
 
     final tip = catalog.obstacleActions[input.obstacle];
     if (tip != null) {
-      reasons.add(PlanReason(
-        'What gets in the way',
-        'You told us about this, so every step comes with a tip for it: $tip',
-      ));
+      reasons.add(PlanReason(t.reasonObstacle, t.reasonObstacleText(tip)));
     }
 
-    final window = windDownText(windDownStartMinutes);
+    final window = windDownText(windDownStartMinutes, t);
     if (input.rhythm != 'regular') {
-      reasons.add(const PlanReason(
-        'Your rhythm',
-        'Your days are not always the same, so each step is linked to a '
-            'moment in your day instead of a fixed hour.',
-      ));
+      reasons.add(PlanReason(t.reasonRhythm, t.reasonRhythmVariable));
     } else if (window != null) {
-      reasons.add(PlanReason(
-        'Your rhythm',
-        'You usually wind down $window, so the steps are meant for that part '
-            'of your evening.',
-      ));
+      reasons.add(PlanReason(t.reasonRhythm, t.reasonRhythmWindow(window)));
     }
 
     if (input.anchor != null) {
-      reasons.add(PlanReason(
-        'Your fixed moment',
-        'Steps start after something you already do: ${input.anchor}.',
-      ));
+      reasons.add(PlanReason(t.reasonAnchor, t.reasonAnchorText(input.anchor!)));
     }
 
-    final activity = activityLabels[input.activity];
+    final activity = activityLabel(t, input.activity);
     if (activity != null) {
-      reasons.add(PlanReason(
-        'What you enjoy',
-        'You picked “$activity”, so that is the calm alternative in your '
-            'steps.',
-      ));
+      reasons.add(PlanReason(t.reasonEnjoy, t.reasonEnjoyText(activity)));
     }
 
-    reasons.add(input.smaller
-        ? const PlanReason(
-            'Step size',
-            'You chose smaller steps. They count just as much, and you can '
-                'make them bigger later if you want to.',
-          )
-        : const PlanReason(
-            'Step size',
-            'If a step feels too big, you can switch to a smaller version at '
-                'any time.',
-          ));
+    reasons.add(PlanReason(
+      t.reasonStepSize,
+      input.smaller ? t.reasonStepSizeSmaller : t.reasonStepSizeStandard,
+    ));
 
     if (input.restnest || input.card) {
       reasons.add(PlanReason(
-        'Your products',
+        t.reasonProducts,
         [
-          if (input.restnest) 'Your RestNest is used as the place for your phone.',
-          if (input.card) 'You can start and end a moment with your card.',
+          if (input.restnest) t.productRestnest,
+          if (input.card) t.productCard,
         ].join(' '),
       ));
     }
