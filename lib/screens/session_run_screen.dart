@@ -13,8 +13,15 @@ import 'session_setup_screen.dart';
 import 'unblock_flow_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
-enum _Phase { starting, running, ending, finished, failed, releaseFailed }
-
+enum _Phase {
+  starting,
+  running,
+  overtime,
+  ending,
+  finished,
+  failed,
+  releaseFailed,
+}
 /// Een lopende sessie met timer (Focus of Reading). Start de blokkade, telt af
 /// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen vraagt
 /// eerst bevestiging en wordt als `stoppedEarly` vastgelegd.
@@ -105,16 +112,27 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   }
 
   void _tick() {
-    final session = _session;
-    if (!mounted || session == null || _phase != _Phase.running) return;
-    if (session.isOver(DateTime.now())) {
-      _finish(early: false);
-    } else {
-      // iOS: een tijdelijk vrijgegeven blokkade weer dichtzetten als de tijd om is.
-      ref.read(unblockServiceProvider).reapplyIfExpired().ignore();
-      setState(() {});
-    }
+  final session = _session;
+  if (!mounted || session == null) return;
+
+  if (_phase == _Phase.overtime) {
+    // Keep the overtime display updating and preserve the iOS unblock expiry.
+    ref.read(unblockServiceProvider).reapplyIfExpired().ignore();
+    setState(() {});
+    return;
   }
+
+  if (_phase != _Phase.running) return;
+
+  if (session.isOver(DateTime.now())) {
+    // Keep the ticker running. The user ends the session manually.
+    setState(() => _phase = _Phase.overtime);
+    return;
+  }
+
+  ref.read(unblockServiceProvider).reapplyIfExpired().ignore();
+  setState(() {});
+}
 
   Future<void> _finish({required bool early}) async {
     final session = _session;
@@ -182,7 +200,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     };
 
     return PopScope(
-      canPop: _phase == _Phase.failed ||
+      canPop: _phase == _Phase.overtime ||
+          _phase == _Phase.failed ||
           _phase == _Phase.finished ||
           _phase == _Phase.releaseFailed,
       onPopInvokedWithResult: (didPop, _) {
@@ -250,43 +269,54 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           ),
         ];
       case _Phase.running:
-        final left = session!.remaining(DateTime.now());
-        final progress = session.total.inSeconds == 0
-            ? 1.0
-            : 1 - left.inSeconds / session.total.inSeconds;
-        return [
-          Semantics(
-            liveRegion: false,
-            label: '${formatDuration(left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0))} left',
-            child: Text(
-              _clock(left),
-              textAlign: TextAlign.center,
-              style: RestType.serif(72),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: LinearProgressIndicator(
-              value: progress.clamp(0.0, 1.0),
-              minHeight: 6,
-              backgroundColor: RestPalette.surface,
-              color: RestPalette.primary,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Your apps are set aside until ${formatTime(session.endsAt.toLocal())}.',
-            textAlign: TextAlign.center,
-            style: RestType.sans(16, color: RestPalette.accent),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            '“Return gently whenever your attention wanders.”',
-            textAlign: TextAlign.center,
-            style: RestType.serif(24).copyWith(fontStyle: FontStyle.italic),
-          ),
-        ];
+case _Phase.overtime:
+  final activeSession = session!;
+  final isOvertime = _phase == _Phase.overtime;
+  final now = DateTime.now();
+  final remaining = activeSession.remaining(now);
+  final overtime = now.difference(activeSession.endsAt);
+  final displayedTime = isOvertime ? overtime : remaining;
+
+  final progress = isOvertime
+      ? 1.0
+      : activeSession.total.inSeconds == 0
+          ? 1.0
+          : 1 - remaining.inSeconds / activeSession.total.inSeconds;
+
+  return [
+    Text(
+      _clock(displayedTime),
+      textAlign: TextAlign.center,
+      style: RestType.serif(72),
+    ),
+    const SizedBox(height: 20),
+    ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: LinearProgressIndicator(
+        value: progress.clamp(0.0, 1.0),
+        minHeight: 6,
+        backgroundColor: RestPalette.surface,
+        color: isOvertime ? Colors.green : RestPalette.primary,
+      ),
+    ),
+    const SizedBox(height: 20),
+    Text(
+      isOvertime
+          ? 'Your planned time is over. Your apps will stay set aside until you end the session.'
+          : 'Your apps are set aside until '
+              '${formatTime(activeSession.endsAt.toLocal())}.',
+      textAlign: TextAlign.center,
+      style: RestType.sans(16, color: RestPalette.accent),
+    ),
+    const SizedBox(height: 28),
+    Text(
+      isOvertime
+          ? 'You can end your session whenever you’re ready.'
+          : '“Return gently whenever your attention wanders.”',
+      textAlign: TextAlign.center,
+      style: RestType.serif(24).copyWith(fontStyle: FontStyle.italic),
+    ),
+  ];
       case _Phase.finished:
         return [
           Text(
@@ -368,6 +398,13 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
             ),
           ),
         ];
+        case _Phase.overtime:
+  return [
+    MomentPrimaryButton(
+      label: 'End session',
+      onPressed: () => _finish(early: false),
+    ),
+  ];
       case _Phase.finished:
       case _Phase.failed:
         return [MomentPrimaryButton(label: 'Done', onPressed: _leave)];
