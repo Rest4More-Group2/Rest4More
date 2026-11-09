@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import 'content_catalog.dart';
 import 'plan_input.dart';
 
@@ -17,7 +19,12 @@ class UnknownPlanChoice implements Exception {
 /// Volgt de referentie `select_plan.py` van de opdrachtgevers, met als
 /// verschil dat ontbrekende antwoorden een neutrale zin krijgen in plaats van
 /// een fout.
-List<Map<String, Object?>> selectPlan(PlanInput input, ContentCatalog catalog) {
+List<Map<String, Object?>> selectPlan(
+  PlanInput input,
+  ContentCatalog catalog, {
+  AppLocalizations? l10n,
+}) {
+  final t = l10n ?? englishL10n();
   if (!catalog.goals.containsKey(input.goal)) {
     throw UnknownPlanChoice('doel ${input.goal}');
   }
@@ -27,10 +34,10 @@ List<Map<String, Object?>> selectPlan(PlanInput input, ContentCatalog catalog) {
   }
 
   final values = {
-    'anchor': input.anchor ?? PlanPhrases.defaultAnchor,
-    'activity': input.activity ?? PlanPhrases.forActivity(null).activity,
+    'anchor': input.anchor ?? t.planDefaultAnchor,
+    'activity': input.activity ?? PlanPhrases.forActivity(null, t).activity,
     'activity_material':
-        input.activityMaterial ?? PlanPhrases.forActivity(null).material,
+        input.activityMaterial ?? PlanPhrases.forActivity(null, t).material,
   };
   String fill(String text) => text.replaceAllMapped(
         RegExp(r'\{(\w+)\}'),
@@ -38,6 +45,12 @@ List<Map<String, Object?>> selectPlan(PlanInput input, ContentCatalog catalog) {
       );
 
   final goalName = catalog.goals[input.goal]!.toLowerCase();
+  // De Engelse tekst moet gelijk blijven aan de referentie van de
+  // opdrachtgevers, die de sleutel van de belemmering noemt. Andere talen
+  // krijgen een leesbare omschrijving.
+  final obstacleText = t.localeName == 'en'
+      ? input.obstacle
+      : obstaclePhrase(t, input.obstacle);
   return [
     for (final row in catalog.daysFor(input.goal))
       {
@@ -45,17 +58,12 @@ List<Map<String, Object?>> selectPlan(PlanInput input, ContentCatalog catalog) {
         'action': fill(row['action'] as String),
         'smaller_action': fill(row['smaller_action'] as String),
         'obstacle_action': obstacleAction,
-        'context_instruction': input.restnest
-            ? 'Use your RestNest as the fixed phone location.'
-            : 'Choose a fixed place for your phone; a RestNest is not required.',
-        'card_instruction': input.card
-            ? 'Use your paired card when card functionality is available on this device.'
-            : 'Use manual start; physical card release is unavailable without a card.',
-        'why_this':
-            'This fits your goal to $goalName and your selected obstacle: ${input.obstacle}.',
-        'timing_note': input.rhythm == 'regular'
-            ? 'Use your selected daily time.'
-            : 'Check whether your selected time fits today; otherwise use your activity anchor.',
+        'context_instruction':
+            input.restnest ? t.planContextRestnest : t.planContextNoRestnest,
+        'card_instruction': input.card ? t.planCardOn : t.planCardOff,
+        'why_this': t.planWhyThis(goalName, obstacleText),
+        'timing_note':
+            input.rhythm == 'regular' ? t.planTimingRegular : t.planTimingOther,
       },
   ];
 }

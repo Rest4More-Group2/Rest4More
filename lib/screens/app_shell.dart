@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
@@ -10,6 +11,7 @@ import 'moments_screen.dart';
 import 'moments_widgets.dart';
 import 'profile_tab.dart';
 import 'session_run_screen.dart';
+import 'progress_tab.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 
@@ -115,7 +117,9 @@ class _AppShellState extends ConsumerState<AppShell>
   void _selectTab(int index) {
     if (index == _progressTab) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Progress is not available yet.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).progressNotAvailable),
+        ),
       );
       return;
     }
@@ -124,43 +128,72 @@ class _AppShellState extends ConsumerState<AppShell>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: RestPalette.background,
-        body: IndexedStack(
-          index: _selectedTab,
-          children: [
-            TodayTab(onStartStep: widget.onStartStep),
-            MomentsScreen(onStartFocus: widget.onStartFocus),
-            const SizedBox.shrink(), // Progress: not available yet
-            const ProfileTab(),
-          ],
-        ),
-        bottomNavigationBar: DecoratedBox(
-          decoration: const BoxDecoration(
-            color: RestPalette.surface,
-            border: Border(top: BorderSide(color: RestPalette.border)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
-              child: Row(
-                children: List.generate(4, (index) {
-                  const labels = ['Today', 'Moments', 'Progress', 'Profile'];
-                  final selected = index == _selectedTab;
-                  final color =
-                      selected ? RestPalette.primary : RestPalette.accent;
-
-                  return Expanded(
-                    child: Semantics(
-                      selected: selected,
-                      child: TextButton(
-                        onPressed: () => _selectTab(index),
-                        style: TextButton.styleFrom(
-                          foregroundColor: color,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 2,
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Scaffold(
+    backgroundColor: RestPalette.background,
+    body: IndexedStack(
+      index: _selectedTab,
+      children: [
+        TodayTab(onStartStep: widget.onStartStep),
+        MomentsScreen(onStartFocus: widget.onStartFocus),
+        const ProgressTab(),
+        const ProfileTab(),
+      ],
+    ),
+    bottomNavigationBar: DecoratedBox(
+      decoration: const BoxDecoration(
+        color: RestPalette.surface,
+        border: Border(top: BorderSide(color: RestPalette.border)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(6, 6, 6, 8),
+          child: Row(
+            children: List.generate(4, (index) {
+              final labels = [
+                l10n.tabToday,
+                l10n.tabMoments,
+                l10n.tabProgress,
+                l10n.tabProfile,
+              ];
+              final selected = index == _selectedTab;
+              final color = selected ? RestPalette.primary : RestPalette.accent;
+              return Expanded(
+                child: Semantics(
+                  selected: selected,
+                  child: TextButton(
+                    onPressed: () => _selectTab(index),
+                    style: TextButton.styleFrom(
+                      foregroundColor: color,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 2,
+                      ),
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeInOut,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? RestPalette.primary.withValues(alpha: 0.08)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedScale(
+                            scale: selected ? 1.1 : 1,
+                            duration: const Duration(milliseconds: 220),
+                            child: RestMomentIcon(
+                              index: index,
+                              color: color,
+                              size: 24,
+                            ),
                           ),
                         ),
                         child: AnimatedContainer(
@@ -208,5 +241,8 @@ class _AppShellState extends ConsumerState<AppShell>
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
+  }
 }

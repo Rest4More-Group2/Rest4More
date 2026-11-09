@@ -8,6 +8,7 @@ import '../data/moments/moment_blocking.dart';
 import '../data/moments/moment_plans.dart';
 import '../data/moments/session_runner.dart';
 import '../data/moments/unblock_service.dart';
+import '../data/progress/progress_summary.dart';
 import '../data/moments/moment_profiles.dart';
 import '../data/repositories/accessory_repository.dart';
 import '../data/repositories/block_profile_repository.dart';
@@ -100,3 +101,25 @@ final programmeDaysProvider = StreamProvider<List<ProgrammeDay>>((ref) {
   if (enrollment == null) return Stream.value(const []);
   return ref.watch(programmeRepositoryProvider).watchDays(enrollment.id);
 });
+
+/// Alles wat Progress laat zien, uit sessies, dagen en profiel.
+final progressSummaryProvider = Provider<AsyncValue<ProgressSummary>>((ref) {
+  final sessions = ref.watch(_sessionHistoryProvider);
+  final days = ref.watch(programmeDaysProvider);
+  for (final part in [sessions, days]) {
+    if (part.hasError) {
+      return AsyncValue.error(part.error!, part.stackTrace ?? StackTrace.empty);
+    }
+  }
+  if (!sessions.hasValue || !days.hasValue) return const AsyncValue.loading();
+  return AsyncValue.data(ProgressSummary.build(
+    sessions: sessions.value!,
+    days: days.value!,
+    now: DateTime.now(),
+  ));
+});
+
+final _sessionHistoryProvider = StreamProvider<List<FocusSession>>(
+  (ref) =>
+      ref.watch(focusSessionRepositoryProvider).watchHistory(limit: 1000),
+);

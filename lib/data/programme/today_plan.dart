@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import '../database/app_database.dart';
 import '../database/enums.dart';
 
@@ -48,7 +50,15 @@ class TodayPlan {
 /// wie een paar dagen niets doet, gaat gewoon verder waar hij was gebleven. De
 /// datums in het plan bepalen dit niet. Afgeronde en overgeslagen dagen tellen
 /// als gedaan. Is alles gedaan, dan is dit de laatste dag met [TodayPlan.finished].
-TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
+///
+/// [localized] heeft per dagnummer de tekst van die dag in de huidige taal. Die
+/// gaat voor op wat bij het maken van het plan is bewaard, zodat een plan van
+/// taal wisselt als de gebruiker dat doet.
+TodayPlan? pickToday(
+  List<ProgrammeDay> days,
+  DateTime now, {
+  Map<int, Map<String, Object?>> localized = const {},
+}) {
   final usable = [
     for (final d in days)
       if (d.deletedAt == null) d,
@@ -67,7 +77,7 @@ TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
   });
   final chosen = next ?? usable.last;
 
-  final content = chosen.snapshot;
+  final content = localized[chosen.dayNumber] ?? chosen.snapshot;
   String text(String key) => (content[key] as String?) ?? '';
   final why = [text('explanation'), text('why_this')]
       .where((part) => part.isNotEmpty)
@@ -91,8 +101,9 @@ TodayPlan? pickToday(List<ProgrammeDay> days, DateTime now) {
 }
 
 /// Begroeting bij het uur van de dag.
-String greetingFor(DateTime now) {
-  if (now.hour < 12) return 'Good morning';
-  if (now.hour < 18) return 'Good afternoon';
-  return 'Good evening';
+String greetingFor(DateTime now, [AppLocalizations? l10n]) {
+  final t = l10n ?? englishL10n();
+  if (now.hour < 12) return t.greetingMorning;
+  if (now.hour < 18) return t.greetingAfternoon;
+  return t.greetingEvening;
 }

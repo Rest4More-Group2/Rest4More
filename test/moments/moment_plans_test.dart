@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rest4more/data/database/app_database.dart';
 import 'package:rest4more/data/database/converters.dart';
@@ -39,6 +40,8 @@ Future<AppDatabase> _open(WidgetTester tester, Widget page,
       if (store != null) momentPlanStoreProvider.overrideWithValue(store),
     ],
     child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Builder(
         builder: (context) => Scaffold(
           body: TextButton(

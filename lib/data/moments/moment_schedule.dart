@@ -174,6 +174,17 @@ List<DateTime> stepClock(DateTime start, List<RoutineStepData> steps) {
   return times;
 }
 
+/// Een aftelklok als `MM:SS`, zoals op de lopende sessie.
+String formatClock(Duration d) {
+  final m = d.inMinutes.toString().padLeft(2, '0');
+  final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+  return '$m:$s';
+}
+
+/// Hele minuten, naar boven afgerond: 6:01 is "7 min". Zo zegt een
+/// schermlezer nooit "0 min" terwijl er nog tijd over is.
+int minutesLeft(Duration d) => (d.inSeconds + 59) ~/ 60;
+
 /// "45 min", "1 h" of "1 h 05 min".
 String formatDuration(int minutes) {
   final h = minutes ~/ 60;

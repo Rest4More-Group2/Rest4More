@@ -5,6 +5,9 @@ import '../repositories/focus_session_repository.dart';
 import '../repositories/repository_support.dart';
 import 'moment_blocking.dart';
 import 'moment_profiles.dart';
+import 'session_pauses.dart';
+
+export 'session_pauses.dart' show SessionPause;
 
 /// Een lopende sessie met timer.
 class RunningSession {
@@ -12,25 +15,59 @@ class RunningSession {
     required this.id,
     required this.kind,
     required this.startedAt,
-    required this.endsAt,
+    required this.planned,
+    this.pauses = const [],
   });
 
   final String id;
   final MomentKind kind;
   final DateTime startedAt;
 
-  /// Het eindtijdstip. De resterende tijd wordt hieruit berekend en niet
-  /// afgeteld, zodat de klok klopt als de app even is opgeschort.
-  final DateTime endsAt;
+  /// Hoe lang de sessie zonder pauzes duurt.
+  final Duration planned;
 
-  Duration get total => endsAt.difference(startedAt);
+  /// De keren dat de apps tijdelijk vrij waren; de timer stond dan stil.
+  final List<SessionPause> pauses;
+
+  Duration get total => planned;
+
+  /// Hoe lang de timer tot [now] heeft stilgestaan.
+  Duration pausedFor(DateTime now) => pausedUntil(pauses, now);
+
+  /// De pauze die nu loopt, als die er is.
+  SessionPause? activePause(DateTime now) {
+    SessionPause? latest;
+    for (final p in pauses) {
+      if (p.isActive(now) && (latest == null || p.end.isAfter(latest.end))) {
+        latest = p;
+      }
+    }
+    return latest;
+  }
+
+  bool isPaused(DateTime now) => activePause(now) != null;
+
+  /// Het eindtijdstip: het geplande einde, opgeschoven met elke pauze. De
+  /// resterende tijd wordt hieruit berekend en niet afgeteld, zodat de klok
+  /// klopt als de app even is opgeschort. Tijdens een pauze schuift dit mee,
+  /// dus de resterende tijd staat stil.
+  DateTime endsAt(DateTime now) => startedAt.add(planned + pausedFor(now));
 
   Duration remaining(DateTime now) {
-    final left = endsAt.difference(now);
+    final left = endsAt(now).difference(now);
     return left.isNegative ? Duration.zero : left;
   }
 
-  bool isOver(DateTime now) => !now.isBefore(endsAt);
+  bool isOver(DateTime now) => !isPaused(now) && !now.isBefore(endsAt(now));
+}
+
+/// Hoe lang er echt gefocust is in een sessie: van begin tot einde (of tot
+/// [now] als hij nog loopt), zonder de tijd dat de apps vrij waren.
+Duration focusedTime(FocusSession session, DateTime now) {
+  final end = session.endedAt ?? now;
+  final focused = end.difference(session.startedAt) -
+      pausedUntil(pausesFromEvents(session.events), end);
+  return focused.isNegative ? Duration.zero : focused;
 }
 
 /// Er loopt al een andere sessie. Die wordt nooit stil overschreven.
@@ -96,7 +133,8 @@ class SessionRunner {
       id: s.id,
       kind: kind,
       startedAt: s.startedAt,
-      endsAt: s.startedAt.add(Duration(seconds: seconds)),
+      planned: Duration(seconds: seconds),
+      pauses: pausesFromEvents(s.events),
     );
   }
 
@@ -106,6 +144,14 @@ class SessionRunner {
     if (open == null || open.state != SessionState.active) return null;
     return _asRunning(open);
   }
+
+  /// Zoals [current], maar opnieuw bij elke wijziging, ook als een ander
+  /// scherm de sessie pauzeert of hervat.
+  Stream<RunningSession?> watchCurrent() => _sessions.watchOpen().map(
+        (open) => open == null || open.state != SessionState.active
+            ? null
+            : _asRunning(open),
+      );
 
   /// Start een sessie. Loopt er al een, dan komt er een [SessionRunningError]
   /// en verandert er niets. Een oude, afgebroken sessie wordt eerst opgeruimd.
@@ -175,17 +221,40 @@ class SessionRunner {
     );
   }
 
-  /// Legt vast dat de gebruiker tijdens de sessie een app [minutes] minuten
-  /// heeft vrijgegeven. De sessie blijft gewoon doorlopen.
-  Future<void> logUnblock(String sessionId, int minutes) =>
-      _sessions.logEvent(
-        sessionId,
-        SessionEventData(
-          at: _now().toUtc(),
-          event: SessionEventType.unblockGranted,
-          minutes: minutes,
-        ),
-      );
+  /// De apps zijn tot [until] vrijgegeven ([minutes] minuten): de timer van
+  /// de lopende sessie staat tot dan stil en het einde schuift zo lang op.
+  /// Geeft de gepauzeerde sessie terug, of null als er geen sessie loopt.
+  Future<RunningSession?> pauseForUnblock({
+    required DateTime until,
+    required int minutes,
+  }) async {
+    final running = await current();
+    if (running == null || running.isOver(_now())) return null;
+    await _sessions.logEvent(
+      running.id,
+      SessionEventData(
+        // Het begin volgt uit het einde dat het toestel kreeg, zodat de pauze
+        // precies even lang is als de vrijgave.
+        at: until.subtract(Duration(minutes: minutes)).toUtc(),
+        event: SessionEventType.unblockGranted,
+        minutes: minutes,
+      ),
+    );
+    return current();
+  }
+
+  /// De apps zijn weer dicht: de timer loopt verder waar hij stond. Ook na
+  /// het vanzelf dichtgaan; een einde na de vrijgave verandert niets.
+  Future<RunningSession?> resumeAfterUnblock(String sessionId) async {
+    await _sessions.logEvent(
+      sessionId,
+      SessionEventData(
+        at: _now().toUtc(),
+        event: SessionEventType.unblockEnded,
+      ),
+    );
+    return current();
+  }
 
   /// Probeert de apps van [kind] opnieuw vrij te geven.
   Future<void> releaseBlocking(MomentKind kind) =>

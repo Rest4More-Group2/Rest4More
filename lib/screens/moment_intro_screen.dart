@@ -1,93 +1,75 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'moments_widgets.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
-/// De tekst en het icoon van het openingsscherm van een moment.
-class MomentIntro {
-  const MomentIntro({
-    required this.title,
-    required this.description,
-    required this.pill,
-    required this.heading,
-    required this.steps,
-    required this.quote,
-    required this.iconIndex,
-    required this.buttonLabel,
-  });
+/// Welk moment een openingsscherm beschrijft.
+enum MomentIntroKind { focus, reading, evening, morning }
 
-  final String title;
-  final String description;
+/// De tekst en het icoon van het openingsscherm van een moment. De teksten
+/// komen uit de vertalingen, dus ze worden pas bij het tonen opgehaald.
+class MomentIntro {
+  const MomentIntro._(this.kind, this.iconIndex);
+
+  final MomentIntroKind kind;
+  final int iconIndex;
+
+  static const focus = MomentIntro._(MomentIntroKind.focus, 1);
+  static const reading = MomentIntro._(MomentIntroKind.reading, 2);
+  static const evening = MomentIntro._(MomentIntroKind.evening, 3);
+  static const morning = MomentIntro._(MomentIntroKind.morning, 0);
+
+  String title(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusTitle,
+      MomentIntroKind.reading => l10n.momentReadingTitle,
+      MomentIntroKind.evening => l10n.momentEveningTitle,
+      MomentIntroKind.morning => l10n.momentMorningTitle,
+      };
+
+  String description(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusDescription,
+      MomentIntroKind.reading => l10n.momentReadingDescription,
+      MomentIntroKind.evening => l10n.momentEveningDescription,
+      MomentIntroKind.morning => l10n.momentMorningDescription,
+      };
 
   /// Het korte label onder de beschrijving.
-  final String pill;
+  String pill(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusPill,
+      MomentIntroKind.reading => l10n.momentReadingPill,
+      MomentIntroKind.evening => l10n.momentEveningPill,
+      MomentIntroKind.morning => l10n.momentMorningPill,
+      };
 
   /// Kopje boven de drie stappen.
-  final String heading;
-  final List<String> steps;
-  final String quote;
-  final int iconIndex;
-  final String buttonLabel;
+  String heading(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusHeading,
+      MomentIntroKind.reading => l10n.momentReadingHeading,
+      MomentIntroKind.evening => l10n.momentEveningHeading,
+      MomentIntroKind.morning => l10n.momentMorningHeading,
+      };
 
-  static const focus = MomentIntro(
-    title: 'Focus',
-    description: 'Clear your mind to commit to a single quiet workflow.',
-    pill: 'A quiet place',
-    heading: 'Settle into the moment',
-    steps: [
-      'Choose one meaningful task.',
-      'Let your breath settle for three slow counts.',
-      'Return gently whenever your attention wanders.',
-    ],
-    quote: 'One thing, fully attended.',
-    iconIndex: 1,
-    buttonLabel: 'Start Focus',
-  );
+  List<String> steps(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => [l10n.momentFocusStep1, l10n.momentFocusStep2, l10n.momentFocusStep3],
+      MomentIntroKind.reading => [l10n.momentReadingStep1, l10n.momentReadingStep2, l10n.momentReadingStep3],
+      MomentIntroKind.evening => [l10n.momentEveningStep1, l10n.momentEveningStep2, l10n.momentEveningStep3],
+      MomentIntroKind.morning => [l10n.momentMorningStep1, l10n.momentMorningStep2, l10n.momentMorningStep3],
+      };
 
-  static const reading = MomentIntro(
-    title: 'Reading',
-    description: 'Keep distractions away while you read.',
-    pill: 'One page at a time',
-    heading: 'Settle into the moment',
-    steps: [
-      'Pick the book or article you want to read.',
-      'Let your shoulders drop and breathe out slowly.',
-      'When your mind drifts, return to the next line.',
-    ],
-    quote: 'One page, fully attended.',
-    iconIndex: 2,
-    buttonLabel: 'Start Reading',
-  );
+  String quote(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusQuote,
+      MomentIntroKind.reading => l10n.momentReadingQuote,
+      MomentIntroKind.evening => l10n.momentEveningQuote,
+      MomentIntroKind.morning => l10n.momentMorningQuote,
+      };
 
-  static const evening = MomentIntro(
-    title: 'Evening',
-    description: 'Wind down and put your phone away before bed.',
-    pill: 'A gentle landing',
-    heading: 'Close the day',
-    steps: [
-      'Choose when you want to be in bed.',
-      'Decide what your evening needs, and in what order.',
-      'Let your phone rest while you wind down.',
-    ],
-    quote: 'The day is allowed to end.',
-    iconIndex: 3,
-    buttonLabel: 'Plan your evening',
-  );
-
-  static const morning = MomentIntro(
-    title: 'Morning',
-    description: 'Start the day before your phone does.',
-    pill: 'A slow start',
-    heading: 'Begin the day',
-    steps: [
-      'Choose when you wake up.',
-      'Pick what your morning needs before your phone.',
-      'Your phone returns when your morning is done.',
-    ],
-    quote: 'Your morning is yours first.',
-    iconIndex: 0,
-    buttonLabel: 'Plan your morning',
-  );
+  String buttonLabel(AppLocalizations l10n) => switch (kind) {
+      MomentIntroKind.focus => l10n.momentFocusButton,
+      MomentIntroKind.reading => l10n.momentReadingButton,
+      MomentIntroKind.evening => l10n.momentEveningButton,
+      MomentIntroKind.morning => l10n.momentMorningButton,
+      };
 }
 
 /// Het openingsscherm van een moment. Zelfde opbouw voor Focus, Reading,
@@ -133,7 +115,7 @@ class MomentIntroScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        intro.buttonLabel,
+                        intro.buttonLabel(AppLocalizations.of(context)),
                         style: RestType.sans(
                           17,
                           color: RestPalette.background,
@@ -163,7 +145,7 @@ class MomentIntroScreen extends StatelessWidget {
                       children: [
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          tooltip: 'Back to Moments',
+                          tooltip: AppLocalizations.of(context).backToMoments,
                           style: IconButton.styleFrom(
                             backgroundColor: RestPalette.surface,
                             foregroundColor: RestPalette.primary,
@@ -173,7 +155,7 @@ class MomentIntroScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Moments',
+                          AppLocalizations.of(context).tabMoments,
                           style: RestType.sans(
                             15,
                             color: RestPalette.primary,
@@ -201,10 +183,10 @@ class MomentIntroScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(intro.title, style: RestType.serif(44)),
+                    Text(intro.title(AppLocalizations.of(context)), style: RestType.serif(44)),
                     const SizedBox(height: 12),
                     Text(
-                      intro.description,
+                      intro.description(AppLocalizations.of(context)),
                       style: RestType.sans(17, color: RestPalette.accent),
                     ),
                     const SizedBox(height: 14),
@@ -220,7 +202,7 @@ class MomentIntroScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Text(
-                          intro.pill,
+                          intro.pill(AppLocalizations.of(context)),
                           style: RestType.sans(
                             14,
                             color: RestPalette.primary,
@@ -239,18 +221,18 @@ class MomentIntroScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(intro.heading, style: RestType.serif(27)),
+                          Text(intro.heading(AppLocalizations.of(context)), style: RestType.serif(27)),
                           const SizedBox(height: 18),
-                          for (var i = 0; i < intro.steps.length; i++) ...[
+                          for (var i = 0; i < intro.steps(AppLocalizations.of(context)).length; i++) ...[
                             if (i > 0) const SizedBox(height: 16),
-                            _step(i + 1, intro.steps[i]),
+                            _step(i + 1, intro.steps(AppLocalizations.of(context))[i]),
                           ],
                         ],
                       ),
                     ),
                     const SizedBox(height: 26),
                     Text(
-                      'A GENTLE REMINDER',
+                      AppLocalizations.of(context).aGentleReminder,
                       textAlign: TextAlign.center,
                       style: RestType.sans(
                         12,
@@ -260,7 +242,7 @@ class MomentIntroScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '“${intro.quote}”',
+                      '“${intro.quote(AppLocalizations.of(context))}”',
                       textAlign: TextAlign.center,
                       style: RestType.serif(24)
                           .copyWith(fontStyle: FontStyle.italic),

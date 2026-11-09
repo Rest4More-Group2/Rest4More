@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import '../database/app_database.dart';
 import '../database/enums.dart';
 
@@ -42,13 +44,13 @@ class PlanInput {
   /// Leest de invoer uit het profiel. Ontbrekende antwoorden krijgen een
   /// rustige standaard. Geeft null als er geen doel is, want zonder doel is er
   /// geen plan.
-  static PlanInput? fromProfile(Profile profile) {
+  static PlanInput? fromProfile(Profile profile, {AppLocalizations? l10n}) {
     final goal = profile.primaryGoal;
     if (goal == null || goal == PrimaryGoal.unknown) return null;
 
     final obstacle = profile.obstacle;
     final activity = profile.preferredActivity;
-    final phrases = PlanPhrases.forActivity(activity);
+    final phrases = PlanPhrases.forActivity(activity, l10n);
     return PlanInput(
       goal: goal.id,
       obstacle: obstacle == null || obstacle == Obstacle.unknown
@@ -97,20 +99,25 @@ class PlanPhrases {
   final String activity;
   final String material;
 
-  static PlanPhrases forActivity(PreferredActivity? activity) =>
-      switch (activity) {
-        PreferredActivity.reading =>
-          const PlanPhrases('reading a few pages', 'your book'),
-        PreferredActivity.quietSitting => const PlanPhrases(
-            'sitting quietly for a few minutes', 'a comfortable place to sit'),
-        PreferredActivity.breathing => const PlanPhrases(
-            'a few minutes of slow breathing', 'a quiet corner'),
-        PreferredActivity.preparation => const PlanPhrases(
-            'preparing for tomorrow', 'what you need for tomorrow'),
-        _ => const PlanPhrases(
-            'a calm activity of your choice', 'what you need for it'),
-      };
+  static PlanPhrases forActivity(PreferredActivity? activity,
+      [AppLocalizations? l10n]) {
+    final t = l10n ?? englishL10n();
+    return switch (activity) {
+      PreferredActivity.reading =>
+        PlanPhrases(t.phraseReadingActivity, t.phraseReadingMaterial),
+      PreferredActivity.quietSitting =>
+        PlanPhrases(t.phraseQuietActivity, t.phraseQuietMaterial),
+      PreferredActivity.breathing =>
+        PlanPhrases(t.phraseBreathingActivity, t.phraseBreathingMaterial),
+      PreferredActivity.preparation =>
+        PlanPhrases(t.phrasePreparationActivity, t.phrasePreparationMaterial),
+      _ => PlanPhrases(t.phraseDefaultActivity, t.phraseDefaultMaterial),
+    };
+  }
 
-  /// Als er geen anker is gekozen.
+  /// Als er geen anker is gekozen (Engels; zie [defaultAnchorFor]).
   static const defaultAnchor = 'your usual evening routine';
+
+  static String defaultAnchorFor(AppLocalizations? l10n) =>
+      (l10n ?? englishL10n()).planDefaultAnchor;
 }

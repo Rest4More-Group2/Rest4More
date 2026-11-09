@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,11 @@ Future<void> _pumpWith(WidgetTester tester, IntakeService intake) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [intakeServiceProvider.overrideWithValue(intake)],
-      child: const MaterialApp(home: AppRoot()),
+      child: const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: AppRoot(),
+      ),
     ),
   );
   await tester.pump();

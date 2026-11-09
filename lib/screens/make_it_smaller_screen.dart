@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -116,7 +117,7 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
                 ),
                 SizedBox(height: 12 * scale),
                 Text(
-                  '$minutes minute quiet moment',
+                  AppLocalizations.of(context).quietMomentMinutes(minutes),
                   style: _serif(
                     22 * scale,
                     weight: selected
@@ -177,7 +178,7 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
                                 Icons.arrow_back,
                                 size: 16 * scale,
                               ),
-                              label: const Text('Back'),
+                              label: Text(AppLocalizations.of(context).back),
                               style: TextButton.styleFrom(
                                 foregroundColor: _primary,
                                 padding: EdgeInsets.zero,
@@ -189,20 +190,19 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
                           ),
                           SizedBox(height: 4 * scale),
                           Text(
-                            'Make it smaller',
+                            AppLocalizations.of(context).makeItSmaller,
                             style: _serif(32 * scale),
                           ),
                           SizedBox(height: 36 * scale),
                           Text(
-                            'Short on time or energy? That’s okay. '
-                            'You can still take a small step.',
+                            AppLocalizations.of(context).shortOnTime,
                             style: _sans(15 * scale),
                           ),
                           SizedBox(height: 26 * scale),
 
                           // Original option.
                           _option(
-                            label: 'ORIGINAL OPTION',
+                            label: AppLocalizations.of(context).originalOption,
                             minutes: widget.originalMinutes,
                             scale: scale,
                             selected: !_smallerSelected,
@@ -216,7 +216,7 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
 
                           // Smaller option.
                           _option(
-                            label: 'RECOMMENDED ALTERNATIVE',
+                            label: AppLocalizations.of(context).recommendedAlternative,
                             minutes: widget.smallerMinutes,
                             scale: scale,
                             selected: _smallerSelected,
@@ -255,8 +255,8 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
                             ),
                             child: Text(
                               _smallerSelected
-                                  ? 'Start $_selectedMinutes-minute version'
-                                  : 'Keep $_selectedMinutes-minute version',
+                                  ? AppLocalizations.of(context).startMinuteVersion(_selectedMinutes)
+                                  : AppLocalizations.of(context).keepMinuteVersion(_selectedMinutes),
                             ),
                           ),
                           SizedBox(height: 8 * scale),
@@ -276,7 +276,7 @@ class _MakeItSmallerScreenState extends State<MakeItSmallerScreen> {
                                 weight: FontWeight.w600,
                               ),
                             ),
-                            child: const Text('Keep the original'),
+                            child: Text(AppLocalizations.of(context).keepOriginal),
                           ),
                         ],
                       ),

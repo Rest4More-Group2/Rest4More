@@ -1,16 +1,22 @@
+import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_schedule.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'end_early_screen.dart';
 import 'moments_form_widgets.dart';
 import 'moments_widgets.dart';
 import 'session_setup_screen.dart';
+import 'unblock_flow_screen.dart';
+import 'unblocked_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'unblock_flow_screen.dart';
 
@@ -27,14 +33,23 @@ enum _Phase {
 /// A timed Focus or Reading session. Apps stay blocked after the planned
 /// duration until the user ends the session.
 class SessionRunScreen extends ConsumerStatefulWidget {
-  const SessionRunScreen({super.key, this.setup, this.resume})
-      : assert(setup != null || resume != null);
+  const SessionRunScreen({
+    super.key,
+    this.setup,
+    this.resume,
+    this.manualKind,
+    this.manualMinutes,
+  }) : assert(setup != null || resume != null || manualKind != null);
 
   /// A new session to start.
   final FocusSetup? setup;
 
   /// An already-running session to show again.
   final RunningSession? resume;
+
+  /// A manually started Morning or Evening uses its saved steps duration.
+  final MomentKind? manualKind;
+  final int? manualMinutes;
 
   @override
   ConsumerState<SessionRunScreen> createState() => _SessionRunScreenState();
@@ -47,6 +62,16 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   String? _error;
   Timer? _ticker;
   bool _endedEarly = false;
+  bool _askingToStop = false;
+  StreamSubscription<RunningSession?>? _watch;
+
+  /// Of het vrijgeven of [UnblockedScreen] er nu bovenop ligt.
+  bool _unblockOpen = false;
+  bool _wasPaused = false;
+
+  /// "Focus resumed · paused for N min", even na een pauze.
+  String? _notice;
+  Timer? _noticeTimer;
 
   /// Lets _finish wait for scheduling to complete before cancelling the
   /// notification, so an early finish cannot race with a pending schedule.
@@ -65,6 +90,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _ticker?.cancel();
+    _noticeTimer?.cancel();
+    _watch?.cancel();
     super.dispose();
   }
 
@@ -79,13 +106,16 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       _run(resume);
       return;
     }
-
-    final setup = widget.setup!;
+    final setup = widget.setup;
     try {
+      final kind = widget.manualKind ?? setup!.kind.moment;
+      final profile = widget.manualKind == null
+          ? null
+          : await ref.read(momentProfileServiceProvider).ensure(kind);
       final session = await _runner.start(
-        kind: setup.kind.moment,
-        minutes: setup.minutes,
-        blockProfileId: setup.blockProfileId,
+        kind: kind,
+        minutes: widget.manualMinutes ?? setup!.minutes,
+        blockProfileId: profile?.id ?? setup?.blockProfileId,
       );
       if (mounted) _run(session);
     } on SessionRunningError catch (e) {
@@ -97,7 +127,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
         'Check that blocking is allowed for Rest For More and try again.',
       );
     } on Object {
-      _fail('Something went wrong while starting. Please try again.');
+      if (!mounted) return;
+      _fail(AppLocalizations.of(context).sessionStartFailed);
     }
   }
 
@@ -149,6 +180,20 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
 
     if (_phase == _Phase.overtime) {
       // Keep the overtime display updating and reapply an expired app unblock.
+    if (!mounted || session == null || _phase != _Phase.running) return;
+    final now = DateTime.now();
+    final paused = session.isPaused(now);
+    if (_wasPaused && !paused) _showResumed(session, now);
+    _wasPaused = paused;
+    if (session.isOver(now)) {
+      _finish(early: false);
+    } else if (paused &&
+        !_unblockOpen &&
+        (ModalRoute.of(context)?.isCurrent ?? false)) {
+      // Na een herstart midden in een pauze: het juiste scherm terug.
+      _showUnblocked(session, session.activePause(now)!);
+    } else {
+      // iOS: een tijdelijk vrijgegeven blokkade weer dichtzetten als de tijd om is.
       ref.read(unblockServiceProvider).reapplyIfExpired().ignore();
       setState(() {});
       return;
@@ -167,6 +212,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   }
 
   Future<void> _finish({required bool early}) async {
+    final l10n = AppLocalizations.of(context);
     final session = _session;
     if (session == null || _phase == _Phase.ending) return;
 
@@ -194,7 +240,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     } on ReleaseFailedError {
       if (mounted) setState(() => _phase = _Phase.releaseFailed);
     } on Object {
-      _fail('Something went wrong while ending. Please try again.');
+      _fail(l10n.sessionEndFailed);
     }
   }
 
@@ -226,11 +272,82 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
         builder: (_) => UnblockFlowScreen(sessionId: session.id),
       ),
     );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context).appsStillSetAsideTryAgain),
+        ));
+      }
+    }
   }
 
+  /// Een app tijdelijk vrijgeven, bewust en niet te makkelijk. De timer
+  /// staat pas stil vanaf "Unblock", niet tijdens de pauze ervoor.
+  Future<void> _needAnApp() async {
+    final session = _session;
+    if (session == null || _phase != _Phase.running || _unblockOpen) return;
+    _unblockOpen = true;
+    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+      builder: (_) => const UnblockFlowScreen(),
+    ));
+    await _afterUnblock(session);
+  }
+
+  Future<void> _showUnblocked(RunningSession session, SessionPause pause) async {
+    _unblockOpen = true;
+    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+      builder: (_) => UnblockedScreen(
+        until: pause.until,
+        granted: pause.until.difference(pause.start),
+        session: session,
+      ),
+    ));
+    await _afterUnblock(session);
+  }
+
+  /// Terug van het vrijgeven: eerst de nieuwe stand uit het logboek, anders
+  /// lijkt de oude stand nog gepauzeerd en gaat het scherm opnieuw open.
+  Future<void> _afterUnblock(RunningSession session) async {
+    try {
+      final fresh = await _runner.current();
+      if (fresh != null && fresh.id == session.id) _session = fresh;
+    } on Object {
+      // De stroom van het logboek komt er ook nog mee.
+    }
+    _unblockOpen = false;
+    _tick();
+  }
+
+  /// De laatste pauze is net voorbij: zeg even hoe lang die duurde.
+  void _showResumed(RunningSession session, DateTime now) {
+    SessionPause? last;
+    for (final p in session.pauses) {
+      if (!p.end.isAfter(now) && (last == null || p.end.isAfter(last.end))) {
+        last = p;
+      }
+    }
+    if (last == null) return;
+    final seconds = last.length.inSeconds;
+    final notice = seconds < 60
+        ? 'Focus resumed · paused for under a minute'
+        : 'Focus resumed · paused for '
+            '${formatDuration((seconds / 60).round())}';
+    _noticeTimer?.cancel();
+    setState(() => _notice = notice);
+    _noticeTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) setState(() => _notice = null);
+    });
+  }
+
+  /// Eerder stoppen gaat via een korte pauze. De timer hier loopt intussen
+  /// gewoon door, dus "Keep going" pakt hem zonder gat weer op.
   Future<void> _askToStop() async {
-    if (_phase != _Phase.running) return;
-    if (await confirmStopEarly(context)) {
+    if (_phase != _Phase.running || _askingToStop) return;
+    _askingToStop = true;
+    final end = await Navigator.of(context).push<bool>(MaterialPageRoute<bool>(
+      builder: (_) => const EndEarlyScreen(),
+    ));
+    _askingToStop = false;
+    // De sessie kan intussen vanzelf afgelopen zijn.
+    if (end == true && mounted && _phase == _Phase.running) {
       await _finish(early: true);
     }
   }
@@ -251,7 +368,20 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     final title =
         session?.kind.profileName ?? widget.setup?.kind.title ?? 'Session';
     final iconIndex = switch (session?.kind.name ?? widget.setup?.kind.name) {
+  @override
+  Widget build(BuildContext context) {
+    final session = _session;
+    final l10n = AppLocalizations.of(context);
+    final title = session?.kind.profileName ??
+        widget.setup?.kind.title(l10n) ??
+        widget.manualKind?.profileName ??
+        l10n.sessionTitle;
+    final iconIndex = switch (session?.kind.name ??
+        widget.manualKind?.name ??
+        widget.setup?.kind.name) {
       'reading' => 2,
+      'morning' => 0,
+      'evening' => 3,
       _ => 1,
     };
 
@@ -318,8 +448,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           const SizedBox(height: 20),
           Text(
             _phase == _Phase.starting
-                ? 'Setting your apps aside…'
-                : 'Bringing your apps back…',
+                ? AppLocalizations.of(context).settingAppsAside
+                : AppLocalizations.of(context).bringingAppsBack,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -335,6 +465,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
         final displayedTime = isOvertime ? overtime : remaining;
 
         final progress = isOvertime
+        final now = DateTime.now();
+        final left = session!.remaining(now);
+        final progress = session.total.inSeconds == 0
             ? 1.0
             : activeSession.total.inSeconds == 0
                 ? 1.0
@@ -345,6 +478,17 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
             _clock(displayedTime),
             textAlign: TextAlign.center,
             style: RestType.serif(72),
+          Semantics(
+            liveRegion: false,
+            label: session.isPaused(now)
+                ? 'Focus timer paused, ${formatDuration(minutesLeft(left))} left'
+                : '${formatDuration(minutesLeft(left))} left',
+            label: AppLocalizations.of(context).timeLeft(localizedDuration(AppLocalizations.of(context), left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0))),
+            child: Text(
+              formatClock(left),
+              textAlign: TextAlign.center,
+              style: RestType.serif(72),
+            ),
           ),
           const SizedBox(height: 20),
           ClipRRect(
@@ -363,6 +507,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
                     'until you end the session.'
                 : 'Your apps are set aside until '
                     '${formatTime(activeSession.endsAt.toLocal())}.',
+            'Your apps are set aside until '
+            '${formatTime(session.endsAt(now).toLocal())}.',
+            AppLocalizations.of(context).appsSetAsideUntil(formatTime(session.endsAt.toLocal())),
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -371,6 +518,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
             isOvertime
                 ? 'You can end your session whenever you’re ready.'
                 : '“Return gently whenever your attention wanders.”',
+            '“${AppLocalizations.of(context).momentFocusStep3}”',
             textAlign: TextAlign.center,
             style: RestType.serif(24).copyWith(fontStyle: FontStyle.italic),
           ),
@@ -379,16 +527,15 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.finished:
         return [
           Text(
-            _endedEarly ? 'Session ended' : 'Well done',
+            _endedEarly ? AppLocalizations.of(context).sessionEnded : AppLocalizations.of(context).wellDone,
             textAlign: TextAlign.center,
             style: RestType.serif(40),
           ),
           const SizedBox(height: 12),
           Text(
             _endedEarly
-                ? 'Your apps are back. That is fine. Begin again whenever '
-                    'you like.'
-                : 'Your time is complete and your apps are back.',
+                ? AppLocalizations.of(context).sessionEndedEarlyBody
+                : AppLocalizations.of(context).sessionCompleteBody,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -397,7 +544,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.failed:
         return [
           Text(
-            _error ?? 'Something went wrong.',
+            _error ?? AppLocalizations.of(context).somethingWentWrong,
             textAlign: TextAlign.center,
             style: RestType.sans(16),
           ),
@@ -406,14 +553,13 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.releaseFailed:
         return [
           Text(
-            'Your apps are still set aside',
+            AppLocalizations.of(context).appsStillSetAside,
             textAlign: TextAlign.center,
             style: RestType.serif(32),
           ),
           const SizedBox(height: 12),
           Text(
-            'The session is over, but we could not bring your apps back. '
-            'Try again, or open Help if it keeps happening.',
+            AppLocalizations.of(context).releaseFailedBody,
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
@@ -424,7 +570,34 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   List<Widget> _actions() {
     switch (_phase) {
       case _Phase.running:
+        final notice = _notice;
         return [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: notice == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(notice),
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: RestPalette.surface.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: RestPalette.border),
+                        ),
+                        child: Text(
+                          notice,
+                          textAlign: TextAlign.center,
+                          style: RestType.sans(13),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
           TextButton(
             onPressed: _needAnApp,
             style: TextButton.styleFrom(
@@ -432,7 +605,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
               minimumSize: const Size(double.infinity, 48),
             ),
             child: Text(
-              'Need an app?',
+              AppLocalizations.of(context).needAnApp,
               style: RestType.sans(
                 15,
                 color: RestPalette.primary,
@@ -450,7 +623,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
               minimumSize: const Size(double.infinity, 58),
             ),
             child: Text(
-              'End early',
+              AppLocalizations.of(context).endEarly,
               style: RestType.sans(
                 17,
                 color: RestPalette.primary,
@@ -474,9 +647,10 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           MomentPrimaryButton(label: 'Done', onPressed: _leave),
         ];
 
+        return [MomentPrimaryButton(label: AppLocalizations.of(context).done, onPressed: _leave)];
       case _Phase.releaseFailed:
         return [
-          MomentPrimaryButton(label: 'Try again', onPressed: _retryRelease),
+          MomentPrimaryButton(label: AppLocalizations.of(context).tryAgain, onPressed: _retryRelease),
         ];
 
       case _Phase.starting:

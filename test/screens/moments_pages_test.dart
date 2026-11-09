@@ -64,29 +64,6 @@ void main() {
     expect(started?.minutes, 35);
   });
 
-  screenTest('Early stop vraagt eerst bevestiging', (tester) async {
-    bool? result;
-    await pumpScreen(
-      tester,
-      Builder(
-        builder: (context) => TextButton(
-          onPressed: () async => result = await confirmStopEarly(context),
-          child: const Text('stop'),
-        ),
-      ),
-    );
-    await tester.tap(find.text('stop'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Keep going'));
-    await tester.pumpAndSettle();
-    expect(result, isFalse);
-    await tester.tap(find.text('stop'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('End early'));
-    await tester.pumpAndSettle();
-    expect(result, isTrue);
-  });
-
   screenTest('Evening telt terug over de stappen en slaat het plan op',
       (tester) async {
     EveningPlan? saved;

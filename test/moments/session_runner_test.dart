@@ -77,7 +77,7 @@ void main() {
     expect(row.source, SessionSource.manual);
     expect(row.blockingConfirmedAt, isNotNull);
     expect(row.plannedSeconds, 40 * 60);
-    expect(running.endsAt.difference(running.startedAt),
+    expect(running.endsAt(clock.call()).difference(running.startedAt),
         const Duration(minutes: 40));
   });
 

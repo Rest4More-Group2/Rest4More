@@ -1,0 +1,3 @@
+/* Vertaalde Info.plist-waarden. */
+"CFBundleDisplayName" = "Rest4more";
+"NFCReaderUsageDescription" = "NFC wordt gebruikt om apps te blokkeren";

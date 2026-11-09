@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/l10n/format.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -111,7 +113,7 @@ class _MomentAppPickerScreenState extends ConsumerState<MomentAppPickerScreen> {
         foregroundColor: RestPalette.primary,
         elevation: 0,
         title: Text(
-          'Apps for ${widget.kind.profileName}',
+          AppLocalizations.of(context).appsForMoment(momentKindName(AppLocalizations.of(context), widget.kind)),
           style: RestType.serif(26),
         ),
       ),
@@ -120,8 +122,8 @@ class _MomentAppPickerScreenState extends ConsumerState<MomentAppPickerScreen> {
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
           child: MomentPrimaryButton(
             label: _selected.isEmpty
-                ? 'Save'
-                : 'Save · ${_selected.length} selected',
+                ? AppLocalizations.of(context).save
+                : AppLocalizations.of(context).saveWithCount(_selected.length),
             onPressed: _loading ? null : _save,
           ),
         ),
@@ -136,10 +138,10 @@ class _MomentAppPickerScreenState extends ConsumerState<MomentAppPickerScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Could not read your apps.',
+                        AppLocalizations.of(context).couldNotReadApps,
                         style: RestType.sans(16),
                       ),
-                      TextButton(onPressed: _load, child: const Text('Try again')),
+                      TextButton(onPressed: _load, child: Text(AppLocalizations.of(context).tryAgain)),
                     ],
                   ),
                 )
@@ -150,7 +152,7 @@ class _MomentAppPickerScreenState extends ConsumerState<MomentAppPickerScreen> {
                       child: TextField(
                         onChanged: (v) => setState(() => _query = v),
                         decoration: InputDecoration(
-                          hintText: 'Search apps',
+                          hintText: AppLocalizations.of(context).searchApps,
                           prefixIcon: const Icon(Icons.search),
                           filled: true,
                           fillColor: RestPalette.surface,

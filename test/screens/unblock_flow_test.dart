@@ -96,13 +96,19 @@ void main() {
         reason: 'nog niets vrijgegeven');
 
     await tester.tap(find.text('Unblock'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
 
     final grant = calls.singleWhere((c) => c.method == 'grantUnblock');
     expect(grant.arguments, {'package': 'com.insta', 'minutes': 5});
-    expect(find.text('Unblocked'), findsOneWidget);
-    expect(find.textContaining('until 14:05'), findsOneWidget);
-    expect(find.textContaining('locks again by itself'), findsOneWidget);
+    // Het scherm met "Done" is vervangen door het aftellen.
+    expect(find.text('Apps unlocked'), findsOneWidget);
+    expect(find.text('05:00'), findsOneWidget);
+    expect(find.text('Instagram locks again at 14:05.'), findsOneWidget);
+    expect(find.text('Block apps again'), findsOneWidget);
+    expect(find.text('Done'), findsNothing);
+    expect(find.text('Focus timer paused'), findsNothing,
+        reason: 'er loopt geen sessie');
   });
 
   screenTest('een app die al bekend is slaat het kiezen over', (tester) async {
@@ -133,10 +139,11 @@ void main() {
     expect(find.text('Your apps will be available until 14:05.'),
         findsOneWidget);
     await tester.tap(find.text('Unblock'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
     expect(calls.singleWhere((c) => c.method == 'grantUnblock').arguments,
         {'minutes': 5});
-    expect(find.textContaining('Your apps are available until'), findsOneWidget);
+    expect(find.text('Your apps lock again at 14:05.'), findsOneWidget);
   });
 
   screenTest('mislukt vrijgeven: duidelijke fout en je kunt opnieuw proberen',
@@ -155,7 +162,7 @@ void main() {
     await tester.tap(find.text('Unblock'));
     await tester.pumpAndSettle();
     expect(find.textContaining('could not unblock'), findsOneWidget);
-    expect(find.text('Unblocked'), findsNothing);
+    expect(find.text('Apps unlocked'), findsNothing);
     expect(find.text('Unblock'), findsOneWidget, reason: 'opnieuw mogelijk');
   });
 

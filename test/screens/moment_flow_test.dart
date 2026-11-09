@@ -98,16 +98,31 @@ void main() {
     expect(find.textContaining('24:'), findsOneWidget);
     expect(find.textContaining('Your apps are set aside until'), findsOneWidget);
 
+    // Eerder stoppen opent het pauzescherm; de knoppen gaan pas na 5 s open.
     await tester.tap(find.text('End early'));
-    await tester.pumpAndSettle();
-    expect(find.text('End this session early?'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Take a moment to breathe'), findsOneWidget);
+    await tester.tap(find.text('Keep going'), warnIfMissed: false);
+    await tester.pump();
+    expect(find.text('Take a moment to breathe'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
     await tester.tap(find.text('Keep going'));
     await tester.pumpAndSettle();
     expect(find.text('End early'), findsOneWidget, reason: 'bleef doorlopen');
+    expect(find.textContaining('Your apps are set aside until'), findsOneWidget);
+    final running =
+        await tester.runAsync(() => db.select(db.focusSessions).get());
+    expect(running!.single.endedAt, isNull, reason: 'sessie loopt nog');
 
     await tester.tap(find.text('End early'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'End early'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
+    await tester.tap(find.text('End session'));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 200)));
     await tester.pump(const Duration(seconds: 1));

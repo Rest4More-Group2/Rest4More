@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -96,7 +97,7 @@ class _TodayTabState extends ConsumerState<TodayTab>
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Day ${today.day} is done.')),
+      SnackBar(content: Text(AppLocalizations.of(context).dayIsDone(today.day))),
     );
   }
 
@@ -124,7 +125,7 @@ class _TodayTabState extends ConsumerState<TodayTab>
           totalDays: today.totalDays,
           minutes: today.minutes,
           smallerMinutes: today.smallerMinutes,
-          greeting: greetingFor(DateTime.now()),
+          greeting: greetingFor(DateTime.now(), AppLocalizations.of(context)),
           invitation: today.title,
           description: today.action,
           explanation: today.explanation,
@@ -160,10 +161,10 @@ class _DoneForToday extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Today’s step is done', style: RestType.serif(34)),
+              Text(AppLocalizations.of(context).todaysStepDone, style: RestType.serif(34)),
               const SizedBox(height: 12),
               Text(
-                'Day $day is ready for you tomorrow. One step a day is enough.',
+                AppLocalizations.of(context).dayReadyTomorrow(day),
                 style: RestType.sans(16),
               ),
             ],
@@ -191,11 +192,10 @@ class _PlanFinished extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('All $totalDays steps are done', style: RestType.serif(34)),
+              Text(AppLocalizations.of(context).allStepsDone(totalDays), style: RestType.serif(34)),
               const SizedBox(height: 12),
               Text(
-                'Your own routine continues. Keep the phone location, the '
-                'phone-away moment and the activity that fitted you best.',
+                AppLocalizations.of(context).ownRoutineContinues,
                 style: RestType.sans(16),
               ),
             ],

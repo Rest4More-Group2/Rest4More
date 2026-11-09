@@ -1,4 +1,5 @@
 
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'obstacle_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +51,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -60,7 +61,7 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -73,8 +74,8 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               const SizedBox(height: 20),
 
               // Step indicator
-              const Text(
-                'STEP 1 OF 5',
+              Text(
+                AppLocalizations.of(context).stepOfFive(1),
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -85,8 +86,8 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               const SizedBox(height: 10),
 
               // Page title
-              const Text(
-                'What would you like to\nfocus on?',
+              Text(
+                AppLocalizations.of(context).goalTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -98,9 +99,9 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               const SizedBox(height: 28),
 
               GoalOptionCard(
-                title: 'Put the phone away earlier',
+                title: AppLocalizations.of(context).goalPhoneTitle,
                 description:
-                    'Build a comforting boundary between your screen and your evening sleep cycle.',
+                    AppLocalizations.of(context).goalPhoneDesc,
                 isSelected: selectedGoal == 0,
                 onTap: () {
                   setState(() {
@@ -112,9 +113,9 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               const SizedBox(height: 16),
 
               GoalOptionCard(
-                title: 'Build a routine',
+                title: AppLocalizations.of(context).goalRoutineTitle,
                 description:
-                    'Create small, nourishing daily rituals that signal your nervous system to recover.',
+                    AppLocalizations.of(context).goalRoutineDesc,
                 isSelected: selectedGoal == 1,
                 onTap: () {
                   setState(() {
@@ -126,9 +127,9 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               const SizedBox(height: 16),
 
               GoalOptionCard(
-                title: 'Use less social media',
+                title: AppLocalizations.of(context).goalSocialTitle,
                 description:
-                    'Step back from hyper-stimulating feeds and recapture your focus.',
+                    AppLocalizations.of(context).goalSocialDesc,
                 isSelected: selectedGoal == 2,
                 onTap: () {
                   setState(() {
@@ -162,8 +163,8 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context).continueLabel,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

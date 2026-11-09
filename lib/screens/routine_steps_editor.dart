@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/l10n/format.dart';
 import 'package:flutter/material.dart';
 import 'package:rest4more/data/database/converters.dart' show RoutineStepData;
 import 'package:rest4more/data/moments/moment_schedule.dart';
@@ -13,13 +15,13 @@ class RoutineStepsEditor extends StatefulWidget {
     required this.steps,
     required this.library,
     required this.onChanged,
-    this.emptyText = 'No steps yet. Add the first one.',
+    this.emptyText,
   });
 
   final List<RoutineStepData> steps;
   final List<RoutineStepData> library;
   final ValueChanged<List<RoutineStepData>> onChanged;
-  final String emptyText;
+  final String? emptyText;
 
   @override
   State<RoutineStepsEditor> createState() => _RoutineStepsEditorState();
@@ -62,7 +64,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
   Future<void> _edit(int index) async {
     final result = await showDialog<RoutineStepData>(
       context: context,
-      builder: (_) => _StepDialog(initial: _steps[index], title: 'Edit step'),
+      builder: (_) => _StepDialog(initial: _steps[index], title: AppLocalizations.of(context).editStep),
     );
     if (result != null) _replace(index, result);
   }
@@ -70,9 +72,9 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
   Future<void> _addCustom() async {
     final result = await showDialog<RoutineStepData>(
       context: context,
-      builder: (_) => const _StepDialog(
+      builder: (_) => _StepDialog(
         initial: RoutineStepData(title: '', durationMin: 10),
-        title: 'New step',
+        title: AppLocalizations.of(context).newStep,
       ),
     );
     if (result != null) _add(result);
@@ -92,7 +94,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
             shrinkWrap: true,
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
             children: [
-              Text('Add a step', style: RestType.serif(28)),
+              Text(AppLocalizations.of(context).addAStep, style: RestType.serif(28)),
               const SizedBox(height: 8),
               for (final item in widget.library)
                 ListTile(
@@ -108,7 +110,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.add, color: RestPalette.primary),
                 title: Text(
-                  'Your own step',
+                  AppLocalizations.of(context).yourOwnStep,
                   style: RestType.sans(
                     16,
                     color: RestPalette.primary,
@@ -147,7 +149,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
         if (_steps.isEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Text(widget.emptyText, style: RestType.sans(15)),
+            child: Text(widget.emptyText ?? AppLocalizations.of(context).noStepsYet, style: RestType.sans(15)),
           )
         else
           ReorderableListView(
@@ -171,7 +173,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
           children: [
             Expanded(
               child: Text(
-                'Total ${formatDuration(totalMinutes(_steps))}',
+                AppLocalizations.of(context).totalDuration(localizedDuration(AppLocalizations.of(context), totalMinutes(_steps))),
                 style: RestType.sans(
                   15,
                   color: RestPalette.primary,
@@ -182,7 +184,7 @@ class _RoutineStepsEditorState extends State<RoutineStepsEditor> {
             OutlinedButton.icon(
               onPressed: _addFromLibrary,
               icon: const Icon(Icons.add, size: 20),
-              label: const Text('Add step'),
+              label: Text(AppLocalizations.of(context).addStep),
               style: OutlinedButton.styleFrom(
                 foregroundColor: RestPalette.primary,
                 side: const BorderSide(color: RestPalette.border),
@@ -236,7 +238,7 @@ class _StepRow extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Semantics(
-                      label: '${step.title}, ${formatDuration(stepMinutes(step))}. Tap to edit.',
+                      label: AppLocalizations.of(context).stepSemantics(step.title, localizedDuration(AppLocalizations.of(context), stepMinutes(step))),
                       excludeSemantics: true,
                       child: Row(
                         children: [
@@ -258,7 +260,7 @@ class _StepRow extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Remove ${step.title}',
+              tooltip: AppLocalizations.of(context).removeStep(step.title),
               onPressed: onRemove,
               icon: const Icon(Icons.close, color: RestPalette.accent),
               constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -303,13 +305,13 @@ class _StepDialogState extends State<_StepDialog> {
               autofocus: true,
               maxLength: 40,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: AppLocalizations.of(context).stepName),
             ),
             const SizedBox(height: 8),
             Row(
               children: [
                 IconButton.outlined(
-                  tooltip: 'Shorter',
+                  tooltip: AppLocalizations.of(context).shorter,
                   onPressed: _minutes <= minStepMinutes
                       ? null
                       : () => setState(() => _minutes -= 5),
@@ -323,7 +325,7 @@ class _StepDialogState extends State<_StepDialog> {
                   ),
                 ),
                 IconButton.outlined(
-                  tooltip: 'Longer',
+                  tooltip: AppLocalizations.of(context).longer,
                   onPressed: _minutes >= maxStepMinutes
                       ? null
                       : () => setState(() => _minutes += 5),
@@ -336,7 +338,7 @@ class _StepDialogState extends State<_StepDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: _valid
@@ -348,7 +350,7 @@ class _StepDialogState extends State<_StepDialog> {
                       ),
                     )
                 : null,
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context).save),
           ),
         ],
       );
