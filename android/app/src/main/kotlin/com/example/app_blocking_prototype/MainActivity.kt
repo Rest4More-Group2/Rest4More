@@ -2,8 +2,6 @@ package com.example.app_blocking_prototype
 
 import android.Manifest
 import android.app.NotificationManager
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
