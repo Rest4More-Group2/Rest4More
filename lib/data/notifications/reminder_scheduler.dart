@@ -75,13 +75,13 @@ class LocalReminderScheduler implements ReminderScheduler {
       enableVibration: false,
     ),
     iOS: DarwinNotificationDetails(
-      presentAlert: true,
-      presentBanner: true,
-      presentList: true,
-      presentSound: false,
-      presentBadge: false,
-      interruptionLevel: InterruptionLevel.passive,
-    ),
+  presentAlert: false,
+  presentBanner: false,
+  presentList: true,
+  presentSound: false,
+  presentBadge: false,
+  interruptionLevel: InterruptionLevel.passive,
+),
   );
 
   @override
