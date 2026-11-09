@@ -163,7 +163,10 @@ class SessionRunner {
     final open = await _sessions.findOpen();
     if (open != null) {
       final running = open.state == SessionState.active ? _asRunning(open) : null;
-      if (running != null && !running.isOver(_now())) {
+
+      // Keep an active session open even if its planned end time has passed.
+      // The user must explicitly end it before another session can start.
+      if (running != null) {
         throw SessionRunningError(running);
       }
       await _closeStale(open, running);
@@ -257,8 +260,7 @@ class SessionRunner {
   Future<void> releaseBlocking(MomentKind kind) =>
       _blocking.setBlocking(kind, false);
 
-  /// Ruimt een sessie op die niet meer loopt: afgebroken tijdens het starten,
-  /// of verlopen terwijl de app dicht was.
+  /// Ruimt sessies op die tijdens het starten of beëindigen zijn onderbroken.
   Future<void> _closeStale(FocusSession open, RunningSession? running) async {
     final kind = _kindOf(open.mode);
     switch (open.state) {

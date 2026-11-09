@@ -2,22 +2,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:rest4more/providers/notification_providers.dart';
+import 'package:rest4more/providers/repository_providers.dart';
 
+import 'moments_screen.dart';
+import 'moments_widgets.dart';
 import 'profile_tab.dart';
+import 'session_run_screen.dart';
 import 'progress_tab.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
-import 'moments_screen.dart';
-import 'moments_widgets.dart';
 
-/// De app na de onboarding. Houdt ook de herinneringen voor de dagelijkse stap
-/// bij: bsij het openen en elke keer dat de app terugkomt worden ze opnieuw
-/// gepland (nieuwe dag, andere tijdzone, meldingen uitgezet). Een tik op een
-/// herinnering opent Today.
+/// The app after onboarding. Daily reminder taps open Today; a session-end
+/// notification tap returns to the still-active Focus or Reading session.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, this.onStartStep, this.onStartFocus});
+
   final ValueChanged<int>? onStartStep;
   final VoidCallback? onStartFocus;
 
@@ -28,20 +30,35 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell>
     with WidgetsBindingObserver {
   static const _todayTab = 0;
+  static const _momentsTab = 1;
+  static const _progressTab = 2;
 
   int _selectedTab = _todayTab;
   StreamSubscription<int>? _taps;
+  StreamSubscription<String>? _sessionEndTaps;
+  String? _openingSessionId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
     final reminders = ref.read(reminderServiceProvider);
     reminders.sync();
+
     final scheduler = ref.read(reminderSchedulerProvider);
+
+    // Existing daily reminder handling.
     _taps = scheduler.taps.listen(_openedFromReminder);
     scheduler.launchedFrom().then((id) {
       if (id != null) _openedFromReminder(id);
+    }, onError: (Object _) {});
+
+    // Session-end notification handling.
+    _sessionEndTaps =
+        scheduler.sessionEndTaps.listen(_openSessionEnd);
+    scheduler.launchedFromSessionEnd().then((sessionId) {
+      if (sessionId != null) _openSessionEnd(sessionId);
     }, onError: (Object _) {});
   }
 
@@ -49,23 +66,52 @@ class _AppShellState extends ConsumerState<AppShell>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _taps?.cancel();
+    _sessionEndTaps?.cancel();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
+
     final reminders = ref.read(reminderServiceProvider);
     reminders.reconcileWithPermission().whenComplete(reminders.sync);
   }
 
-  /// Een tik op een herinnering: naar de stap op Today, ook als er nog een
-  /// scherm boven de app openstaat.
+  /// A daily reminder opens Today, including when another screen is on top.
   void _openedFromReminder(int id) {
     ref.read(reminderServiceProvider).markOpened(id);
     if (!mounted) return;
+
     Navigator.of(context).popUntil((route) => route.isFirst);
     setState(() => _selectedTab = _todayTab);
+  }
+
+  /// Opens the session named by the notification, if that session is still
+  /// active. This ignores stale notifications from sessions already ended.
+  Future<void> _openSessionEnd(String sessionId) async {
+    if (_openingSessionId == sessionId) return;
+    _openingSessionId = sessionId;
+
+    try {
+      final RunningSession? session =
+          await ref.read(sessionRunnerProvider).current();
+
+      if (!mounted || session == null || session.id != sessionId) return;
+
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      setState(() => _selectedTab = _momentsTab);
+
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => SessionRunScreen(resume: session),
+        ),
+      );
+    } finally {
+      if (_openingSessionId == sessionId) {
+        _openingSessionId = null;
+      }
+    }
   }
 
   void _selectTab(int index) {
@@ -77,6 +123,7 @@ class _AppShellState extends ConsumerState<AppShell>
       );
       return;
     }
+
     setState(() => _selectedTab = index);
   }
 
@@ -148,24 +195,50 @@ class _AppShellState extends ConsumerState<AppShell>
                               size: 24,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            labels[index],
-                            style: RestType.sans(
-                              11,
-                              color: color,
-                              weight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                            ),
+                        ),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeInOut,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? RestPalette.primary.withValues(alpha: 0.08)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                        ],
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedScale(
+                                scale: selected ? 1.1 : 1,
+                                duration: const Duration(milliseconds: 220),
+                                child: RestMomentIcon(
+                                  index: index,
+                                  color: color,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                labels[index],
+                                style: RestType.sans(
+                                  11,
+                                  color: color,
+                                  weight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ),
