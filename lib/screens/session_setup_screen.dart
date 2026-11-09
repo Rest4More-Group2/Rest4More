@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
@@ -11,9 +12,6 @@ import 'today_screen.dart' show RestType;
 /// duurkeuzes en welk opgeslagen app-profiel standaard gekozen is.
 enum SessionKind {
   focus(
-    title: 'Focus',
-    subtitle: 'Pick how long, and what to keep out of the way.',
-    startLabel: 'Start Focus',
     presets: [
       FocusPreset('Quick', 25),
       FocusPreset('Standard', 45),
@@ -22,9 +20,6 @@ enum SessionKind {
     defaultMinutes: 45,
   ),
   reading(
-    title: 'Reading',
-    subtitle: 'Pick how long you want to read, and what stays quiet.',
-    startLabel: 'Start Reading',
     presets: [
       FocusPreset('Short', 20),
       FocusPreset('Chapter', 40),
@@ -34,16 +29,25 @@ enum SessionKind {
   );
 
   const SessionKind({
-    required this.title,
-    required this.subtitle,
-    required this.startLabel,
     required this.presets,
     required this.defaultMinutes,
   });
 
-  final String title;
-  final String subtitle;
-  final String startLabel;
+  String title(AppLocalizations l10n) => switch (this) {
+        SessionKind.focus => l10n.momentFocusTitle,
+        SessionKind.reading => l10n.momentReadingTitle,
+      };
+
+  String subtitle(AppLocalizations l10n) => switch (this) {
+        SessionKind.focus => l10n.sessionFocusSubtitle,
+        SessionKind.reading => l10n.sessionReadingSubtitle,
+      };
+
+  String startLabel(AppLocalizations l10n) => switch (this) {
+        SessionKind.focus => l10n.startFocus,
+        SessionKind.reading => l10n.startReading,
+      };
+
   final List<FocusPreset> presets;
   final int defaultMinutes;
 
@@ -60,6 +64,16 @@ class FocusPreset {
 
   final String label;
   final int? minutes;
+
+  String localizedLabel(AppLocalizations l10n) => switch (label) {
+        'Quick' => l10n.presetQuick,
+        'Standard' => l10n.presetStandard,
+        'Deep' => l10n.presetDeep,
+        'Short' => l10n.presetShort,
+        'Chapter' => l10n.presetChapter,
+        'Long' => l10n.presetLong,
+        _ => l10n.presetCustom,
+      };
 }
 
 /// Wat de gebruiker op het startscherm heeft gekozen.
@@ -121,17 +135,15 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   Widget build(BuildContext context) {
     final kind = widget.kind;
     return MomentPage(
-      title: kind.title,
-      subtitle: kind.subtitle,
+      title: kind.title(AppLocalizations.of(context)),
+      subtitle: kind.subtitle(AppLocalizations.of(context)),
       bottom: MomentPrimaryButton(
-        label: kind.startLabel,
+        label: kind.startLabel(AppLocalizations.of(context)),
         onPressed: widget.onStart == null ? null : _start,
       ),
       children: [
         MomentSection(
-          title: 'How long',
-          note: 'Ends after $_minutes minutes. Stopping early asks you to '
-              'confirm first and is logged as stopped early.',
+          title: AppLocalizations.of(context).howLong,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -140,8 +152,8 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
                 selected: _preset,
                 onSelected: (p) => setState(() => _preset = p),
                 labelOf: (p) => p.minutes == null
-                    ? p.label
-                    : '${p.label} · ${p.minutes} min',
+                    ? p.localizedLabel(AppLocalizations.of(context))
+                    : '${p.localizedLabel(AppLocalizations.of(context))} · ${AppLocalizations.of(context).minutesShort(p.minutes!)}',
               ),
               if (_preset.minutes == null) ...[
                 const SizedBox(height: 16),
@@ -152,6 +164,7 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
               ],
             ],
           ),
+          note: AppLocalizations.of(context).endsAfterMinutes(_minutes),
         ),
         MomentAppsSection(kind: kind.moment),
       ],
@@ -169,7 +182,7 @@ class _MinutesStepper extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         children: [
           IconButton.outlined(
-            tooltip: 'Fewer minutes',
+            tooltip: AppLocalizations.of(context).fewerMinutes,
             onPressed: minutes <= minFocusMinutes
                 ? null
                 : () => onChanged(minutes - 5),
@@ -177,13 +190,13 @@ class _MinutesStepper extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              '$minutes min',
+              AppLocalizations.of(context).minutesShort(minutes),
               textAlign: TextAlign.center,
               style: RestType.serif(30),
             ),
           ),
           IconButton.outlined(
-            tooltip: 'More minutes',
+            tooltip: AppLocalizations.of(context).moreMinutes,
             onPressed: minutes >= maxFocusMinutes
                 ? null
                 : () => onChanged(minutes + 5),
@@ -191,4 +204,31 @@ class _MinutesStepper extends StatelessWidget {
           ),
         ],
       );
+}
+
+/// Vraagt of de sessie echt eerder moet stoppen. Geeft true als de gebruiker
+/// bevestigt. Wie dit aanroept logt de sessie dan als `stoppedEarly`.
+Future<bool> confirmStopEarly(BuildContext context) async {
+  final stop = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: RestPalette.background,
+      title: Text(AppLocalizations.of(context).endSessionEarlyTitle, style: RestType.serif(26)),
+      content: Text(
+        AppLocalizations.of(context).endSessionEarlyBody,
+        style: RestType.sans(15),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(AppLocalizations.of(context).keepGoing),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(AppLocalizations.of(context).endEarly),
+        ),
+      ],
+    ),
+  );
+  return stop ?? false;
 }

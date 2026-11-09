@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'rhythm_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,32 +32,23 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
     if (saved != null && mounted) setState(() => selectedObstacles.add(saved));
   }
 
-  final List<Map<String, dynamic>> obstacles = [
-    {
-      'title': 'Scrolling',
-      'icon': Icons.phone_android_rounded,
-    },
-    {
-      'title': 'Availability',
-      'icon': Icons.notifications_none_rounded,
-    },
-    {
-      'title': 'Restless thoughts',
-      'icon': Icons.psychology_outlined,
-    },
-    {
-      'title': 'Planning',
-      'icon': Icons.event_note_rounded,
-    },
-    {
-      'title': 'Phone as alarm',
-      'icon': Icons.alarm_rounded,
-    },
-    {
-      'title': 'No routine',
-      'icon': Icons.shuffle_rounded,
-    },
+  static const List<IconData> _obstacleIcons = [
+    Icons.phone_android_rounded,
+    Icons.notifications_none_rounded,
+    Icons.psychology_outlined,
+    Icons.event_note_rounded,
+    Icons.alarm_rounded,
+    Icons.shuffle_rounded,
   ];
+
+  List<String> _obstacleTitles(AppLocalizations l10n) => [
+        l10n.obstacleScrolling,
+        l10n.obstacleAvailability,
+        l10n.obstacleThoughts,
+        l10n.obstaclePlanning,
+        l10n.obstacleAlarm,
+        l10n.obstacleNoRoutine,
+      ];
 
   void toggleObstacle(int index) {
     setState(() {
@@ -86,7 +78,7 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -96,7 +88,7 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -109,8 +101,8 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
               const SizedBox(height: 20),
 
               // Step indicator
-              const Text(
-                'STEP 2 OF 5',
+              Text(
+                AppLocalizations.of(context).stepOfFive(2),
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -121,8 +113,8 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
               const SizedBox(height: 10),
 
               // Page title
-              const Text(
-                'What gets in the way\nof your rest?',
+              Text(
+                AppLocalizations.of(context).obstacleTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -133,8 +125,8 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
 
               const SizedBox(height: 10),
 
-              const Text(
-                'Select all that apply.',
+              Text(
+                AppLocalizations.of(context).selectAllThatApply,
                 style: TextStyle(
                   color: brown,
                   fontSize: 14,
@@ -148,7 +140,7 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
               Expanded(
                 child: GridView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: obstacles.length,
+                  itemCount: _obstacleIcons.length,
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -157,13 +149,12 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
                     childAspectRatio: 1.65,
                   ),
                   itemBuilder: (context, index) {
-                    final obstacle = obstacles[index];
                     final isSelected =
                         selectedObstacles.contains(index);
 
                     return ObstacleCard(
-                      title: obstacle['title'],
-                      icon: obstacle['icon'],
+                      title: _obstacleTitles(AppLocalizations.of(context))[index],
+                      icon: _obstacleIcons[index],
                       isSelected: isSelected,
                       onTap: () {
                         toggleObstacle(index);
@@ -200,8 +191,8 @@ class _ObstacleScreenState extends ConsumerState<ObstacleScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context).continueLabel,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

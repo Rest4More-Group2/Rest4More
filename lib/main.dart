@@ -4,6 +4,9 @@ import 'screens/app_root.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/progress/debug_progress_seed.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/providers/locale_providers.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
 import 'package:rest4more/data/sync/debug_pull.dart';
 import 'package:rest4more/data/sync/debug_reset.dart';
@@ -11,6 +14,7 @@ import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
 import 'package:rest4more/providers/database_providers.dart';
+import 'package:rest4more/providers/plan_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/providers/sync_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
@@ -32,6 +36,8 @@ void blockMain() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     home: BlockedScreen(),
   ));
 }
@@ -78,6 +84,13 @@ Future<void> main() async {
       PreferencesSyncStateStore(),
     );
   }
+  if (kDebugMode && const bool.fromEnvironment('DEBUG_SEED_PROGRESS')) {
+    // Wist de lokale database bij elke start en vult hem met voorbeelddata om
+    // het Progress-scherm te bekijken.
+    final db = container.read(databaseProvider);
+    await resetLocalData(db, PreferencesSyncStateStore());
+    await seedProgressDemo(db, container.read(contentCatalogLoaderProvider));
+  }
   if (kDebugMode && const bool.fromEnvironment('DEBUG_SYNC')) {
     // Alleen om de synchronisatie te testen voordat er een toestemmingsscherm
     // is: geef toestemming en vergeet dat er vandaag al gepusht is.
@@ -107,18 +120,21 @@ Future<void> main() async {
 /// Nodig om vanaf buiten de schermen (het blokkeerscherm) een scherm te openen.
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       navigatorKey: rootNavigatorKey,
       builder: (context, child) => UnblockRequestListener(
         navigatorKey: rootNavigatorKey,
         child: child ?? const SizedBox.shrink(),
       ),
-      title: 'Rest For More',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.background),

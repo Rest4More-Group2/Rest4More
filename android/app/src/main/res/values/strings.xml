@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="accessibility_service_description">App Blocker Accessibility Service</string>
+    <string name="tag_unknown">Unknown tag. Pair it in the app first.</string>
+    <string name="blocking_on">Blocking on</string>
+    <string name="blocking_off">Blocking off</string>
 </resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Toegankelijkheidsservice voor app-blokkering</string>
+    <string name="tag_unknown">Onbekende tag. Koppel hem eerst in de app.</string>
+    <string name="blocking_on">Blokkeren aan</string>
+    <string name="blocking_off">Blokkeren uit</string>
+</resources>

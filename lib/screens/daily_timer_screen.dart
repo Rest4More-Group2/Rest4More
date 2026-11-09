@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -99,19 +100,19 @@ class _DailyTimerScreenState extends State<DailyTimerScreen>
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: RestPalette.background,
-        title: Text('Stop this moment?', style: RestType.serif(28)),
+        title: Text(AppLocalizations.of(context).stopMomentTitle, style: RestType.serif(28)),
         content: Text(
-          'Your daily step will stay unfinished.',
+          AppLocalizations.of(context).dailyStepUnfinished,
           style: RestType.sans(15),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Keep going'),
+            child: Text(AppLocalizations.of(context).keepGoing),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Stop moment'),
+            child: Text(AppLocalizations.of(context).stopMoment),
           ),
         ],
       ),
@@ -131,9 +132,9 @@ class _DailyTimerScreenState extends State<DailyTimerScreen>
   void _back() {
     if (_running) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Use Stop to end this moment, or leave the app to keep it going.',
+            AppLocalizations.of(context).useStopHint,
           ),
         ),
       );
@@ -168,7 +169,7 @@ class _DailyTimerScreenState extends State<DailyTimerScreen>
                       child: TextButton.icon(
                         onPressed: _back,
                         icon: const Icon(Icons.arrow_back, size: 18),
-                        label: const Text('Back'),
+                        label: Text(AppLocalizations.of(context).back),
                         style: TextButton.styleFrom(
                           foregroundColor: RestPalette.accent,
                           textStyle: RestType.sans(14),
@@ -178,14 +179,14 @@ class _DailyTimerScreenState extends State<DailyTimerScreen>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '${widget.minutes}-minute quiet moment',
+                      AppLocalizations.of(context).quietMomentHyphen(widget.minutes),
                       style: RestType.serif(32),
                     ),
                     const SizedBox(height: 32),
                     Text(
                       _finished
-                          ? 'A little space for yourself. Well done.'
-                          : 'Take a few minutes away from your phone.',
+                          ? AppLocalizations.of(context).littleSpaceWellDone
+                          : AppLocalizations.of(context).fewMinutesAway,
                       textAlign: TextAlign.center,
                       style: RestType.sans(
                         15,
@@ -245,10 +246,10 @@ class _DailyTimerScreenState extends State<DailyTimerScreen>
                     const SizedBox(height: 56),
                     RestActionButton(
                       label: _finished
-                          ? 'Finish daily step'
+                          ? AppLocalizations.of(context).finishDailyStep
                           : _running
-                              ? 'Stop'
-                              : 'Start',
+                              ? AppLocalizations.of(context).stop
+                              : AppLocalizations.of(context).start,
                       onPressed: () {
                         if (_finished) {
                           Navigator.pop(context, true);

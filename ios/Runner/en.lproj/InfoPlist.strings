@@ -1,0 +1,3 @@
+/* Localized Info.plist values. English is the default. */
+"CFBundleDisplayName" = "Rest4more";
+"NFCReaderUsageDescription" = "NFC used for the blocking of apps";

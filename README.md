@@ -215,3 +215,17 @@ argumenten):
 
 Maak daarvoor het liefst een tweede configuratie ("Fresh start"), naast de
 gewone zonder de vlag. Zonder `env.json` laat je het eerste deel weg.
+
+### Voorbeelddata voor Progress (alleen debug)
+
+Start de app met een gevulde database om het Progress-scherm te bekijken:
+
+```bash
+flutter run --dart-define=DEBUG_SEED_PROGRESS=true
+```
+
+Dit wist de lokale database bij elke start en vult hem met een afgeronde
+onboarding, een plan van 14 dagen dat 8 dagen geleden begon (met afgeronde,
+overgeslagen, ingekorte en open stappen) en een week aan momenten, tot en
+met een van vandaag. De code staat
+in `lib/data/progress/debug_progress_seed.dart`.

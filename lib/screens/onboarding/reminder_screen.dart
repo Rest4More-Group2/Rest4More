@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/notifications/notification_permission.dart';
@@ -153,7 +154,7 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -163,7 +164,7 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                     ),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -191,8 +192,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
 
               const SizedBox(height: 24),
 
-              const Text(
-                'FINAL STEP',
+              Text(
+                AppLocalizations.of(context).finalStep,
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -202,8 +203,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
 
               const SizedBox(height: 10),
 
-              const Text(
-                'Would you like a\ndaily reminder?',
+              Text(
+                AppLocalizations.of(context).reminderTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -214,10 +215,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
 
               const SizedBox(height: 14),
 
-              const Text(
-                'A gentle reminder can help you make space '
-                'for rest without adding pressure. It is optional: '
-                'you can use everything in the app without it.',
+              Text(
+                AppLocalizations.of(context).reminderIntro,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -238,13 +237,13 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                   children: [
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Daily reminder',
+                                AppLocalizations.of(context).dailyReminder,
                                 style: TextStyle(
                                   color: darkBrown,
                                   fontSize: 16,
@@ -253,7 +252,7 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'One gentle reminder each day',
+                                AppLocalizations.of(context).oneGentleReminder,
                                 style: TextStyle(
                                   color: brown,
                                   fontSize: 12,
@@ -291,9 +290,9 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                             ),
                             const SizedBox(width: 12),
 
-                            const Expanded(
+                            Expanded(
                               child: Text(
-                                'Reminder time',
+                                AppLocalizations.of(context).reminderTime,
                                 style: TextStyle(
                                   color: darkBrown,
                                   fontSize: 14,
@@ -341,8 +340,8 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Done',
+                  child: Text(
+                    AppLocalizations.of(context).done,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -356,10 +355,9 @@ class _ReminderScreenState extends ConsumerState<ReminderScreen>
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed:
-                      _asking ? null : () => _finish(withReminder: false),
-                  child: const Text(
-                    'Maybe later',
+                  onPressed: _asking ? null : () => _finish(withReminder: false),
+                  child: Text(
+                    AppLocalizations.of(context).maybeLater,
                     style: TextStyle(
                       color: brown,
                       fontSize: 14,
