@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -81,7 +82,7 @@ class _AccessibilityAccessScreenState extends State<AccessibilityAccessScreen>
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     onPressed: () => Navigator.pop(context),
-                    tooltip: 'Back',
+                    tooltip: AppLocalizations.of(context).back,
                     style: IconButton.styleFrom(
                       backgroundColor: RestPalette.surface,
                       foregroundColor: RestPalette.primary,
@@ -105,12 +106,10 @@ class _AccessibilityAccessScreenState extends State<AccessibilityAccessScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Allow accessibility', style: RestType.serif(44)),
+                Text(AppLocalizations.of(context).allowAccessibility, style: RestType.serif(44)),
                 const SizedBox(height: 12),
                 Text(
-                  'To set your apps aside, Rest4More needs its accessibility '
-                  'service switched on. It only notices which app opens, so '
-                  'it can step in front of the ones you chose.',
+                  AppLocalizations.of(context).accessibilityBody,
                   style: RestType.sans(17, color: RestPalette.accent),
                 ),
                 const SizedBox(height: 24),
@@ -123,13 +122,13 @@ class _AccessibilityAccessScreenState extends State<AccessibilityAccessScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('In Settings', style: RestType.serif(27)),
+                      Text(AppLocalizations.of(context).inSettings, style: RestType.serif(27)),
                       const SizedBox(height: 18),
-                      _step(1, 'Open Installed apps or Downloaded apps.'),
+                      _step(1, AppLocalizations.of(context).accStep1),
                       const SizedBox(height: 16),
-                      _step(2, 'Choose Rest4More.'),
+                      _step(2, AppLocalizations.of(context).accStep2),
                       const SizedBox(height: 16),
-                      _step(3, 'Switch it on and confirm.'),
+                      _step(3, AppLocalizations.of(context).accStep3),
                     ],
                   ),
                 ),
@@ -147,7 +146,7 @@ class _AccessibilityAccessScreenState extends State<AccessibilityAccessScreen>
                   ),
                   child: Row(
                     children: [
-                      Text('Open Settings', style: RestType.sans(17,
+                      Text(AppLocalizations.of(context).openSettings, style: RestType.sans(17,
                           color: RestPalette.background,
                           weight: FontWeight.w600)),
                       const Spacer(),

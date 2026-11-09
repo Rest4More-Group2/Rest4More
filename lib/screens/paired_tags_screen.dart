@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_ios.dart';
@@ -40,7 +41,9 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
       setState(() => _tags = tags..sort());
     } catch (e) {
       debugPrint('MethodChannel error: $e');
-      _showMessage('Could not load your tags.');
+      if (mounted) {
+        _showMessage(AppLocalizations.of(context).couldNotLoadTags);
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -52,23 +55,25 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
   }
 
   Future<void> _remove(String uuid) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await TagService.removeKnownTag(uuid);
       await _load();
     } catch (e) {
       debugPrint('MethodChannel error: $e');
-      _showMessage('Could not remove the tag.');
+      _showMessage(l10n.couldNotRemoveTag);
     }
   }
 
   Future<void> _addTag() async {
+    final l10n = AppLocalizations.of(context);
     if (_scanning) return;
     final availability = await NfcManager.instance.checkAvailability();
     if (!mounted) return;
     if (availability != NfcAvailability.enabled) {
       _showMessage(availability == NfcAvailability.disabled
-          ? 'NFC is turned off. Enable it in your phone settings.'
-          : 'This device does not support NFC.');
+          ? l10n.nfcOff
+          : l10n.nfcUnsupported);
       return;
     }
 
@@ -76,7 +81,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
     try {
       await NfcManager.instance.startSession(
         pollingOptions: TagService.pollingOptions,
-        alertMessageIos: 'Hold your iPhone near the tag',
+        alertMessageIos: l10n.holdNearTag,
         onSessionErrorIos: (error) {
           debugPrint('NFC session ended: ${error.code} ${error.message}');
           _scanning = false;
@@ -84,7 +89,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
           setState(() {});
           if (error.code !=
               NfcReaderErrorCodeIos.readerSessionInvalidationErrorUserCanceled) {
-            _showMessage('Scanning stopped: ${error.message}');
+            _showMessage(l10n.scanningStopped(error.message));
           }
         },
         onDiscovered: (tag) async {
@@ -92,14 +97,14 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
           try {
             final uuid = TagService.uuidFromTag(tag);
             if (uuid == null) {
-              message = 'This tag does not hold a Rest4More link.';
+              message = l10n.tagNoLink;
             } else {
               await TagService.addKnownTag(uuid);
-              message = 'Tag added.';
+              message = l10n.tagAdded;
             }
           } catch (e) {
             debugPrint('Pairing error: $e');
-            message = 'Could not read this tag. Please try again.';
+            message = l10n.couldNotReadTag;
           } finally {
             _scanning = false;
             await NfcManager.instance.stopSession();
@@ -113,7 +118,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
     } catch (e) {
       debugPrint('NFC error: $e');
       _scanning = false;
-      _showMessage('Could not start scanning.');
+      _showMessage(l10n.couldNotStartScanning);
       if (mounted) setState(() {});
     }
   }
@@ -150,7 +155,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
               child: Row(
                 children: [
                   Text(
-                    _scanning ? 'Waiting for tag…' : 'Add tag',
+                    _scanning ? AppLocalizations.of(context).waitingForTag : AppLocalizations.of(context).addTag,
                     style: RestType.sans(17, weight: FontWeight.w600,
                         color: _scanning
                             ? RestPalette.accent : RestPalette.background),
@@ -178,7 +183,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      tooltip: 'Back',
+                      tooltip: AppLocalizations.of(context).back,
                       style: IconButton.styleFrom(
                         backgroundColor: RestPalette.surface,
                         foregroundColor: RestPalette.primary,
@@ -187,7 +192,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
                       icon: const Icon(Icons.chevron_left),
                     ),
                     const SizedBox(width: 12),
-                    Text('Profile', style: RestType.sans(15,
+                    Text(AppLocalizations.of(context).tabProfile, style: RestType.sans(15,
                         color: RestPalette.primary, weight: FontWeight.w600)),
                   ],
                 ),
@@ -210,20 +215,20 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('NFC tags', style: RestType.serif(44)),
+                Text(AppLocalizations.of(context).nfcTagsTitle, style: RestType.serif(44)),
                 const SizedBox(height: 12),
                 Text(
-                  'Pair a tag once. Then a tap starts or ends your Tag moment.',
+                  AppLocalizations.of(context).pairTagOnce,
                   style: RestType.sans(17, color: RestPalette.accent),
                 ),
                 const SizedBox(height: 24),
                 if (_scanning) ...[
-                  _notice('Hold your phone against the tag you want to add.',
+                  _notice(AppLocalizations.of(context).holdPhoneAgainstTag,
                       action: TextButton(
                         onPressed: _cancelScan,
                         style: TextButton.styleFrom(
                             foregroundColor: RestPalette.primary),
-                        child: Text('Cancel', style: RestType.sans(14,
+                        child: Text(AppLocalizations.of(context).cancel, style: RestType.sans(14,
                             color: RestPalette.primary,
                             weight: FontWeight.w600)),
                       )),
@@ -238,7 +243,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
                     ),
                   )
                 else if (_tags.isEmpty)
-                  _notice('No tags paired yet. Add one to get started.')
+                  _notice(AppLocalizations.of(context).noTagsAddOne)
                 else
                   for (var i = 0; i < _tags.length; i++) ...[
                     if (i > 0) const SizedBox(height: 12),
@@ -280,14 +285,14 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Tag ${index + 1}', style: RestType.serif(22)),
+              Text(AppLocalizations.of(context).tagNumber(index + 1), style: RestType.serif(22)),
               Text(uuid.substring(0, 8),
                   style: RestType.sans(12, color: RestPalette.accent)),
             ],
           ),
         ),
         IconButton(
-          tooltip: 'Remove tag',
+          tooltip: AppLocalizations.of(context).removeTag,
           onPressed: () => _remove(uuid),
           style: IconButton.styleFrom(
             foregroundColor: RestPalette.primary,

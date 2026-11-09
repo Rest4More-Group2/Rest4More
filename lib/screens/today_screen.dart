@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -101,11 +102,7 @@ class _TodayScreenState extends State<TodayScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Connect onStartStep to your rest session screen.',
-        ),
-      ),
+      SnackBar(content: Text(AppLocalizations.of(context).connectStartStep)),
     );
   }
 
@@ -135,7 +132,7 @@ class _TodayScreenState extends State<TodayScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Why this step?',
+                AppLocalizations.of(context).whyThisStep,
                 style: RestType.serif(30),
               ),
               const SizedBox(height: 16),
@@ -145,7 +142,7 @@ class _TodayScreenState extends State<TodayScreen> {
               ),
               const SizedBox(height: 24),
               RestActionButton(
-                label: 'Got it',
+                label: AppLocalizations.of(context).gotIt,
                 onPressed: () => Navigator.pop(context),
               ),
             ],
@@ -201,7 +198,7 @@ class _TodayScreenState extends State<TodayScreen> {
                             CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'DAY ${widget.day} OF ${widget.totalDays}',
+                            AppLocalizations.of(context).dayOfTotal(widget.day, widget.totalDays),
                             style: RestType.sans(
                               11 * scale,
                               color: RestPalette.accent,
@@ -236,7 +233,7 @@ class _TodayScreenState extends State<TodayScreen> {
                           SizedBox(height: 48 * scale),
 
                           RestActionButton(
-                            label: 'Start today’s step',
+                            label: AppLocalizations.of(context).startTodaysStep,
                             onPressed: _startStep,
                             scale: scale,
                           ),
@@ -244,7 +241,7 @@ class _TodayScreenState extends State<TodayScreen> {
                           SizedBox(height: 22 * scale),
 
                           RestActionButton(
-                            label: 'Make it smaller',
+                            label: AppLocalizations.of(context).makeItSmaller,
                             onPressed: _makeSmaller,
                             outlined: true,
                             scale: scale,
@@ -264,9 +261,7 @@ class _TodayScreenState extends State<TodayScreen> {
                                   16 * scale,
                                 ),
                               ),
-                              child: const Text(
-                                'Why this step?',
-                              ),
+                              child: Text(AppLocalizations.of(context).whyThisStep),
                             ),
                           ),
                         ],
@@ -367,7 +362,7 @@ class InvitationCard extends StatelessWidget {
               ),
             ),
             child: Text(
-              'TODAY’S INVITATION',
+              AppLocalizations.of(context).todaysInvitation,
               style: RestType.sans(
                 10.5 * scale,
                 color: RestPalette.primary,
@@ -432,7 +427,7 @@ class QuietMomentCard extends StatelessWidget {
         ),
       ),
       child: Text(
-        '$minutes minute quiet moment',
+        AppLocalizations.of(context).quietMomentMinutes(minutes),
         style: RestType.serif(
           22 * scale,
         ),

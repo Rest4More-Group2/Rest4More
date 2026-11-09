@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:rest4more/data/moments/moment_plans.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
@@ -33,18 +35,6 @@ class MorningScreen extends StatefulWidget {
 
 class _MorningScreenState extends State<MorningScreen> {
   late MorningPlan _plan = widget.initial ?? MorningPlan.initial();
-  bool _starting = false;
-
-  Future<void> _startNow() async {
-    if (_starting || widget.onStartNow == null) return;
-    setState(() => _starting = true);
-    try {
-      await widget.onStartNow!(_plan);
-    } finally {
-      if (mounted) setState(() => _starting = false);
-    }
-  }
-
 
   void _setDay(MorningDay day) => setState(() {
         _plan = _plan.copyWith(days: [
@@ -79,33 +69,19 @@ class _MorningScreenState extends State<MorningScreen> {
     final preview = _preview();
     final steps = _plan.steps;
     return MomentPage(
-      title: 'Morning',
-      subtitle: 'Start the day before your phone does.',
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MomentPrimaryButton(
-            label: _starting ? 'Starting…' : 'Start Morning now',
-            onPressed: _starting || widget.onStartNow == null || steps.isEmpty
-                ? null
-                : _startNow,
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: _starting || widget.onSave == null || steps.isEmpty
-                ? null
-                : () => widget.onSave!(_plan),
-            child: const Text('Save morning'),
-          ),
-        ],
+      title: AppLocalizations.of(context).momentMorningTitle,
+      subtitle: AppLocalizations.of(context).momentMorningDescription,
+      bottom: MomentPrimaryButton(
+        label: AppLocalizations.of(context).saveMorning,
+        onPressed: widget.onSave == null || steps.isEmpty
+            ? null
+            : () => widget.onSave!(_plan),
       ),
       children: [
         const MomentAppsSection(kind: MomentKind.morning),
         MomentSection(
-          title: 'Wake-up time per day',
-          note: 'This is not your phone alarm. The app cannot hook into the '
-              'system alarm, so set the same time there. Your morning starts '
-              'at the time you choose here.',
+          title: AppLocalizations.of(context).wakeUpTimePerDay,
+          note: AppLocalizations.of(context).wakeUpNote,
           child: Column(
             children: [
               Row(
@@ -120,7 +96,7 @@ class _MorningScreenState extends State<MorningScreen> {
               const SizedBox(height: 8),
               for (final day in _plan.days)
                 WeekdayTimeRow(
-                  name: weekdayName(day.weekday),
+                  name: localizedWeekday(context, day.weekday),
                   enabled: day.enabled,
                   minutes: day.wakeMinutes,
                   onEnabled: (v) => _setDay(day.copyWith(enabled: v)),
@@ -130,9 +106,8 @@ class _MorningScreenState extends State<MorningScreen> {
           ),
         ),
         MomentSection(
-          title: 'Your morning',
-          note: 'Everything you do before your phone comes back. Your phone '
-              'is not a step. It is what comes after.',
+          title: AppLocalizations.of(context).yourMorning,
+          note: AppLocalizations.of(context).yourMorningNote,
           child: RoutineStepsEditor(
             steps: steps,
             library: morningStepLibrary,
@@ -141,13 +116,12 @@ class _MorningScreenState extends State<MorningScreen> {
         ),
         if (preview != null && steps.isNotEmpty)
           MomentSection(
-            title: 'Your ${weekdayName(preview.day.weekday)} morning',
-            note: 'Timer only: apps unlock by themselves when your steps are '
-                'done. This is not a strict block.',
+            title: AppLocalizations.of(context).yourWeekdayMorning(localizedWeekday(context, preview.day.weekday)),
+            note: AppLocalizations.of(context).timerOnlyNote,
             child: _timeline(preview.start, preview.end),
           ),
         Text(
-          'Times follow your phone’s clock and time zone.',
+          AppLocalizations.of(context).timesFollowClock,
           style: RestType.sans(12),
         ),
       ],
@@ -163,13 +137,13 @@ class _MorningScreenState extends State<MorningScreen> {
             time: formatTime(clock[i]),
             title: _plan.steps[i].title,
             detail: i == 0
-                ? 'Blocking starts here.'
-                : formatDuration(stepMinutes(_plan.steps[i])),
+                ? AppLocalizations.of(context).blockingStartsHere
+                : localizedDuration(AppLocalizations.of(context), stepMinutes(_plan.steps[i])),
           ),
         TimelineRow(
           time: formatTime(end),
-          title: 'Your phone is back',
-          detail: 'Apps unlock.',
+          title: AppLocalizations.of(context).phoneIsBack,
+          detail: AppLocalizations.of(context).appsUnlock,
           last: true,
         ),
       ],

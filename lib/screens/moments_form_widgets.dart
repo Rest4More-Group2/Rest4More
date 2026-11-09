@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
@@ -52,7 +53,7 @@ class MomentPage extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: IconButton(
                         onPressed: () => Navigator.maybePop(context),
-                        tooltip: 'Back',
+                        tooltip: AppLocalizations.of(context).back,
                         style: IconButton.styleFrom(
                           backgroundColor: RestPalette.surface,
                           foregroundColor: RestPalette.primary,

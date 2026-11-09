@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import 'content_catalog.dart';
 import 'plan_input.dart';
 import 'plan_selector.dart';
@@ -48,19 +50,12 @@ class PlanPreview {
           if (d.day >= first && d.day <= last) d,
       ];
 
-  static const _obstacleLabels = {
-    'scrolling': 'scrolling',
-    'availability': 'staying available',
-    'thoughts': 'restless thoughts',
-    'planning': 'planning',
-    'alarm': 'using your phone as an alarm',
-    'no_routine': 'not having a routine yet',
-  };
-
-  factory PlanPreview.build(PlanInput input, ContentCatalog catalog) {
-    final plan = selectPlan(input, catalog);
+  factory PlanPreview.build(PlanInput input, ContentCatalog catalog,
+      {AppLocalizations? l10n}) {
+    final t = l10n ?? englishL10n();
+    final plan = selectPlan(input, catalog, l10n: t);
     final goal = catalog.goals[input.goal]!.toLowerCase();
-    final obstacle = _obstacleLabels[input.obstacle] ?? input.obstacle;
+    final obstacle = obstaclePhrase(t, input.obstacle);
     return PlanPreview(
       days: [
         for (final day in plan)
@@ -72,7 +67,7 @@ class PlanPreview {
           ),
       ],
       smaller: input.smaller,
-      reason: 'Chosen for your goal to $goal and your main obstacle: $obstacle.',
+      reason: t.planPreviewReason(goal, obstacle),
     );
   }
 }

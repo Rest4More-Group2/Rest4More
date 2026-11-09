@@ -1,0 +1,795 @@
+{
+  "@@locale": "en",
+  "appTitle": "Rest For More",
+  "tabToday": "Today",
+  "tabMoments": "Moments",
+  "tabProgress": "Progress",
+  "tabProfile": "Profile",
+  "progressNotAvailable": "Progress is not available yet.",
+  "profileTitle": "Profile",
+  "profileSubtitle": "Your settings and tags",
+  "nfcTagsTitle": "NFC tags",
+  "tagsPairPrompt": "Pair a tag to start and end moments with a tap.",
+  "tagsNonePaired": "No tags paired yet.",
+  "tagsPaired": "{count, plural, =1{1 tag paired.} other{{count} tags paired.}}",
+  "@tagsPaired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manageTags": "Manage tags",
+  "languageTitle": "Language",
+  "languageSystem": "System default",
+  "languageEnglish": "English",
+  "languageDutch": "Nederlands",
+  "appBlocked": "This app is blocked",
+  "openRestForMore": "Open Rest For More",
+  "connectStartStep": "Connect onStartStep to your rest session screen.",
+  "whyThisStep": "Why this step?",
+  "gotIt": "Got it",
+  "dayOfTotal": "DAY {day} OF {total}",
+  "@dayOfTotal": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "startTodaysStep": "Start today’s step",
+  "makeItSmaller": "Make it smaller",
+  "todaysInvitation": "TODAY’S INVITATION",
+  "quietMomentMinutes": "{minutes} minute quiet moment",
+  "@quietMomentMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "dayIsDone": "Day {day} is done.",
+  "@dayIsDone": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "todaysStepDone": "Today’s step is done",
+  "dayReadyTomorrow": "Day {day} is ready for you tomorrow. One step a day is enough.",
+  "@dayReadyTomorrow": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "allStepsDone": "All {totalDays} steps are done",
+  "@allStepsDone": {
+    "placeholders": {
+      "totalDays": {
+        "type": "int"
+      }
+    }
+  },
+  "ownRoutineContinues": "Your own routine continues. Keep the phone location, the phone-away moment and the activity that fitted you best.",
+  "momentsSubtitle": "Choose a space for mindful space",
+  "momentTagTitle": "Tag",
+  "momentTagDescription": "Set your apps aside with a tap of your tag, and bring them back with the same tap.",
+  "begin": "Begin",
+  "back": "Back",
+  "continueLabel": "Continue",
+  "welcomeEyebrow": "WELCOME TO REST FOR MORE",
+  "welcomeTitle": "A thoughtful path to\nintentional rest",
+  "welcomeBody": "We believe that productivity is only half of life’s rhythm. Let us help you put the phone down, clear your thoughts, and create personal space for slow, deep recovery.",
+  "welcomeBenefit1": "No account needed to start your custom routine",
+  "welcomeBenefit2": "A gentle, guided 14-day progressive plan",
+  "getStarted": "Get started",
+  "stepOfFive": "STEP {n} OF 5",
+  "@stepOfFive": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "goalTitle": "What would you like to\nfocus on?",
+  "goalPhoneTitle": "Put the phone away earlier",
+  "goalPhoneDesc": "Build a comforting boundary between your screen and your evening sleep cycle.",
+  "goalRoutineTitle": "Build a routine",
+  "goalRoutineDesc": "Create small, nourishing daily rituals that signal your nervous system to recover.",
+  "goalSocialTitle": "Use less social media",
+  "goalSocialDesc": "Step back from hyper-stimulating feeds and recapture your focus.",
+  "obstacleTitle": "What gets in the way\nof your rest?",
+  "selectAllThatApply": "Select all that apply.",
+  "obstacleScrolling": "Scrolling",
+  "obstacleAvailability": "Availability",
+  "obstacleThoughts": "Restless thoughts",
+  "obstaclePlanning": "Planning",
+  "obstacleAlarm": "Phone as alarm",
+  "obstacleNoRoutine": "No routine",
+  "rhythmTitle": "When does your day\nusually wind down?",
+  "rhythmIntro": "Tell us roughly when your energy begins to slip. We’ll match your rest plan to your natural rhythm.",
+  "rhythmEarlyTitle": "8:00 – 10:00 PM",
+  "rhythmEarlyDesc": "I usually start winding down early.",
+  "rhythmMidTitle": "10:00 PM – 12:00 AM",
+  "rhythmMidDesc": "My evenings usually continue a little longer.",
+  "rhythmLateTitle": "After midnight",
+  "rhythmLateDesc": "I normally wind down quite late at night.",
+  "activitiesTitle": "What kind of activities\nappeal to you?",
+  "activitiesIntro": "Choose the kinds of restful activities that feel natural to you. You can select more than one.",
+  "activityQuietTitle": "Quiet moments",
+  "activityQuietDesc": "Slow down with a few peaceful minutes away from your screen.",
+  "activityReadingTitle": "Paper reading",
+  "activityReadingDesc": "Put the phone aside and spend some time with a physical book.",
+  "activityBreathingTitle": "Evening breathing routines",
+  "activityBreathingDesc": "Use simple breathing exercises to settle your body and mind.",
+  "finalStep": "FINAL STEP",
+  "reminderTitle": "Would you like a\ndaily reminder?",
+  "reminderIntro": "A gentle reminder can help you make space for rest without adding pressure.",
+  "dailyReminder": "Daily reminder",
+  "oneGentleReminder": "One gentle reminder each day",
+  "reminderTime": "Reminder time",
+  "done": "Done",
+  "maybeLater": "Maybe later",
+  "whyWeChoseThis": "Why we chose this for you",
+  "dayRange": "Day {from}–{to}",
+  "@dayRange": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "planTitle": "Here’s your\npersonal plan",
+  "planIntro": "A gentle 14-day plan designed around your goals, rhythm and preferred activities.",
+  "startYourPlan": "Start your plan",
+  "adjustPlanSettings": "Adjust plan settings",
+  "dayWithTitle": "Day {day}: {title}",
+  "@dayWithTitle": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "phaseN": "PHASE {n}",
+  "@phaseN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "phase1Title": "Create some space",
+  "phase1Desc": "Start small by creating a little distance between you and your phone.",
+  "phase1Item1": "Put your phone away for 10 minutes",
+  "phase1Item2": "Take one quiet moment",
+  "phase1Item3": "Notice how your evening feels",
+  "phase2Title": "Build your rhythm",
+  "phase2Desc": "Turn your first small steps into a simple evening routine.",
+  "phase2Item1": "Begin winding down earlier",
+  "phase2Item2": "Choose a screen-free activity",
+  "phase2Item3": "Repeat your evening routine",
+  "phase3Title": "Make it yours",
+  "phase3Desc": "Strengthen the habits that work best for you and your rest.",
+  "phase3Item1": "Keep your preferred routine",
+  "phase3Item2": "Reflect on what helped most",
+  "phase3Item3": "Prepare for life after day 14",
+  "adjustSaveFailed": "Your changes could not be saved. Please try again.",
+  "reviewChanges": "Review changes",
+  "keepCurrentPlan": "Keep my current plan",
+  "confirmChanges": "Confirm changes",
+  "keepEditing": "Keep editing",
+  "adjustEyebrow": "ADJUST YOUR PLAN",
+  "adjustTitle": "Make the plan\nfit you",
+  "adjustIntro": "Change only what doesn’t fit. Your other answers stay as they are, so you don’t have to start over.",
+  "stepSizeQuestion": "How big should each step be?",
+  "standardSteps": "Standard steps",
+  "standardStepsDesc": "The full version of each day’s step.",
+  "smallerSteps": "Smaller steps",
+  "smallerStepsDesc": "A lighter version of each step. It counts just as much, and you keep all 14 days.",
+  "yourGoal": "Your goal",
+  "obstacleQuestion": "What gets in the way most?",
+  "calmActivity": "Calm activity",
+  "reviewYourChanges": "Review your changes",
+  "nothingSavedUntilConfirm": "Nothing is saved until you confirm.",
+  "adjustRunningStepSize": "The days still to come get the new step size. Days you already did stay as they are.",
+  "adjustRunningNewPlan": "Your new plan becomes your active plan and starts at day 1. What you already did stays saved.",
+  "yourFirstDays": "Your first days",
+  "momentFocusTitle": "Focus",
+  "momentFocusDescription": "Clear your mind to commit to a single quiet workflow.",
+  "momentFocusPill": "A quiet place",
+  "momentFocusHeading": "Settle into the moment",
+  "momentFocusQuote": "One thing, fully attended.",
+  "momentFocusButton": "Start Focus",
+  "momentFocusStep1": "Choose one meaningful task.",
+  "momentFocusStep2": "Let your breath settle for three slow counts.",
+  "momentFocusStep3": "Return gently whenever your attention wanders.",
+  "momentReadingTitle": "Reading",
+  "momentReadingDescription": "Keep distractions away while you read.",
+  "momentReadingPill": "One page at a time",
+  "momentReadingHeading": "Settle into the moment",
+  "momentReadingQuote": "One page, fully attended.",
+  "momentReadingButton": "Start Reading",
+  "momentReadingStep1": "Pick the book or article you want to read.",
+  "momentReadingStep2": "Let your shoulders drop and breathe out slowly.",
+  "momentReadingStep3": "When your mind drifts, return to the next line.",
+  "momentEveningTitle": "Evening",
+  "momentEveningDescription": "Wind down and put your phone away before bed.",
+  "momentEveningPill": "A gentle landing",
+  "momentEveningHeading": "Close the day",
+  "momentEveningQuote": "The day is allowed to end.",
+  "momentEveningButton": "Plan your evening",
+  "momentEveningStep1": "Choose when you want to be in bed.",
+  "momentEveningStep2": "Decide what your evening needs, and in what order.",
+  "momentEveningStep3": "Let your phone rest while you wind down.",
+  "momentMorningTitle": "Morning",
+  "momentMorningDescription": "Start the day before your phone does.",
+  "momentMorningPill": "A slow start",
+  "momentMorningHeading": "Begin the day",
+  "momentMorningQuote": "Your morning is yours first.",
+  "momentMorningButton": "Plan your morning",
+  "momentMorningStep1": "Choose when you wake up.",
+  "momentMorningStep2": "Pick what your morning needs before your phone.",
+  "momentMorningStep3": "Your phone returns when your morning is done.",
+  "aGentleReminder": "A GENTLE REMINDER",
+  "backToMoments": "Back to Moments",
+  "durationMinutes": "{m} min",
+  "@durationMinutes": {
+    "placeholders": {
+      "m": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHours": "{h} h",
+  "@durationHours": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      }
+    }
+  },
+  "durationHoursMinutes": "{h} h {m} min",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "h": {
+        "type": "int"
+      },
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "eveningEndAtBedtime": "At bedtime",
+  "eveningEndAtNextScan": "At the next scan",
+  "blockingStartsHere": "Blocking starts here.",
+  "saveEvening": "Save evening",
+  "eveningSubtitle": "Pick your bedtime. We count back from there.",
+  "bedtimePerDay": "Bedtime per day",
+  "bedtimeNote": "A bedtime between 00:00 and 05:59 belongs to the evening before, so a Friday evening can end on Saturday at 00:30.",
+  "eveningAfterMidnight": "After midnight",
+  "yourEvening": "Your evening",
+  "yourEveningNote": "Your evening starts early enough to fit every step before bedtime. Putting your phone away comes first.",
+  "reminders": "Reminders",
+  "headsUpBefore": "Heads-up before your evening starts",
+  "minutesShort": "{v} min",
+  "@minutesShort": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "secondReminder": "Second reminder if you have not started",
+  "off": "Off",
+  "afterMinutes": "After {v} min",
+  "@afterMinutes": {
+    "placeholders": {
+      "v": {
+        "type": "int"
+      }
+    }
+  },
+  "remindersNote": "Reminders are local notifications. The app can ask, but it cannot make you put your phone away, and your phone’s silent or Focus modes can still mute them.",
+  "whenBlockingEnds": "When blocking ends",
+  "strictOvernight": "Strict overnight: blocking stays on until you scan. A timer will not end it for you.",
+  "liftsAtBedtime": "Blocking lifts by itself at bedtime.",
+  "yourWeekdayEvening": "Your {day} evening",
+  "@yourWeekdayEvening": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "headsUp": "Heads-up",
+  "headsUpDetail": "A reminder that your evening is about to start.",
+  "bedtime": "Bedtime",
+  "bedtimeBlockingEnds": "Bedtime · blocking ends",
+  "blockingStaysUntilScan": "Blocking stays until your next scan.",
+  "saveMorning": "Save morning",
+  "wakeUpTimePerDay": "Wake-up time per day",
+  "wakeUpNote": "This is not your phone alarm. The app cannot hook into the system alarm, so set the same time there. Your morning starts at the time you choose here.",
+  "yourMorning": "Your morning",
+  "yourMorningNote": "Everything you do before your phone comes back. Your phone is not a step. It is what comes after.",
+  "yourWeekdayMorning": "Your {day} morning",
+  "@yourWeekdayMorning": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "timerOnlyNote": "Timer only: apps unlock by themselves when your steps are done. This is not a strict block.",
+  "timesFollowClock": "Times follow your phone’s clock and time zone.",
+  "phoneIsBack": "Your phone is back",
+  "appsUnlock": "Apps unlock.",
+  "couldNotSaveMoment": "Could not save your {name}. Please try again.",
+  "@couldNotSaveMoment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "momentSaved": "{name} saved",
+  "@momentSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoad": "Could not load. Try again",
+  "appsToBlock": "Apps to block",
+  "noAppsChosen": "No apps chosen yet.",
+  "appsChosen": "Apps chosen.",
+  "appsChosenCount": "{count, plural, =1{1 app chosen.} other{{count} apps chosen.}}",
+  "@appsChosenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onlyUsedFor": "Only used for {name}. The other moments keep their own choice.",
+  "@onlyUsedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "change": "Change",
+  "chooseApps": "Choose apps",
+  "nfcOff": "NFC is turned off. Enable it in your phone settings.",
+  "nfcUnsupported": "This device does not support NFC.",
+  "holdNearTagToEnd": "Hold your iPhone near your tag to end",
+  "holdNearTagToBegin": "Hold your iPhone near your tag to begin",
+  "scanningStopped": "Scanning stopped: {message}",
+  "@scanningStopped": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "notYourTag": "This is not one of your paired tags.",
+  "couldNotReadTag": "Could not read this tag. Please try again.",
+  "couldNotStartScanning": "Could not start scanning.",
+  "waitingForTag": "Waiting for tag…",
+  "pairTagFirst": "Pair a tag first",
+  "scanTagToEnd": "Scan tag to end",
+  "scanTagToBegin": "Scan tag to begin",
+  "tagMomentDescription": "Put your apps aside with a tap, and bring them back with the same tag.",
+  "tagMomentEyebrow": "TAG MOMENT",
+  "statusChecking": "Checking",
+  "statusActive": "Active",
+  "statusNotActive": "Not active",
+  "tagActiveBody": "Your apps are set aside. Only your tag can end this moment.",
+  "tagReadyBody": "Ready when you are. Scan your tag to set your apps aside.",
+  "tagPairBody": "Pair a tag to use this moment.",
+  "chooseAppsToSetAside": "Choose apps to set aside",
+  "howItWorks": "How it works",
+  "tagStep1": "Choose the apps you want to set aside.",
+  "tagStep2": "Scan your tag to begin.",
+  "tagStep3": "Scan the same tag again to end.",
+  "tagQuote": "Put it down. Pick it up when you choose.",
+  "sessionFocusSubtitle": "Pick how long, and what to keep out of the way.",
+  "sessionReadingSubtitle": "Pick how long you want to read, and what stays quiet.",
+  "startFocus": "Start Focus",
+  "startReading": "Start Reading",
+  "presetQuick": "Quick",
+  "presetStandard": "Standard",
+  "presetDeep": "Deep",
+  "presetShort": "Short",
+  "presetChapter": "Chapter",
+  "presetLong": "Long",
+  "presetCustom": "Custom",
+  "howLong": "How long",
+  "endsAfterMinutes": "Ends after {minutes} minutes. Stopping early asks you to confirm first and is logged as stopped early.",
+  "@endsAfterMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "fewerMinutes": "Fewer minutes",
+  "moreMinutes": "More minutes",
+  "endSessionEarlyTitle": "End this session early?",
+  "endSessionEarlyBody": "Your apps unlock now. This session will be logged as stopped early.",
+  "keepGoing": "Keep going",
+  "endEarly": "End early",
+  "sessionTitle": "Session",
+  "sessionStartBlockFailed": "We could not set your apps aside, so nothing was started. Check that blocking is allowed for Rest For More and try again.",
+  "sessionStartFailed": "Something went wrong while starting. Please try again.",
+  "sessionEndFailed": "Something went wrong while ending. Please try again.",
+  "appsStillSetAsideTryAgain": "Your apps are still set aside. Please try again.",
+  "settingAppsAside": "Setting your apps aside…",
+  "bringingAppsBack": "Bringing your apps back…",
+  "timeLeft": "{time} left",
+  "@timeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "appsSetAsideUntil": "Your apps are set aside until {time}.",
+  "@appsSetAsideUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionEnded": "Session ended",
+  "wellDone": "Well done",
+  "sessionEndedEarlyBody": "Your apps are back. That is fine. Begin again whenever you like.",
+  "sessionCompleteBody": "Your time is complete and your apps are back.",
+  "somethingWentWrong": "Something went wrong.",
+  "appsStillSetAside": "Your apps are still set aside",
+  "releaseFailedBody": "The session is over, but we could not bring your apps back. Try again, or open Help if it keeps happening.",
+  "needAnApp": "Need an app?",
+  "tryAgain": "Try again",
+  "unblockFailed": "We could not unblock this right now. Please try again.",
+  "cancelKeepBlocked": "Cancel and keep it blocked",
+  "whichAppNeeded": "Which app do you need?",
+  "onlyOneOpens": "Only the one you choose opens, and only for a little while.",
+  "couldNotReadBlocked": "Could not read your blocked apps.",
+  "nothingBlocked": "Nothing is blocked right now.",
+  "howLongNeed": "How long do you really need?",
+  "minutesToUnblock": "Minutes to unblock",
+  "minutesCount": "{n} minutes",
+  "@minutesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "minuteUnit": "{n, plural, =1{minute} other{minutes}}",
+  "@minuteUnit": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "appsAvailableUntil": "Your apps will be available until {time}.",
+  "@appsAvailableUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "nameAvailableUntil": "{name} will be available until {time}.",
+  "@nameAvailableUntil": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "unblocking": "Unblocking…",
+  "unblock": "Unblock",
+  "unblocked": "Unblocked",
+  "appsNowAvailable": "Your apps are available until {time}. It locks again by itself.",
+  "@appsNowAvailable": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "appNowAvailable": "{name} is available until {time}. It locks again by itself.",
+  "@appNowAvailable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "openApp": "Open {name}",
+  "@openApp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notNow": "Not now",
+  "youCanContinueNow": "You can continue now.",
+  "takeMomentBreathe": "Take a moment to breathe",
+  "wheneverReady": "Whenever you are ready.",
+  "needOrReachedFor": "Is this something you need, or something you reached for?",
+  "pauseFinished": "Pause finished",
+  "pauseInProgress": "Pause in progress, a few seconds",
+  "stopMomentTitle": "Stop this moment?",
+  "dailyStepUnfinished": "Your daily step will stay unfinished.",
+  "stopMoment": "Stop moment",
+  "useStopHint": "Use Stop to end this moment, or leave the app to keep it going.",
+  "quietMomentHyphen": "{minutes}-minute quiet moment",
+  "@quietMomentHyphen": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "littleSpaceWellDone": "A little space for yourself. Well done.",
+  "fewMinutesAway": "Take a few minutes away from your phone.",
+  "finishDailyStep": "Finish daily step",
+  "stop": "Stop",
+  "start": "Start",
+  "shortOnTime": "Short on time or energy? That’s okay. You can still take a small step.",
+  "originalOption": "ORIGINAL OPTION",
+  "recommendedAlternative": "RECOMMENDED ALTERNATIVE",
+  "startMinuteVersion": "Start {minutes}-minute version",
+  "@startMinuteVersion": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "keepMinuteVersion": "Keep {minutes}-minute version",
+  "@keepMinuteVersion": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "keepOriginal": "Keep the original",
+  "save": "Save",
+  "cancel": "Cancel",
+  "saveWithCount": "Save · {count} selected",
+  "@saveWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchApps": "Search apps",
+  "couldNotReadApps": "Could not read your apps.",
+  "appsForMoment": "Apps for {name}",
+  "@appsForMoment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotSaveApps": "Could not save your apps. Try again.",
+  "saveAppsCount": "{count, plural, =1{Save 1 app} other{Save {count} apps}}",
+  "@saveAppsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseApps2": "Choose apps",
+  "pickAppsToSetAside": "Pick the apps you want to set aside.",
+  "appsWillBeSetAside": "{count, plural, =1{1 app will be set aside.} other{{count} apps will be set aside.}}",
+  "@appsWillBeSetAside": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "androidOnlyList": "Choosing apps from this list is only available on Android.",
+  "noAppsFound": "No apps found.",
+  "allowAccessibility": "Allow accessibility",
+  "accessibilityBody": "To set your apps aside, Rest4More needs its accessibility service switched on. It only notices which app opens, so it can step in front of the ones you chose.",
+  "inSettings": "In Settings",
+  "accStep1": "Open Installed apps or Downloaded apps.",
+  "accStep2": "Choose Rest4More.",
+  "accStep3": "Switch it on and confirm.",
+  "openSettings": "Open Settings",
+  "accessIsOff": "Access is off",
+  "screenTimeAccess": "Screen Time access",
+  "allowScreenTimeInSettings": "Allow Screen Time access in Settings, then come back to choose your apps.",
+  "screenTimeNeeded": "Rest4More needs Screen Time access to set your chosen apps aside. Your choices stay on this phone.",
+  "allowAccess": "Allow access",
+  "couldNotLoadTags": "Could not load your tags.",
+  "couldNotRemoveTag": "Could not remove the tag.",
+  "holdNearTag": "Hold your iPhone near the tag",
+  "tagNoLink": "This tag does not hold a Rest4More link.",
+  "tagAdded": "Tag added.",
+  "addTag": "Add tag",
+  "pairTagOnce": "Pair a tag once. Then a tap starts or ends your Tag moment.",
+  "holdPhoneAgainstTag": "Hold your phone against the tag you want to add.",
+  "noTagsAddOne": "No tags paired yet. Add one to get started.",
+  "tagNumber": "Tag {n}",
+  "@tagNumber": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "removeTag": "Remove tag",
+  "noStepsYet": "No steps yet. Add the first one.",
+  "editStep": "Edit step",
+  "newStep": "New step",
+  "addAStep": "Add a step",
+  "yourOwnStep": "Your own step",
+  "totalDuration": "Total {duration}",
+  "@totalDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "addStep": "Add step",
+  "stepSemantics": "{title}, {duration}. Tap to edit.",
+  "@stepSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "removeStep": "Remove {title}",
+  "@removeStep": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "stepName": "Name",
+  "shorter": "Shorter",
+  "longer": "Longer",
+  "openAppFailed": "Something went wrong while opening the app.",
+  "phraseReadingActivity": "reading a few pages",
+  "phraseReadingMaterial": "your book",
+  "phraseQuietActivity": "sitting quietly for a few minutes",
+  "phraseQuietMaterial": "a comfortable place to sit",
+  "phraseBreathingActivity": "a few minutes of slow breathing",
+  "phraseBreathingMaterial": "a quiet corner",
+  "phrasePreparationActivity": "preparing for tomorrow",
+  "phrasePreparationMaterial": "what you need for tomorrow",
+  "phraseDefaultActivity": "a calm activity of your choice",
+  "phraseDefaultMaterial": "what you need for it",
+  "planDefaultAnchor": "your usual evening routine",
+  "planContextRestnest": "Use your RestNest as the fixed phone location.",
+  "planContextNoRestnest": "Choose a fixed place for your phone; a RestNest is not required.",
+  "planCardOn": "Use your paired card when card functionality is available on this device.",
+  "planCardOff": "Use manual start; physical card release is unavailable without a card.",
+  "planWhyThis": "This fits your goal to {goal} and your selected obstacle: {obstacle}.",
+  "@planWhyThis": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      },
+      "obstacle": {
+        "type": "String"
+      }
+    }
+  },
+  "planTimingRegular": "Use your selected daily time.",
+  "planTimingOther": "Check whether your selected time fits today; otherwise use your activity anchor.",
+  "obstaclePhraseScrolling": "scrolling",
+  "obstaclePhraseAvailability": "staying available",
+  "obstaclePhraseThoughts": "restless thoughts",
+  "obstaclePhrasePlanning": "planning",
+  "obstaclePhraseAlarm": "using your phone as an alarm",
+  "obstaclePhraseNoRoutine": "not having a routine yet",
+  "planPreviewReason": "Chosen for your goal to {goal} and your main obstacle: {obstacle}.",
+  "@planPreviewReason": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      },
+      "obstacle": {
+        "type": "String"
+      }
+    }
+  },
+  "planDisclaimer": "This plan is a suggestion based on your answers, not medical advice. It can’t promise better sleep, and you can change it whenever you like.",
+  "goalEffectPhone": "Each day has one step that puts a little more distance between you and your phone in the evening.",
+  "goalEffectRoutine": "Each day adds one small, repeatable part to your evening, so it slowly becomes a routine.",
+  "goalEffectSocial": "Each day helps you notice one automatic check and choose what to do instead.",
+  "goalEffectDefault": "Each day has one step towards your goal.",
+  "reasonYourGoal": "Your goal",
+  "reasonObstacle": "What gets in the way",
+  "reasonObstacleText": "You told us about this, so every step comes with a tip for it: {tip}",
+  "@reasonObstacleText": {
+    "placeholders": {
+      "tip": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonRhythm": "Your rhythm",
+  "reasonRhythmVariable": "Your days are not always the same, so each step is linked to a moment in your day instead of a fixed hour.",
+  "reasonRhythmWindow": "You usually wind down {window}, so the steps are meant for that part of your evening.",
+  "@reasonRhythmWindow": {
+    "placeholders": {
+      "window": {
+        "type": "String"
+      }
+    }
+  },
+  "windDownEarly": "between 8 and 10 PM",
+  "windDownMid": "between 10 PM and midnight",
+  "windDownLate": "after midnight",
+  "reasonAnchor": "Your fixed moment",
+  "reasonAnchorText": "Steps start after something you already do: {anchor}.",
+  "@reasonAnchorText": {
+    "placeholders": {
+      "anchor": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonEnjoy": "What you enjoy",
+  "reasonEnjoyText": "You picked “{activity}”, so that is the calm alternative in your steps.",
+  "@reasonEnjoyText": {
+    "placeholders": {
+      "activity": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonStepSize": "Step size",
+  "reasonStepSizeSmaller": "You chose smaller steps. They count just as much, and you can make them bigger later if you want to.",
+  "reasonStepSizeStandard": "If a step feels too big, you can switch to a smaller version at any time.",
+  "reasonProducts": "Your products",
+  "productRestnest": "Your RestNest is used as the place for your phone.",
+  "productCard": "You can start and end a moment with your card.",
+  "changeGoal": "Goal",
+  "notChosen": "Not chosen",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening"
+}

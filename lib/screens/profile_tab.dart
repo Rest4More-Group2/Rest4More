@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/providers/locale_providers.dart';
 import 'package:rest4more/data/notifications/notification_permission.dart';
 import 'package:rest4more/data/tags/tag_service.dart';
 import 'package:rest4more/providers/notification_providers.dart';
@@ -123,15 +125,16 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final profile = ref.watch(profileProvider).value;
     final enabled = profile?.notifyProgramme ?? false;
     final minutes = profile?.notifyTimeMinutes ?? _defaultMinutes;
     final count = _tagCount;
     final summary = count == null
-        ? 'Pair a tag to start and end moments with a tap.'
+        ? l10n.tagsPairPrompt
         : count == 0
-            ? 'No tags paired yet.'
-            : count == 1 ? '1 tag paired.' : '$count tags paired.';
+            ? l10n.tagsNonePaired
+            : l10n.tagsPaired(count);
 
     return Scaffold(
       backgroundColor: RestPalette.background,
@@ -145,9 +148,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Profile', style: RestType.serif(40)),
+                  Text(l10n.profileTitle, style: RestType.serif(40)),
                   const SizedBox(height: 8),
-                  Text('Your settings and tags',
+                  Text(l10n.profileSubtitle,
                       style: RestType.sans(16, color: RestPalette.accent)),
                   const SizedBox(height: 32),
                   Text(
@@ -260,7 +263,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                             children: [
                               Row(
                                 children: [
-                                  Expanded(child: Text('NFC tags',
+                                  Expanded(child: Text(l10n.nfcTagsTitle,
                                       style: RestType.serif(27))),
                                   const RestMomentIcon(
                                       index: 4,
@@ -274,7 +277,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                               const SizedBox(height: 12),
                               Row(
                                 children: [
-                                  Text('Manage tags', style: RestType.sans(15,
+                                  Text(l10n.manageTags, style: RestType.sans(15,
                                       color: RestPalette.primary,
                                       weight: FontWeight.w600)),
                                   const Spacer(),
@@ -288,10 +291,64 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  _LanguageCard(l10n: l10n),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageCard extends ConsumerWidget {
+  const _LanguageCard({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(localeProvider)?.languageCode;
+    final options = <(String?, String)>[
+      (null, l10n.languageSystem),
+      ('en', l10n.languageEnglish),
+      ('nl', l10n.languageDutch),
+    ];
+    return Container(
+      decoration: BoxDecoration(
+        color: RestPalette.surface,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.languageTitle, style: RestType.serif(27)),
+          const SizedBox(height: 8),
+          RadioGroup<String?>(
+            groupValue: current,
+            onChanged: (code) => ref
+                .read(localeProvider.notifier)
+                .set(code == null ? null : Locale(code)),
+            child: Column(
+              children: [
+                for (final (code, label) in options)
+                  RadioListTile<String?>(
+                    value: code,
+                    title: Text(label, style: RestType.sans(16)),
+                    activeColor: RestPalette.primary,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
         ),
       ),
     );

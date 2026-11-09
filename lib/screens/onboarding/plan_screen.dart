@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/intake_providers.dart';
@@ -24,11 +25,11 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
   int selectedPhase = 0;
 
-  final List<String> phases = [
-    'Day 1–4',
-    'Day 5–9',
-    'Day 10–14',
-  ];
+  List<String> _phases(AppLocalizations l10n) => [
+        l10n.dayRange(1, 4),
+        l10n.dayRange(5, 9),
+        l10n.dayRange(10, 14),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +48,13 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.arrow_back, size: 18, color: brown),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -65,8 +66,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                'STEP 5 OF 5',
+              Text(
+                AppLocalizations.of(context).stepOfFive(5),
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -76,8 +77,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
               const SizedBox(height: 10),
 
-              const Text(
-                'Here’s your\npersonal plan',
+              Text(
+                AppLocalizations.of(context).planTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -88,9 +89,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
               const SizedBox(height: 12),
 
-              const Text(
-                'A gentle 14-day plan designed around your goals, '
-                'rhythm and preferred activities.',
+              Text(
+                AppLocalizations.of(context).planIntro,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -103,14 +103,14 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               // Phase selector
               Row(
                 children: List.generate(
-                  phases.length,
+                  _phases(AppLocalizations.of(context)).length,
                   (index) {
                     final bool selected = selectedPhase == index;
 
                     return Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          right: index < phases.length - 1 ? 8 : 0,
+                          right: index < _phases(AppLocalizations.of(context)).length - 1 ? 8 : 0,
                         ),
                         child: GestureDetector(
                           onTap: () {
@@ -126,7 +126,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              phases[index],
+                              _phases(AppLocalizations.of(context))[index],
                               style: TextStyle(
                                 color: selected
                                     ? Colors.white
@@ -182,8 +182,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Start your plan',
+                  child: Text(
+                    AppLocalizations.of(context).startYourPlan,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -204,8 +204,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                       ),
                     );
                   },
-                  child: const Text(
-                    'Adjust plan settings',
+                  child: Text(
+                    AppLocalizations.of(context).adjustPlanSettings,
                     style: TextStyle(
                       color: brown,
                       fontSize: 13,
@@ -231,7 +231,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
         ? null
         : [
             for (final d in preview.daysIn(first, last))
-              _PlanItem('Day ${d.day}: ${d.title}', preview.actionFor(d)),
+              _PlanItem(AppLocalizations.of(context).dayWithTitle(d.day, d.title), preview.actionFor(d)),
           ];
     final reason = preview?.reason;
     final explanation = ref.watch(planExplanationProvider).value;
@@ -239,15 +239,15 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
     if (selectedPhase == 0) {
       return _PhaseContent(
         icon: Icons.spa_outlined,
-        phase: 'PHASE 1',
-        title: 'Create some space',
+        phase: AppLocalizations.of(context).phaseN(1),
+        title: AppLocalizations.of(context).phase1Title,
         description:
-            'Start small by creating a little distance between you and your phone.',
+            AppLocalizations.of(context).phase1Desc,
         items: items ??
-            const [
-              _PlanItem('Put your phone away for 10 minutes'),
-              _PlanItem('Take one quiet moment'),
-              _PlanItem('Notice how your evening feels'),
+            [
+              _PlanItem(AppLocalizations.of(context).phase1Item1),
+              _PlanItem(AppLocalizations.of(context).phase1Item2),
+              _PlanItem(AppLocalizations.of(context).phase1Item3),
             ],
         reason: reason,
         explanation: explanation,
@@ -257,15 +257,15 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
     if (selectedPhase == 1) {
       return _PhaseContent(
         icon: Icons.nightlight_outlined,
-        phase: 'PHASE 2',
-        title: 'Build your rhythm',
+        phase: AppLocalizations.of(context).phaseN(2),
+        title: AppLocalizations.of(context).phase2Title,
         description:
-            'Turn your first small steps into a simple evening routine.',
+            AppLocalizations.of(context).phase2Desc,
         items: items ??
-            const [
-              _PlanItem('Begin winding down earlier'),
-              _PlanItem('Choose a screen-free activity'),
-              _PlanItem('Repeat your evening routine'),
+            [
+              _PlanItem(AppLocalizations.of(context).phase2Item1),
+              _PlanItem(AppLocalizations.of(context).phase2Item2),
+              _PlanItem(AppLocalizations.of(context).phase2Item3),
             ],
         reason: reason,
         explanation: explanation,
@@ -274,15 +274,15 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
     return _PhaseContent(
       icon: Icons.auto_awesome_outlined,
-      phase: 'PHASE 3',
-      title: 'Make it yours',
+      phase: AppLocalizations.of(context).phaseN(3),
+      title: AppLocalizations.of(context).phase3Title,
       description:
-          'Strengthen the habits that work best for you and your rest.',
+          AppLocalizations.of(context).phase3Desc,
       items: items ??
-          const [
-            _PlanItem('Keep your preferred routine'),
-            _PlanItem('Reflect on what helped most'),
-            _PlanItem('Prepare for life after day 14'),
+          [
+            _PlanItem(AppLocalizations.of(context).phase3Item1),
+            _PlanItem(AppLocalizations.of(context).phase3Item2),
+            _PlanItem(AppLocalizations.of(context).phase3Item3),
           ],
       reason: reason,
       explanation: explanation,

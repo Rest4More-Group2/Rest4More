@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
@@ -46,10 +47,10 @@ class _MomentsScreenState extends State<MomentsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Moments', style: RestType.serif(40)),
+                Text(AppLocalizations.of(context).tabMoments, style: RestType.serif(40)),
                 const SizedBox(height: 8),
                 Text(
-                  'Choose a space for mindful space',
+                  AppLocalizations.of(context).momentsSubtitle,
                   style: RestType.sans(
                     16,
                     color: RestPalette.accent,
@@ -58,9 +59,9 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 8),
                 _momentCard(
                   id: 'focus',
-                  title: MomentIntro.focus.title,
+                  title: MomentIntro.focus.title(AppLocalizations.of(context)),
                   iconIndex: MomentIntro.focus.iconIndex,
-                  description: MomentIntro.focus.description,
+                  description: MomentIntro.focus.description(AppLocalizations.of(context)),
                   builder: (_) => MomentIntroScreen(
                     intro: MomentIntro.focus,
                     next: (_) => SessionSetupScreen(
@@ -72,9 +73,9 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 8),
                 _momentCard(
                   id: 'reading',
-                  title: MomentIntro.reading.title,
+                  title: MomentIntro.reading.title(AppLocalizations.of(context)),
                   iconIndex: MomentIntro.reading.iconIndex,
-                  description: MomentIntro.reading.description,
+                  description: MomentIntro.reading.description(AppLocalizations.of(context)),
                   builder: (_) => MomentIntroScreen(
                     intro: MomentIntro.reading,
                     next: (_) => SessionSetupScreen(
@@ -86,19 +87,18 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 8),
                 _momentCard(
                   id: 'tag',
-                  title: 'Tag',
+                  title: AppLocalizations.of(context).momentTagTitle,
                   iconIndex: 4,
                   description:
-                      'Set your apps aside with a tap of your tag, and bring '
-                      'them back with the same tap.',
+                      AppLocalizations.of(context).momentTagDescription,
                   builder: (_) => const TagMomentScreen(),
                 ),
                 const SizedBox(height: 8),
                 _momentCard(
                   id: 'evening',
-                  title: MomentIntro.evening.title,
+                  title: MomentIntro.evening.title(AppLocalizations.of(context)),
                   iconIndex: MomentIntro.evening.iconIndex,
-                  description: MomentIntro.evening.description,
+                  description: MomentIntro.evening.description(AppLocalizations.of(context)),
                   builder: (_) => MomentIntroScreen(
                     intro: MomentIntro.evening,
                     next: (_) => const SavedEveningScreen(),
@@ -107,9 +107,9 @@ class _MomentsScreenState extends State<MomentsScreen> {
                 const SizedBox(height: 8),
                 _momentCard(
                   id: 'morning',
-                  title: MomentIntro.morning.title,
+                  title: MomentIntro.morning.title(AppLocalizations.of(context)),
                   iconIndex: MomentIntro.morning.iconIndex,
-                  description: MomentIntro.morning.description,
+                  description: MomentIntro.morning.description(AppLocalizations.of(context)),
                   builder: (_) => MomentIntroScreen(
                     intro: MomentIntro.morning,
                     next: (_) => const SavedMorningScreen(),
@@ -197,7 +197,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       child: Row(
                         children: [
                           Text(
-                            'Begin',
+                            AppLocalizations.of(context).begin,
                             style: RestType.sans(
                               15,
                               color: RestPalette.primary,

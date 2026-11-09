@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
@@ -78,7 +79,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not save your apps. Try again.')),
+          SnackBar(content: Text(AppLocalizations.of(context).couldNotSaveApps)),
         );
       }
     }
@@ -123,8 +124,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
                 child: Row(
                   children: [
                     Text(
-                      count == 0 ? 'Save' : 'Save $count '
-                          '${count == 1 ? 'app' : 'apps'}',
+                      count == 0 ? AppLocalizations.of(context).save : AppLocalizations.of(context).saveAppsCount(count),
                       style: RestType.sans(17, weight: FontWeight.w600,
                           color: _isLoading || _saving
                               ? RestPalette.accent : RestPalette.background),
@@ -153,7 +153,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
                     children: [
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        tooltip: 'Back',
+                        tooltip: AppLocalizations.of(context).back,
                         style: IconButton.styleFrom(
                           backgroundColor: RestPalette.surface,
                           foregroundColor: RestPalette.primary,
@@ -162,13 +162,12 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
                         icon: const Icon(Icons.chevron_left),
                       ),
                       const SizedBox(height: 20),
-                      Text('Choose apps', style: RestType.serif(40)),
+                      Text(AppLocalizations.of(context).chooseApps, style: RestType.serif(40)),
                       const SizedBox(height: 8),
                       Text(
                         count == 0
-                            ? 'Pick the apps you want to set aside.'
-                            : '$count ${count == 1 ? 'app' : 'apps'} '
-                                'will be set aside.',
+                            ? AppLocalizations.of(context).pickAppsToSetAside
+                            : AppLocalizations.of(context).appsWillBeSetAside(count),
                         style: RestType.sans(16, color: RestPalette.accent),
                       ),
                       const SizedBox(height: 18),
@@ -191,7 +190,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
     style: RestType.sans(15),
     cursorColor: RestPalette.primary,
     decoration: InputDecoration(
-      hintText: 'Search apps',
+      hintText: AppLocalizations.of(context).searchApps,
       hintStyle: RestType.sans(15, color: RestPalette.accent),
       prefixIcon: const Icon(Icons.search, color: RestPalette.accent),
       filled: true,
@@ -214,7 +213,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
       return Padding(
         padding: const EdgeInsets.all(24),
         child: Text(
-          'Choosing apps from this list is only available on Android.',
+          AppLocalizations.of(context).androidOnlyList,
           style: RestType.sans(15, color: RestPalette.accent),
         ),
       );
@@ -222,7 +221,7 @@ class _AppPickerScreenState extends State<AppPickerScreen> {
     if (apps.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(24),
-        child: Text('No apps found.',
+        child: Text(AppLocalizations.of(context).noAppsFound,
             style: RestType.sans(15, color: RestPalette.accent)),
       );
     }

@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/intake/intake_service.dart';
@@ -92,14 +93,14 @@ class _AppRootState extends ConsumerState<AppRoot> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Something went wrong while opening the app.',
+                    Text(
+                      AppLocalizations.of(context).openAppFailed,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: _route,
-                      child: const Text('Try again'),
+                      child: Text(AppLocalizations.of(context).tryAgain),
                     ),
                   ],
                 ),
