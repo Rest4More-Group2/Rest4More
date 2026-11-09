@@ -140,22 +140,8 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const MomentCloseButton(
-                        tooltip: 'Cancel and keep it blocked',
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          onPressed: () => Navigator.maybePop(context),
-                          tooltip: AppLocalizations.of(context)
-                              .cancelKeepBlocked,
-                          style: IconButton.styleFrom(
-                            backgroundColor: RestPalette.surface,
-                            foregroundColor: RestPalette.primary,
-                            minimumSize: const Size(44, 44),
-                          ),
-                          icon: const Icon(Icons.close),
-                        ),
+                      MomentCloseButton(
+                        tooltip: AppLocalizations.of(context).cancelKeepBlocked,
                       ),
                       Expanded(
                         child: switch (_step) {

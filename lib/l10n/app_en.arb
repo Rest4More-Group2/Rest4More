@@ -912,5 +912,109 @@
   "dailyReminderSubtitle": "A gentle nudge for your daily step",
   "reminderTimeLabel": "Reminder time",
   "reminderOnNote": "One reminder a day at this time. On days you have already done your step, we stay quiet.",
-  "reminderOffNote": "Reminders are off. You can use everything in the app without them."
+  "reminderOffNote": "Reminders are off. You can use everything in the app without them.",
+  "unblockedLockingSoonChip": "LOCKING SOON",
+  "unblockedAvailableChip": "APPS AVAILABLE",
+  "unblockedAlmostTime": "Almost time",
+  "unblockedTitle": "Apps unlocked",
+  "unblockedLockSoonSemantics": "Apps lock in under a minute",
+  "unblockedLockAgainIn": "Apps lock again in {duration}",
+  "@unblockedLockAgainIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "unblockedLockSoonNote": "Apps lock in under a minute.",
+  "unblockedAppsLockAgainAt": "Your apps lock again at {time}.",
+  "@unblockedAppsLockAgainAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "unblockedAppLocksAgainAt": "{name} locks again at {time}.",
+  "@unblockedAppLocksAgainAt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "unblockedBlocking": "Blocking…",
+  "unblockedBlockAgain": "Block apps again",
+  "unblockedBlockNoteSession": "Blocks your apps now and resumes your focus timer.",
+  "unblockedBlockNote": "Blocks your apps now.",
+  "unblockedRelockFailed": "We could not block your apps right now. Please try again.",
+  "unblockedTimerPaused": "Focus timer paused",
+  "unblockedPausedSemantics": "Focus timer paused. {name}, {duration} remaining",
+  "@unblockedPausedSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "unblockedPausedRemaining": "{name} · {clock} remaining",
+  "@unblockedPausedRemaining": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "endEarlyCloseTooltip": "Close and keep going",
+  "endEarlyReadyTitle": "Ready when you are",
+  "endEarlyReadyBody": "Would you like to end this session early, or keep going?",
+  "endEarlyWaitBody": "Is this something you need, or something you reached for?",
+  "endEarlyLogged": "Ending early is logged as a stopped session.",
+  "endEarlyUnlockAfter": "Buttons unlock after {seconds} seconds.",
+  "@endEarlyUnlockAfter": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "endEarlyChooseNow": "You can choose now.",
+  "endEarlyChooseIn": "You can choose in {seconds} {seconds, plural, =1{second} other{seconds}}. Buttons are disabled until then.",
+  "@endEarlyChooseIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "endEarlyChooseInShort": "You can choose in {seconds} s",
+  "@endEarlyChooseInShort": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "endSessionButton": "End session",
+  "sessionOvertimeBody": "Your planned time is over. Your apps will stay set aside until you end the session.",
+  "sessionOvertimeHint": "You can end your session whenever you’re ready.",
+  "sessionEndNotifTitle": "{name} time is complete",
+  "@sessionEndNotifTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionEndNotifBody": "You’ve made space for yourself. Return when you’re ready.",
+  "pickerNotSavedStale": "Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough)."
 }

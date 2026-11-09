@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_schedule.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/l10n/format.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
 import 'moments_form_widgets.dart';
@@ -118,9 +120,7 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
         if (mounted) {
           setState(() {
             _relocking = false;
-            _error =
-                'We could not block your apps right now. '
-                'Please try again.';
+            _error = AppLocalizations.of(context).unblockedRelockFailed;
           });
           _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
         }
@@ -147,6 +147,7 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
     final soon = left <= lockingSoon;
     final granted = widget.granted.inMilliseconds;
     final progress = granted == 0 ? 0.0 : left.inMilliseconds / granted;
+    final l10n = AppLocalizations.of(context);
     final name = widget.appName;
     final session = widget.session;
 
@@ -166,7 +167,9 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
                     Align(
                       alignment: Alignment.centerLeft,
                       child: _StatusChip(
-                        label: soon ? 'LOCKING SOON' : 'APPS AVAILABLE',
+                        label: soon
+                            ? l10n.unblockedLockingSoonChip
+                            : l10n.unblockedAvailableChip,
                         dot: soon ? RestPalette.accent : RestPalette.gold,
                       ),
                     ),
@@ -174,16 +177,17 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
                     Semantics(
                       header: true,
                       child: Text(
-                        soon ? 'Almost time' : 'Apps unlocked',
+                        soon ? l10n.unblockedAlmostTime : l10n.unblockedTitle,
                         style: RestType.serif(44),
                       ),
                     ),
                     const Spacer(),
                     Semantics(
                       label: soon
-                          ? 'Apps lock in under a minute'
-                          : 'Apps lock again in '
-                                '${formatDuration(minutesLeft(left))}',
+                          ? l10n.unblockedLockSoonSemantics
+                          : l10n.unblockedLockAgainIn(
+                              localizedDuration(l10n, minutesLeft(left)),
+                            ),
                       child: ExcludeSemantics(
                         child: Text(
                           formatClock(left),
@@ -207,12 +211,15 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
                     const SizedBox(height: 20),
                     Text(
                       soon
-                          ? 'Apps lock in under a minute.'
+                          ? l10n.unblockedLockSoonNote
                           : name == null
-                          ? 'Your apps lock again at '
-                                '${formatTime(widget.until.toLocal())}.'
-                          : '$name locks again at '
-                                '${formatTime(widget.until.toLocal())}.',
+                          ? l10n.unblockedAppsLockAgainAt(
+                              formatTime(widget.until.toLocal()),
+                            )
+                          : l10n.unblockedAppLocksAgainAt(
+                              name,
+                              formatTime(widget.until.toLocal()),
+                            ),
                       textAlign: TextAlign.center,
                       style: RestType.sans(16, color: RestPalette.accent),
                     ),
@@ -233,14 +240,16 @@ class _UnblockedScreenState extends ConsumerState<UnblockedScreen>
                       const SizedBox(height: 12),
                     ],
                     MomentPrimaryButton(
-                      label: _relocking ? 'Blocking…' : 'Block apps again',
+                      label: _relocking
+                          ? l10n.unblockedBlocking
+                          : l10n.unblockedBlockAgain,
                       onPressed: _relocking ? null : () => _relock(auto: false),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       session != null
-                          ? 'Blocks your apps now and resumes your focus timer.'
-                          : 'Blocks your apps now.',
+                          ? l10n.unblockedBlockNoteSession
+                          : l10n.unblockedBlockNote,
                       textAlign: TextAlign.center,
                       style: RestType.sans(13, color: RestPalette.accent),
                     ),
@@ -310,12 +319,14 @@ class _PausedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final left = session.remaining(now);
-    final name = session.kind.profileName;
+    final l10n = AppLocalizations.of(context);
+    final name = momentKindName(l10n, session.kind);
     return Semantics(
       container: true,
-      label:
-          'Focus timer paused. $name, '
-          '${formatDuration(minutesLeft(left))} remaining',
+      label: l10n.unblockedPausedSemantics(
+        name,
+        localizedDuration(l10n, minutesLeft(left)),
+      ),
       child: ExcludeSemantics(
         child: Container(
           padding: const EdgeInsets.all(16),
@@ -345,11 +356,11 @@ class _PausedCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Focus timer paused',
+                      l10n.unblockedTimerPaused,
                       style: RestType.sans(15, weight: FontWeight.w600),
                     ),
                     Text(
-                      '$name · ${formatClock(left)} remaining',
+                      l10n.unblockedPausedRemaining(name, formatClock(left)),
                       style: RestType.sans(13, color: RestPalette.accent),
                     ),
                   ],

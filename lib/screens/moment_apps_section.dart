@@ -50,7 +50,12 @@ Future<AppsChoice> chooseMomentApps(
   try {
     final AppsChoice outcome;
     if (io.Platform.isIOS) {
-      outcome = await _chooseIos(service, kind, onMessage);
+      outcome = await _chooseIos(
+        service,
+        kind,
+        onMessage,
+        AppLocalizations.of(context).pickerNotSavedStale,
+      );
     } else {
       outcome = await _chooseAndroid(context, kind);
     }
@@ -92,6 +97,7 @@ Future<AppsChoice> _chooseIos(
   MomentProfileService service,
   MomentKind kind,
   void Function(String) onMessage,
+  String staleMessage,
 ) async {
   final status = await _blockingChannel.invokeMethod<String>(
     'checkAuthorizationStatus',
@@ -106,10 +112,7 @@ Future<AppsChoice> _chooseIos(
   });
   if (result is! Map) {
     // Een oude build geeft niets terug en bewaart niets per moment.
-    onMessage(
-      'Nothing was saved. Stop the app and run it again so the new '
-      'picker code is built (a hot reload is not enough).',
-    );
+    onMessage(staleMessage);
     return AppsChoice.unchanged;
   }
   final blob = result['selection'];

@@ -1,5 +1,6 @@
 import 'package:rest4more/l10n/format.dart';
 import 'package:rest4more/l10n/app_localizations.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -163,14 +164,24 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   }
 
   Future<void> _scheduleSessionEndNotification(RunningSession session) async {
+    // The text is chosen now, in the app's language, because the scheduler
+    // fires it later without access to the UI.
+    final l10n = AppLocalizations.of(context);
     try {
-      await ref.read(reminderSchedulerProvider).scheduleSessionEnd(
+      await ref
+          .read(reminderSchedulerProvider)
+          .scheduleSessionEnd(
             sessionId: session.id,
-            sessionName: session.kind.profileName,
+            title: l10n.sessionEndNotifTitle(
+              momentKindName(l10n, session.kind),
+            ),
+            body: l10n.sessionEndNotifBody,
             endsAt: session.endsAt(DateTime.now()),
           );
     } on Object catch (error, stackTrace) {
-      debugPrint('[session-notification] scheduling failed: $error\n$stackTrace');
+      debugPrint(
+        '[session-notification] scheduling failed: $error\n$stackTrace',
+      );
     }
   }
 
@@ -238,9 +249,13 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       if (mounted) setState(() => _phase = _Phase.finished);
     } on Object {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context).appsStillSetAsideTryAgain),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).appsStillSetAsideTryAgain,
+            ),
+          ),
+        );
       }
     }
   }
@@ -251,21 +266,26 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     final session = _session;
     if (session == null || _phase != _Phase.running || _unblockOpen) return;
     _unblockOpen = true;
-    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
-      builder: (_) => const UnblockFlowScreen(),
-    ));
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(builder: (_) => const UnblockFlowScreen()),
+    );
     await _afterUnblock(session);
   }
 
-  Future<void> _showUnblocked(RunningSession session, SessionPause pause) async {
+  Future<void> _showUnblocked(
+    RunningSession session,
+    SessionPause pause,
+  ) async {
     _unblockOpen = true;
-    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
-      builder: (_) => UnblockedScreen(
-        until: pause.until,
-        granted: pause.until.difference(pause.start),
-        session: session,
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => UnblockedScreen(
+          until: pause.until,
+          granted: pause.until.difference(pause.start),
+          session: session,
+        ),
       ),
-    ));
+    );
     await _afterUnblock(session);
   }
 
@@ -295,7 +315,7 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     final notice = seconds < 60
         ? 'Focus resumed · paused for under a minute'
         : 'Focus resumed · paused for '
-            '${formatDuration((seconds / 60).round())}';
+              '${formatDuration((seconds / 60).round())}';
     _noticeTimer?.cancel();
     setState(() => _notice = notice);
     _noticeTimer = Timer(const Duration(seconds: 5), () {
@@ -308,9 +328,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   Future<void> _askToStop() async {
     if (_phase != _Phase.running || _askingToStop) return;
     _askingToStop = true;
-    final end = await Navigator.of(context).push<bool>(MaterialPageRoute<bool>(
-      builder: (_) => const EndEarlyScreen(),
-    ));
+    final end = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const EndEarlyScreen()),
+    );
     _askingToStop = false;
     // De sessie kan intussen vanzelf afgelopen zijn.
     if (end == true && mounted && _phase == _Phase.running) {
@@ -318,14 +338,14 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     }
   }
 
-  void _leave() =>
-      Navigator.of(context).popUntil((route) => route.isFirst);
+  void _leave() => Navigator.of(context).popUntil((route) => route.isFirst);
 
   @override
   Widget build(BuildContext context) {
     final session = _session;
     final l10n = AppLocalizations.of(context);
-    final title = session?.kind.profileName ??
+    final title =
+        session?.kind.profileName ??
         widget.setup?.kind.title(l10n) ??
         widget.manualKind?.profileName ??
         l10n.sessionTitle;
@@ -339,7 +359,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     };
 
     return PopScope(
-      canPop: _phase == _Phase.overtime ||
+      canPop:
+          _phase == _Phase.overtime ||
           _phase == _Phase.failed ||
           _phase == _Phase.finished ||
           _phase == _Phase.releaseFailed,
@@ -421,8 +442,12 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
             liveRegion: false,
             label: isOvertime
                 ? formatClock(over)
-                : AppLocalizations.of(context).timeLeft(localizedDuration(
-                    AppLocalizations.of(context), minutesLeft(left))),
+                : AppLocalizations.of(context).timeLeft(
+                    localizedDuration(
+                      AppLocalizations.of(context),
+                      minutesLeft(left),
+                    ),
+                  ),
             child: Text(
               formatClock(isOvertime ? over : left),
               textAlign: TextAlign.center,
@@ -442,17 +467,17 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           const SizedBox(height: 20),
           Text(
             isOvertime
-                ? 'Your planned time is over. Your apps will stay set aside '
-                    'until you end the session.'
+                ? AppLocalizations.of(context).sessionOvertimeBody
                 : AppLocalizations.of(context).appsSetAsideUntil(
-                    formatTime(session.endsAt(now).toLocal())),
+                    formatTime(session.endsAt(now).toLocal()),
+                  ),
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
           ),
           const SizedBox(height: 28),
           Text(
             isOvertime
-                ? 'You can end your session whenever you’re ready.'
+                ? AppLocalizations.of(context).sessionOvertimeHint
                 : '“${AppLocalizations.of(context).momentFocusStep3}”',
             textAlign: TextAlign.center,
             style: RestType.serif(24).copyWith(fontStyle: FontStyle.italic),
@@ -461,7 +486,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.finished:
         return [
           Text(
-            _endedEarly ? AppLocalizations.of(context).sessionEnded : AppLocalizations.of(context).wellDone,
+            _endedEarly
+                ? AppLocalizations.of(context).sessionEnded
+                : AppLocalizations.of(context).wellDone,
             textAlign: TextAlign.center,
             style: RestType.serif(40),
           ),
@@ -515,7 +542,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
                       liveRegion: true,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: RestPalette.surface.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(16),
@@ -567,16 +596,24 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       case _Phase.overtime:
         return [
           MomentPrimaryButton(
-            label: 'End session',
+            label: AppLocalizations.of(context).endSessionButton,
             onPressed: () => _finish(early: false),
           ),
         ];
       case _Phase.finished:
       case _Phase.failed:
-        return [MomentPrimaryButton(label: AppLocalizations.of(context).done, onPressed: _leave)];
+        return [
+          MomentPrimaryButton(
+            label: AppLocalizations.of(context).done,
+            onPressed: _leave,
+          ),
+        ];
       case _Phase.releaseFailed:
         return [
-          MomentPrimaryButton(label: AppLocalizations.of(context).tryAgain, onPressed: _retryRelease),
+          MomentPrimaryButton(
+            label: AppLocalizations.of(context).tryAgain,
+            onPressed: _retryRelease,
+          ),
         ];
       case _Phase.starting:
       case _Phase.ending:

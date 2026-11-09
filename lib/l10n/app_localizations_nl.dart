@@ -1685,4 +1685,135 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get reminderOffNote =>
       'Herinneringen staan uit. Je kunt alles in de app ook zonder gebruiken.';
+
+  @override
+  String get unblockedLockingSoonChip => 'BINNENKORT DICHT';
+
+  @override
+  String get unblockedAvailableChip => 'APPS BESCHIKBAAR';
+
+  @override
+  String get unblockedAlmostTime => 'Bijna tijd';
+
+  @override
+  String get unblockedTitle => 'Apps ontgrendeld';
+
+  @override
+  String get unblockedLockSoonSemantics =>
+      'Apps vergrendelen over minder dan een minuut';
+
+  @override
+  String unblockedLockAgainIn(String duration) {
+    return 'Apps vergrendelen weer over $duration';
+  }
+
+  @override
+  String get unblockedLockSoonNote =>
+      'Apps vergrendelen over minder dan een minuut.';
+
+  @override
+  String unblockedAppsLockAgainAt(String time) {
+    return 'Je apps vergrendelen weer om $time.';
+  }
+
+  @override
+  String unblockedAppLocksAgainAt(String name, String time) {
+    return '$name vergrendelt weer om $time.';
+  }
+
+  @override
+  String get unblockedBlocking => 'Blokkeren…';
+
+  @override
+  String get unblockedBlockAgain => 'Apps weer blokkeren';
+
+  @override
+  String get unblockedBlockNoteSession =>
+      'Blokkeert je apps nu en laat je focustimer verder lopen.';
+
+  @override
+  String get unblockedBlockNote => 'Blokkeert je apps nu.';
+
+  @override
+  String get unblockedRelockFailed =>
+      'We konden je apps nu niet blokkeren. Probeer het opnieuw.';
+
+  @override
+  String get unblockedTimerPaused => 'Focustimer gepauzeerd';
+
+  @override
+  String unblockedPausedSemantics(String name, String duration) {
+    return 'Focustimer gepauzeerd. $name, nog $duration';
+  }
+
+  @override
+  String unblockedPausedRemaining(String name, String clock) {
+    return '$name · nog $clock';
+  }
+
+  @override
+  String get endEarlyCloseTooltip => 'Sluiten en doorgaan';
+
+  @override
+  String get endEarlyReadyTitle => 'Klaar wanneer jij het bent';
+
+  @override
+  String get endEarlyReadyBody =>
+      'Wil je deze sessie eerder beëindigen, of doorgaan?';
+
+  @override
+  String get endEarlyWaitBody =>
+      'Heb je dit nodig, of greep je er automatisch naar?';
+
+  @override
+  String get endEarlyLogged =>
+      'Eerder stoppen wordt vastgelegd als een gestopte sessie.';
+
+  @override
+  String endEarlyUnlockAfter(int seconds) {
+    return 'De knoppen gaan open na $seconds seconden.';
+  }
+
+  @override
+  String get endEarlyChooseNow => 'Je kunt nu kiezen.';
+
+  @override
+  String endEarlyChooseIn(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'seconden',
+      one: 'seconde',
+    );
+    return 'Je kunt over $seconds $_temp0 kiezen. Tot die tijd zijn de knoppen uitgeschakeld.';
+  }
+
+  @override
+  String endEarlyChooseInShort(int seconds) {
+    return 'Je kunt over $seconds s kiezen';
+  }
+
+  @override
+  String get endSessionButton => 'Sessie beëindigen';
+
+  @override
+  String get sessionOvertimeBody =>
+      'Je geplande tijd is voorbij. Je apps blijven opzij gezet tot je de sessie beëindigt.';
+
+  @override
+  String get sessionOvertimeHint =>
+      'Je kunt je sessie beëindigen wanneer je er klaar voor bent.';
+
+  @override
+  String sessionEndNotifTitle(String name) {
+    return '$name-tijd is voorbij';
+  }
+
+  @override
+  String get sessionEndNotifBody =>
+      'Je hebt ruimte voor jezelf gemaakt. Kom terug wanneer je er klaar voor bent.';
+
+  @override
+  String get pickerNotSavedStale =>
+      'Er is niets opgeslagen. Stop de app en start hem opnieuw zodat de nieuwe kiezer wordt gebouwd (hot reload is niet genoeg).';
 }

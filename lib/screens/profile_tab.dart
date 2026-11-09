@@ -159,7 +159,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    'REMINDERS',
+                    l10n.reminders.toUpperCase(),
                     style: RestType.sans(
                       11,
                       color: RestPalette.accent,

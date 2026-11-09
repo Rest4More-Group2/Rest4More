@@ -32,7 +32,8 @@ abstract class ReminderScheduler {
 
   Future<void> scheduleSessionEnd({
     required String sessionId,
-    required String sessionName,
+    required String title,
+    required String body,
     required DateTime endsAt,
   });
 
@@ -41,7 +42,7 @@ abstract class ReminderScheduler {
 
 class LocalReminderScheduler implements ReminderScheduler {
   LocalReminderScheduler([FlutterLocalNotificationsPlugin? plugin])
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _sessionEndNotificationId = 900000001;
   static const _dailyTimerNotificationId = 900000002;
@@ -75,13 +76,13 @@ class LocalReminderScheduler implements ReminderScheduler {
       enableVibration: false,
     ),
     iOS: DarwinNotificationDetails(
-  presentAlert: false,
-  presentBanner: false,
-  presentList: true,
-  presentSound: false,
-  presentBadge: false,
-  interruptionLevel: InterruptionLevel.passive,
-),
+      presentAlert: false,
+      presentBanner: false,
+      presentList: true,
+      presentSound: false,
+      presentBadge: false,
+      interruptionLevel: InterruptionLevel.passive,
+    ),
   );
 
   @override
@@ -91,32 +92,29 @@ class LocalReminderScheduler implements ReminderScheduler {
   Stream<String> get sessionEndTaps => _sessionEndTaps.stream;
 
   Future<void> _init() => _ready ??= () async {
-        tz_data.initializeTimeZones();
-        await _plugin.initialize(
-          settings: const InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-            // Permission is requested separately, when the user chooses it.
-            iOS: DarwinInitializationSettings(
-              requestAlertPermission: false,
-              requestSoundPermission: false,
-              requestBadgePermission: false,
-            ),
-          ),
-          onDidReceiveNotificationResponse: (response) {
-            final payload = response.payload;
-            if (payload != null &&
-                payload.startsWith(_sessionPayloadPrefix)) {
-              _sessionEndTaps.add(
-                payload.substring(_sessionPayloadPrefix.length),
-              );
-              return;
-            }
+    tz_data.initializeTimeZones();
+    await _plugin.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        // Permission is requested separately, when the user chooses it.
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestSoundPermission: false,
+          requestBadgePermission: false,
+        ),
+      ),
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload != null && payload.startsWith(_sessionPayloadPrefix)) {
+          _sessionEndTaps.add(payload.substring(_sessionPayloadPrefix.length));
+          return;
+        }
 
-            final id = response.id;
-            if (id != null) _taps.add(id);
-          },
-        );
-      }();
+        final id = response.id;
+        if (id != null) _taps.add(id);
+      },
+    );
+  }();
 
   /// Refresh the device time zone before scheduling local notifications.
   Future<void> _useDeviceTimeZone() async {
@@ -164,7 +162,8 @@ class LocalReminderScheduler implements ReminderScheduler {
   @override
   Future<void> scheduleSessionEnd({
     required String sessionId,
-    required String sessionName,
+    required String title,
+    required String body,
     required DateTime endsAt,
   }) async {
     await _init();
@@ -180,8 +179,8 @@ class LocalReminderScheduler implements ReminderScheduler {
       scheduledDate: tz.TZDateTime.from(endsAt, tz.local),
       notificationDetails: _sessionEndDetails,
       androidScheduleMode: await _scheduleMode(),
-      title: '$sessionName time is complete',
-      body: 'You’ve made space for yourself. Return when you’re ready.',
+      title: title,
+      body: body,
       payload: '$_sessionPayloadPrefix$sessionId',
     );
   }
@@ -195,8 +194,10 @@ class LocalReminderScheduler implements ReminderScheduler {
   /// Android can use exact delivery when allowed; otherwise use inexact
   /// delivery without requesting exact-alarm permission.
   Future<AndroidScheduleMode> _scheduleMode() async {
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (android == null) return AndroidScheduleMode.exactAllowWhileIdle;
 
     final exact = await android.canScheduleExactNotifications() ?? false;
@@ -213,31 +214,31 @@ class LocalReminderScheduler implements ReminderScheduler {
   }
 
   @override
-Future<void> cancelDailyReminders() async {
-  await _init();
+  Future<void> cancelDailyReminders() async {
+    await _init();
 
-  final pending = await _plugin.pendingNotificationRequests();
-  for (final request in pending) {
-    if (!_isTimerNotification(request.id, request.payload)) {
-      await _plugin.cancel(id: request.id);
-    }
-  }
-
-  // Also clear daily reminders already delivered to Notification Center,
-  // while preserving timer notifications.
-  try {
-    final active = await _plugin.getActiveNotifications();
-    for (final notification in active) {
-      final id = notification.id;
-      if (id != null && !_isTimerNotification(id, null)) {
-        await _plugin.cancel(id: id);
+    final pending = await _plugin.pendingNotificationRequests();
+    for (final request in pending) {
+      if (!_isTimerNotification(request.id, request.payload)) {
+        await _plugin.cancel(id: request.id);
       }
     }
-  } on Object {
-    // Pending reminders were still cleared if active notifications aren't
-    // supported by the current platform.
+
+    // Also clear daily reminders already delivered to Notification Center,
+    // while preserving timer notifications.
+    try {
+      final active = await _plugin.getActiveNotifications();
+      for (final notification in active) {
+        final id = notification.id;
+        if (id != null && !_isTimerNotification(id, null)) {
+          await _plugin.cancel(id: id);
+        }
+      }
+    } on Object {
+      // Pending reminders were still cleared if active notifications aren't
+      // supported by the current platform.
+    }
   }
-}
 
   /// Explicitly cancels every notification managed by this plugin.
   @override

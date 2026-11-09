@@ -2929,6 +2929,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminders are off. You can use everything in the app without them.'**
   String get reminderOffNote;
+
+  /// No description provided for @unblockedLockingSoonChip.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCKING SOON'**
+  String get unblockedLockingSoonChip;
+
+  /// No description provided for @unblockedAvailableChip.
+  ///
+  /// In en, this message translates to:
+  /// **'APPS AVAILABLE'**
+  String get unblockedAvailableChip;
+
+  /// No description provided for @unblockedAlmostTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost time'**
+  String get unblockedAlmostTime;
+
+  /// No description provided for @unblockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps unlocked'**
+  String get unblockedTitle;
+
+  /// No description provided for @unblockedLockSoonSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps lock in under a minute'**
+  String get unblockedLockSoonSemantics;
+
+  /// No description provided for @unblockedLockAgainIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps lock again in {duration}'**
+  String unblockedLockAgainIn(String duration);
+
+  /// No description provided for @unblockedLockSoonNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps lock in under a minute.'**
+  String get unblockedLockSoonNote;
+
+  /// No description provided for @unblockedAppsLockAgainAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Your apps lock again at {time}.'**
+  String unblockedAppsLockAgainAt(String time);
+
+  /// No description provided for @unblockedAppLocksAgainAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} locks again at {time}.'**
+  String unblockedAppLocksAgainAt(String name, String time);
+
+  /// No description provided for @unblockedBlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocking…'**
+  String get unblockedBlocking;
+
+  /// No description provided for @unblockedBlockAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Block apps again'**
+  String get unblockedBlockAgain;
+
+  /// No description provided for @unblockedBlockNoteSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks your apps now and resumes your focus timer.'**
+  String get unblockedBlockNoteSession;
+
+  /// No description provided for @unblockedBlockNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks your apps now.'**
+  String get unblockedBlockNote;
+
+  /// No description provided for @unblockedRelockFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not block your apps right now. Please try again.'**
+  String get unblockedRelockFailed;
+
+  /// No description provided for @unblockedTimerPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus timer paused'**
+  String get unblockedTimerPaused;
+
+  /// No description provided for @unblockedPausedSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus timer paused. {name}, {duration} remaining'**
+  String unblockedPausedSemantics(String name, String duration);
+
+  /// No description provided for @unblockedPausedRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {clock} remaining'**
+  String unblockedPausedRemaining(String name, String clock);
+
+  /// No description provided for @endEarlyCloseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Close and keep going'**
+  String get endEarlyCloseTooltip;
+
+  /// No description provided for @endEarlyReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready when you are'**
+  String get endEarlyReadyTitle;
+
+  /// No description provided for @endEarlyReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to end this session early, or keep going?'**
+  String get endEarlyReadyBody;
+
+  /// No description provided for @endEarlyWaitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this something you need, or something you reached for?'**
+  String get endEarlyWaitBody;
+
+  /// No description provided for @endEarlyLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Ending early is logged as a stopped session.'**
+  String get endEarlyLogged;
+
+  /// No description provided for @endEarlyUnlockAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Buttons unlock after {seconds} seconds.'**
+  String endEarlyUnlockAfter(int seconds);
+
+  /// No description provided for @endEarlyChooseNow.
+  ///
+  /// In en, this message translates to:
+  /// **'You can choose now.'**
+  String get endEarlyChooseNow;
+
+  /// No description provided for @endEarlyChooseIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You can choose in {seconds} {seconds, plural, =1{second} other{seconds}}. Buttons are disabled until then.'**
+  String endEarlyChooseIn(int seconds);
+
+  /// No description provided for @endEarlyChooseInShort.
+  ///
+  /// In en, this message translates to:
+  /// **'You can choose in {seconds} s'**
+  String endEarlyChooseInShort(int seconds);
+
+  /// No description provided for @endSessionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'End session'**
+  String get endSessionButton;
+
+  /// No description provided for @sessionOvertimeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your planned time is over. Your apps will stay set aside until you end the session.'**
+  String get sessionOvertimeBody;
+
+  /// No description provided for @sessionOvertimeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can end your session whenever you’re ready.'**
+  String get sessionOvertimeHint;
+
+  /// No description provided for @sessionEndNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} time is complete'**
+  String sessionEndNotifTitle(String name);
+
+  /// No description provided for @sessionEndNotifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve made space for yourself. Return when you’re ready.'**
+  String get sessionEndNotifBody;
+
+  /// No description provided for @pickerNotSavedStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough).'**
+  String get pickerNotSavedStale;
 }
 
 class _AppLocalizationsDelegate

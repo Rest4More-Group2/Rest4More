@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
+import 'package:rest4more/l10n/app_localizations.dart';
+
 import 'moments_form_widgets.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
@@ -13,11 +15,7 @@ import 'today_screen.dart' show RestPalette, RestType;
 /// sessie zelf loopt hier gewoon door; dit scherm raakt de timer en de
 /// blokkade niet aan.
 class EndEarlyScreen extends StatefulWidget {
-  const EndEarlyScreen({
-    super.key,
-    this.wait = waitDuration,
-    this.now,
-  });
+  const EndEarlyScreen({super.key, this.wait = waitDuration, this.now});
 
   static const waitDuration = Duration(seconds: 5);
 
@@ -36,9 +34,10 @@ class _EndEarlyScreenState extends State<EndEarlyScreen>
   // De balk loopt op de animatie, maar het beginmoment telt: een ticker staat
   // stil zolang de app op de achtergrond is, dus bij terugkomen halen we in.
   late final DateTime _startedAt;
-  late final AnimationController _wait =
-      AnimationController(vsync: this, duration: widget.wait)
-        ..addStatusListener(_onStatus);
+  late final AnimationController _wait = AnimationController(
+    vsync: this,
+    duration: widget.wait,
+  )..addStatusListener(_onStatus);
   bool _unlocked = false;
 
   DateTime get _now => (widget.now ?? DateTime.now)();
@@ -79,7 +78,7 @@ class _EndEarlyScreenState extends State<EndEarlyScreen>
     setState(() => _unlocked = true);
     SemanticsService.sendAnnouncement(
       View.of(context),
-      'You can choose now.',
+      AppLocalizations.of(context).endEarlyChooseNow,
       TextDirection.ltr,
     );
   }
@@ -89,74 +88,74 @@ class _EndEarlyScreenState extends State<EndEarlyScreen>
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: RestPalette.background,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const MomentCloseButton(
-                        tooltip: 'Close and keep going'),
-                    const Spacer(),
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        _unlocked
-                            ? 'Ready when you are'
-                            : 'Take a moment to breathe',
-                        textAlign: TextAlign.center,
-                        style: RestType.serif(40),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      _unlocked
-                          ? 'Would you like to end this session early, or '
-                              'keep going?'
-                          : 'Is this something you need, or something you '
-                              'reached for?',
-                      textAlign: TextAlign.center,
-                      style: RestType.sans(16, color: RestPalette.accent),
-                    ),
-                    const SizedBox(height: 40),
-                    AnimatedBuilder(
-                      animation: _wait,
-                      builder: (context, _) => _countdown(),
-                    ),
-                    const Spacer(),
-                    _KeepGoingButton(
-                      onPressed: _unlocked
-                          ? () => Navigator.pop(context, false)
-                          : null,
-                    ),
-                    const SizedBox(height: 12),
-                    _EndSessionButton(
-                      onPressed: _unlocked
-                          ? () => Navigator.pop(context, true)
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _unlocked
-                          ? 'Ending early is logged as a stopped session.'
-                          : 'Buttons unlock after '
-                              '${widget.wait.inSeconds} seconds.',
-                      textAlign: TextAlign.center,
-                      style: RestType.sans(14, color: RestPalette.accent),
-                    ),
-                  ],
+    backgroundColor: RestPalette.background,
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MomentCloseButton(
+                  tooltip: AppLocalizations.of(context).endEarlyCloseTooltip,
                 ),
-              ),
+                const Spacer(),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    _unlocked
+                        ? AppLocalizations.of(context).endEarlyReadyTitle
+                        : AppLocalizations.of(context).takeMomentBreathe,
+                    textAlign: TextAlign.center,
+                    style: RestType.serif(40),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _unlocked
+                      ? AppLocalizations.of(context).endEarlyReadyBody
+                      : AppLocalizations.of(context).endEarlyWaitBody,
+                  textAlign: TextAlign.center,
+                  style: RestType.sans(16, color: RestPalette.accent),
+                ),
+                const SizedBox(height: 40),
+                AnimatedBuilder(
+                  animation: _wait,
+                  builder: (context, _) => _countdown(),
+                ),
+                const Spacer(),
+                _KeepGoingButton(
+                  onPressed: _unlocked
+                      ? () => Navigator.pop(context, false)
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                _EndSessionButton(
+                  onPressed: _unlocked
+                      ? () => Navigator.pop(context, true)
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _unlocked
+                      ? AppLocalizations.of(context).endEarlyLogged
+                      : AppLocalizations.of(context)
+                            .endEarlyUnlockAfter(widget.wait.inSeconds),
+                  textAlign: TextAlign.center,
+                  style: RestType.sans(14, color: RestPalette.accent),
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _countdown() {
+    final l10n = AppLocalizations.of(context);
     final left = _secondsLeft;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -167,12 +166,13 @@ class _EndEarlyScreenState extends State<EndEarlyScreen>
         Semantics(
           liveRegion: true,
           label: _unlocked
-              ? 'You can choose now.'
-              : 'You can choose in $left ${left == 1 ? 'second' : 'seconds'}. '
-                  'Buttons are disabled until then.',
+              ? l10n.endEarlyChooseNow
+              : l10n.endEarlyChooseIn(left),
           excludeSemantics: true,
           child: Text(
-            _unlocked ? 'You can choose now.' : 'You can choose in $left s',
+            _unlocked
+                ? l10n.endEarlyChooseNow
+                : l10n.endEarlyChooseInShort(left),
             textAlign: TextAlign.center,
             style: RestType.sans(14, color: RestPalette.accent),
           ),
@@ -189,25 +189,25 @@ class _KeepGoingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: RestPalette.primary,
-          foregroundColor: RestPalette.background,
-          disabledBackgroundColor: RestPalette.primary.withValues(alpha: 0.45),
-          disabledForegroundColor: RestPalette.background,
-          elevation: 0,
-          shape: const StadiumBorder(),
-          minimumSize: const Size(double.infinity, 58),
-        ),
-        child: Text(
-          'Keep going',
-          style: RestType.sans(
-            17,
-            color: RestPalette.background,
-            weight: FontWeight.w600,
-          ),
-        ),
-      );
+    onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      backgroundColor: RestPalette.primary,
+      foregroundColor: RestPalette.background,
+      disabledBackgroundColor: RestPalette.primary.withValues(alpha: 0.45),
+      disabledForegroundColor: RestPalette.background,
+      elevation: 0,
+      shape: const StadiumBorder(),
+      minimumSize: const Size(double.infinity, 58),
+    ),
+    child: Text(
+      AppLocalizations.of(context).keepGoing,
+      style: RestType.sans(
+        17,
+        color: RestPalette.background,
+        weight: FontWeight.w600,
+      ),
+    ),
+  );
 }
 
 /// Zelfde vorm als "End early" op het sessiescherm.
@@ -230,7 +230,7 @@ class _EndSessionButton extends StatelessWidget {
         minimumSize: const Size(double.infinity, 58),
       ),
       child: Text(
-        'End session',
+        AppLocalizations.of(context).endSessionButton,
         style: RestType.sans(17, color: color, weight: FontWeight.w600),
       ),
     );

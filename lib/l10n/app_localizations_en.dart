@@ -1670,4 +1670,132 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reminderOffNote =>
       'Reminders are off. You can use everything in the app without them.';
+
+  @override
+  String get unblockedLockingSoonChip => 'LOCKING SOON';
+
+  @override
+  String get unblockedAvailableChip => 'APPS AVAILABLE';
+
+  @override
+  String get unblockedAlmostTime => 'Almost time';
+
+  @override
+  String get unblockedTitle => 'Apps unlocked';
+
+  @override
+  String get unblockedLockSoonSemantics => 'Apps lock in under a minute';
+
+  @override
+  String unblockedLockAgainIn(String duration) {
+    return 'Apps lock again in $duration';
+  }
+
+  @override
+  String get unblockedLockSoonNote => 'Apps lock in under a minute.';
+
+  @override
+  String unblockedAppsLockAgainAt(String time) {
+    return 'Your apps lock again at $time.';
+  }
+
+  @override
+  String unblockedAppLocksAgainAt(String name, String time) {
+    return '$name locks again at $time.';
+  }
+
+  @override
+  String get unblockedBlocking => 'Blocking…';
+
+  @override
+  String get unblockedBlockAgain => 'Block apps again';
+
+  @override
+  String get unblockedBlockNoteSession =>
+      'Blocks your apps now and resumes your focus timer.';
+
+  @override
+  String get unblockedBlockNote => 'Blocks your apps now.';
+
+  @override
+  String get unblockedRelockFailed =>
+      'We could not block your apps right now. Please try again.';
+
+  @override
+  String get unblockedTimerPaused => 'Focus timer paused';
+
+  @override
+  String unblockedPausedSemantics(String name, String duration) {
+    return 'Focus timer paused. $name, $duration remaining';
+  }
+
+  @override
+  String unblockedPausedRemaining(String name, String clock) {
+    return '$name · $clock remaining';
+  }
+
+  @override
+  String get endEarlyCloseTooltip => 'Close and keep going';
+
+  @override
+  String get endEarlyReadyTitle => 'Ready when you are';
+
+  @override
+  String get endEarlyReadyBody =>
+      'Would you like to end this session early, or keep going?';
+
+  @override
+  String get endEarlyWaitBody =>
+      'Is this something you need, or something you reached for?';
+
+  @override
+  String get endEarlyLogged => 'Ending early is logged as a stopped session.';
+
+  @override
+  String endEarlyUnlockAfter(int seconds) {
+    return 'Buttons unlock after $seconds seconds.';
+  }
+
+  @override
+  String get endEarlyChooseNow => 'You can choose now.';
+
+  @override
+  String endEarlyChooseIn(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'seconds',
+      one: 'second',
+    );
+    return 'You can choose in $seconds $_temp0. Buttons are disabled until then.';
+  }
+
+  @override
+  String endEarlyChooseInShort(int seconds) {
+    return 'You can choose in $seconds s';
+  }
+
+  @override
+  String get endSessionButton => 'End session';
+
+  @override
+  String get sessionOvertimeBody =>
+      'Your planned time is over. Your apps will stay set aside until you end the session.';
+
+  @override
+  String get sessionOvertimeHint =>
+      'You can end your session whenever you’re ready.';
+
+  @override
+  String sessionEndNotifTitle(String name) {
+    return '$name time is complete';
+  }
+
+  @override
+  String get sessionEndNotifBody =>
+      'You’ve made space for yourself. Return when you’re ready.';
+
+  @override
+  String get pickerNotSavedStale =>
+      'Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough).';
 }

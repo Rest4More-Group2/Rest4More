@@ -1,5 +1,7 @@
 import 'package:rest4more/l10n/app_localizations.dart';
+
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,9 +16,11 @@ import '../data/test_support.dart';
 
 /// Toestemming voor meldingen zonder systeem. Onthoudt wat er gevraagd is.
 class FakeNotificationPermission extends NotificationPermission {
-  FakeNotificationPermission(this.current,
-      {NotificationPermissionStatus? afterRequest, this.canOpenSettings = true})
-      : afterRequest = afterRequest ?? current;
+  FakeNotificationPermission(
+    this.current, {
+    NotificationPermissionStatus? afterRequest,
+    this.canOpenSettings = true,
+  }) : afterRequest = afterRequest ?? current;
 
   NotificationPermissionStatus current;
   final NotificationPermissionStatus afterRequest;
@@ -78,7 +82,8 @@ class FakeReminderScheduler implements ReminderScheduler {
   @override
   Future<void> scheduleSessionEnd({
     required String sessionId,
-    required String sessionName,
+    required String title,
+    required String body,
     required DateTime endsAt,
   }) async {}
 
@@ -88,10 +93,13 @@ class FakeReminderScheduler implements ReminderScheduler {
 
 /// Een hoog telefoonscherm en een database in het geheugen, zoals de andere
 /// schermtests. Zonder [permission] zijn meldingen al toegestaan.
-Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
-    {AppDatabase? db,
-    NotificationPermission? permission,
-    ReminderScheduler? scheduler}) async {
+Future<AppDatabase> pumpScreen(
+  WidgetTester tester,
+  Widget screen, {
+  AppDatabase? db,
+  NotificationPermission? permission,
+  ReminderScheduler? scheduler,
+}) async {
   // De schermen hebben vaste hoogtes. In de testfont (Ahem) lopen sommige
   // kaarten over, dat zegt niets over wat er wordt opgeslagen. Layoutfouten
   // negeren we hier, alle andere fouten blijven de test laten falen.
@@ -111,10 +119,13 @@ Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(database),
-        notificationPermissionProvider.overrideWithValue(permission ??
-            FakeNotificationPermission(NotificationPermissionStatus.granted)),
-        reminderSchedulerProvider
-            .overrideWithValue(scheduler ?? FakeReminderScheduler()),
+        notificationPermissionProvider.overrideWithValue(
+          permission ??
+              FakeNotificationPermission(NotificationPermissionStatus.granted),
+        ),
+        reminderSchedulerProvider.overrideWithValue(
+          scheduler ?? FakeReminderScheduler(),
+        ),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -144,7 +155,8 @@ void screenTest(String description, Future<void> Function(WidgetTester) body) {
 Future<void> settle(WidgetTester tester) async {
   for (var i = 0; i < 100; i++) {
     await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)));
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
     await tester.pump(const Duration(milliseconds: 100));
     // Klaar zodra het laadscherm weg is, plus nog een paar beelden voor de rest.
     if (i > 15 && find.byType(CircularProgressIndicator).evaluate().isEmpty) {
@@ -153,7 +165,8 @@ Future<void> settle(WidgetTester tester) async {
   }
   for (var i = 0; i < 5; i++) {
     await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)));
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
     await tester.pump(const Duration(milliseconds: 100));
   }
 }

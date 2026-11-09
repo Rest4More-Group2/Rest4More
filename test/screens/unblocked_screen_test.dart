@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -97,6 +98,8 @@ void main() {
         // Een eigen navigator onder de overrides, zodat ook nieuwe pagina's
         // ze zien.
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(
@@ -288,6 +291,8 @@ void main() {
           ],
         ),
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: SessionRunScreen(
             setup: FocusSetup(
               kind: SessionKind.reading,
