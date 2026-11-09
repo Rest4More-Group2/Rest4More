@@ -10,17 +10,23 @@ import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'end_early_screen.dart';
 import 'moments_form_widgets.dart';
 import 'moments_widgets.dart';
 import 'session_setup_screen.dart';
 import 'unblock_flow_screen.dart';
+import 'unblocked_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
 enum _Phase { starting, running, ending, finished, failed, releaseFailed }
 
 /// Een lopende sessie met timer (Focus of Reading). Start de blokkade, telt af
-/// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen vraagt
-/// eerst bevestiging en wordt als `stoppedEarly` vastgelegd.
+/// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen gaat via
+/// [EndEarlyScreen] en wordt als `stoppedEarly` vastgelegd.
+///
+/// Zolang de apps tijdelijk vrij zijn ("Need an app?") staat de timer stil en
+/// ligt [UnblockedScreen] erbovenop. Daarna loopt hij verder waar hij stond en
+/// schuift het einde zo lang op.
 class SessionRunScreen extends ConsumerStatefulWidget {
   const SessionRunScreen({
     super.key,
@@ -51,6 +57,16 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   String? _error;
   Timer? _ticker;
   bool _endedEarly = false;
+  bool _askingToStop = false;
+  StreamSubscription<RunningSession?>? _watch;
+
+  /// Of het vrijgeven of [UnblockedScreen] er nu bovenop ligt.
+  bool _unblockOpen = false;
+  bool _wasPaused = false;
+
+  /// "Focus resumed · paused for N min", even na een pauze.
+  String? _notice;
+  Timer? _noticeTimer;
 
   SessionRunner get _runner => ref.read(sessionRunnerProvider);
 
@@ -65,6 +81,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _ticker?.cancel();
+    _noticeTimer?.cancel();
+    _watch?.cancel();
     super.dispose();
   }
 
@@ -117,15 +135,33 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       _session = session;
       _phase = _Phase.running;
     });
+    _wasPaused = session.isPaused(DateTime.now());
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
-    _tick();
+    // Pauzes komen uit het logboek van de sessie; zo klopt de timer ook als
+    // een ander scherm de apps vrijgeeft of weer dichtzet.
+    _watch = _runner.watchCurrent().listen((fresh) {
+      if (fresh != null && fresh.id == session.id && mounted) {
+        _session = fresh;
+        _tick();
+      }
+    }, onError: (Object _) {});
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tick());
   }
 
   void _tick() {
     final session = _session;
     if (!mounted || session == null || _phase != _Phase.running) return;
-    if (session.isOver(DateTime.now())) {
+    final now = DateTime.now();
+    final paused = session.isPaused(now);
+    if (_wasPaused && !paused) _showResumed(session, now);
+    _wasPaused = paused;
+    if (session.isOver(now)) {
       _finish(early: false);
+    } else if (paused &&
+        !_unblockOpen &&
+        (ModalRoute.of(context)?.isCurrent ?? false)) {
+      // Na een herstart midden in een pauze: het juiste scherm terug.
+      _showUnblocked(session, session.activePause(now)!);
     } else {
       // iOS: een tijdelijk vrijgegeven blokkade weer dichtzetten als de tijd om is.
       ref.read(unblockServiceProvider).reapplyIfExpired().ignore();
@@ -165,28 +201,81 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     }
   }
 
-  /// Een app tijdelijk vrijgeven, bewust en niet te makkelijk.
+  /// Een app tijdelijk vrijgeven, bewust en niet te makkelijk. De timer
+  /// staat pas stil vanaf "Unblock", niet tijdens de pauze ervoor.
   Future<void> _needAnApp() async {
     final session = _session;
-    if (session == null || _phase != _Phase.running) return;
+    if (session == null || _phase != _Phase.running || _unblockOpen) return;
+    _unblockOpen = true;
     await Navigator.of(context).push<void>(MaterialPageRoute<void>(
-      builder: (_) => UnblockFlowScreen(sessionId: session.id),
+      builder: (_) => const UnblockFlowScreen(),
     ));
+    await _afterUnblock(session);
   }
 
+  Future<void> _showUnblocked(RunningSession session, SessionPause pause) async {
+    _unblockOpen = true;
+    await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+      builder: (_) => UnblockedScreen(
+        until: pause.until,
+        granted: pause.until.difference(pause.start),
+        session: session,
+      ),
+    ));
+    await _afterUnblock(session);
+  }
+
+  /// Terug van het vrijgeven: eerst de nieuwe stand uit het logboek, anders
+  /// lijkt de oude stand nog gepauzeerd en gaat het scherm opnieuw open.
+  Future<void> _afterUnblock(RunningSession session) async {
+    try {
+      final fresh = await _runner.current();
+      if (fresh != null && fresh.id == session.id) _session = fresh;
+    } on Object {
+      // De stroom van het logboek komt er ook nog mee.
+    }
+    _unblockOpen = false;
+    _tick();
+  }
+
+  /// De laatste pauze is net voorbij: zeg even hoe lang die duurde.
+  void _showResumed(RunningSession session, DateTime now) {
+    SessionPause? last;
+    for (final p in session.pauses) {
+      if (!p.end.isAfter(now) && (last == null || p.end.isAfter(last.end))) {
+        last = p;
+      }
+    }
+    if (last == null) return;
+    final seconds = last.length.inSeconds;
+    final notice = seconds < 60
+        ? 'Focus resumed · paused for under a minute'
+        : 'Focus resumed · paused for '
+            '${formatDuration((seconds / 60).round())}';
+    _noticeTimer?.cancel();
+    setState(() => _notice = notice);
+    _noticeTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) setState(() => _notice = null);
+    });
+  }
+
+  /// Eerder stoppen gaat via een korte pauze. De timer hier loopt intussen
+  /// gewoon door, dus "Keep going" pakt hem zonder gat weer op.
   Future<void> _askToStop() async {
-    if (_phase != _Phase.running) return;
-    if (await confirmStopEarly(context)) await _finish(early: true);
+    if (_phase != _Phase.running || _askingToStop) return;
+    _askingToStop = true;
+    final end = await Navigator.of(context).push<bool>(MaterialPageRoute<bool>(
+      builder: (_) => const EndEarlyScreen(),
+    ));
+    _askingToStop = false;
+    // De sessie kan intussen vanzelf afgelopen zijn.
+    if (end == true && mounted && _phase == _Phase.running) {
+      await _finish(early: true);
+    }
   }
 
   void _leave() =>
       Navigator.of(context).popUntil((route) => route.isFirst);
-
-  String _clock(Duration d) {
-    final m = d.inMinutes.toString().padLeft(2, '0');
-    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -274,16 +363,20 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           ),
         ];
       case _Phase.running:
-        final left = session!.remaining(DateTime.now());
+        final now = DateTime.now();
+        final left = session!.remaining(now);
         final progress = session.total.inSeconds == 0
             ? 1.0
             : 1 - left.inSeconds / session.total.inSeconds;
         return [
           Semantics(
             liveRegion: false,
+            label: session.isPaused(now)
+                ? 'Focus timer paused, ${formatDuration(minutesLeft(left))} left'
+                : '${formatDuration(minutesLeft(left))} left',
             label: AppLocalizations.of(context).timeLeft(localizedDuration(AppLocalizations.of(context), left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0))),
             child: Text(
-              _clock(left),
+              formatClock(left),
               textAlign: TextAlign.center,
               style: RestType.serif(72),
             ),
@@ -300,6 +393,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
           ),
           const SizedBox(height: 20),
           Text(
+            'Your apps are set aside until '
+            '${formatTime(session.endsAt(now).toLocal())}.',
             AppLocalizations.of(context).appsSetAsideUntil(formatTime(session.endsAt.toLocal())),
             textAlign: TextAlign.center,
             style: RestType.sans(16, color: RestPalette.accent),
@@ -355,7 +450,34 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   List<Widget> _actions() {
     switch (_phase) {
       case _Phase.running:
+        final notice = _notice;
         return [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: notice == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(notice),
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: RestPalette.surface.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: RestPalette.border),
+                        ),
+                        child: Text(
+                          notice,
+                          textAlign: TextAlign.center,
+                          style: RestType.sans(13),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
           TextButton(
             onPressed: _needAnApp,
             style: TextButton.styleFrom(

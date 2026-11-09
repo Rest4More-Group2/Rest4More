@@ -6,7 +6,7 @@ import 'package:rest4more/providers/repository_providers.dart';
 
 import 'moment_apps_section.dart';
 import 'moments_form_widgets.dart';
-import 'today_screen.dart' show RestPalette, RestType;
+import 'today_screen.dart' show RestType;
 
 /// Soort sessie. Focus en Reading werken hetzelfde; ze verschillen in tekst,
 /// duurkeuzes en welk opgeslagen app-profiel standaard gekozen is.

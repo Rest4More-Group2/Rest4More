@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:installed_apps/installed_apps.dart';
 import 'package:rest4more/data/moments/moment_schedule.dart';
+import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/data/moments/unblock_service.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
 import 'moment_app_picker_screen.dart';
 import 'moments_form_widgets.dart';
+import 'unblocked_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
-enum _Step { choose, pause, duration, done }
+enum _Step { choose, pause, duration, unblocked }
 
 /// Een app bewust en niet te makkelijk tijdelijk vrijgeven, naar het ontwerp
 /// van Opal: kies de app, neem een korte pauze, kies hoe lang je hem echt nodig
-/// hebt en bevestig. Na afloop gaat de app vanzelf weer dicht.
+/// hebt en bevestig. Daarna telt [UnblockedScreen] af; de timer van een
+/// lopende sessie staat zo lang stil. Na afloop gaat de app vanzelf weer dicht.
 ///
 /// [initialPackage] slaat het kiezen over (de app die je net probeerde te
 /// openen). Op iOS is er geen app te kiezen: daar pauzeert de hele blokkade.
@@ -24,16 +26,12 @@ class UnblockFlowScreen extends ConsumerStatefulWidget {
   const UnblockFlowScreen({
     super.key,
     this.initialPackage,
-    this.sessionId,
     this.loadApps = loadInstalledApps,
     this.pause = UnblockPolicy.pause,
     this.now,
   });
 
   final String? initialPackage;
-
-  /// De lopende sessie, als er een is. Het vrijgeven wordt daar vastgelegd.
-  final String? sessionId;
   final AppLoader loadApps;
 
   /// Hoe lang de pauze duurt. Alleen tests passen dit aan.
@@ -53,6 +51,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
   bool _working = false;
   String? _error;
   DateTime? _until;
+  RunningSession? _session;
 
   UnblockService get _service => ref.read(unblockServiceProvider);
   DateTime get _now => (widget.now ?? DateTime.now)();
@@ -93,21 +92,23 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
     });
     try {
       final until = await _service.grant(package: _app?.id, minutes: _minutes);
-      final id = widget.sessionId;
-      if (id != null) {
-        // Het vrijgeven staat in het logboek van de sessie. Mislukt dat, dan
-        // blijft het vrijgeven zelf gewoon staan.
-        try {
-          await ref.read(sessionRunnerProvider).logUnblock(id, _minutes);
-        } on Object {
-          // Alleen het logboek.
-        }
+      // De timer van de lopende sessie staat stil zolang de apps vrij zijn.
+      // Dat staat in het logboek van de sessie. Mislukt dat, dan blijft het
+      // vrijgeven zelf gewoon staan.
+      RunningSession? session;
+      try {
+        session = await ref
+            .read(sessionRunnerProvider)
+            .pauseForUnblock(until: until, minutes: _minutes);
+      } on Object {
+        // Alleen het logboek.
       }
       HapticFeedback.mediumImpact();
       if (mounted) {
         setState(() {
           _until = until;
-          _step = _Step.done;
+          _session = session;
+          _step = _Step.unblocked;
         });
       }
     } on Object {
@@ -119,20 +120,16 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
     }
   }
 
-  Future<void> _open() async {
-    final app = _app;
-    if (app != null) {
-      try {
-        await InstalledApps.startApp(app.id);
-      } on Object {
-        // De gebruiker kan hem zelf openen.
-      }
-    }
-    if (mounted) Navigator.pop(context);
-  }
-
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => _step == _Step.unblocked
+      ? UnblockedScreen(
+          until: _until!,
+          granted: Duration(minutes: _minutes),
+          appName: _app?.name,
+          session: _session,
+          now: widget.now,
+        )
+      : Scaffold(
         backgroundColor: RestPalette.background,
         body: SafeArea(
           child: Padding(
@@ -143,6 +140,8 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const MomentCloseButton(
+                        tooltip: 'Cancel and keep it blocked'),
                     if (_step != _Step.done)
                       Align(
                         alignment: Alignment.centerLeft,
@@ -166,7 +165,7 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                                 setState(() => _step = _Step.duration),
                           ),
                         _Step.duration => _durationStep(),
-                        _Step.done => _doneStep(),
+                        _Step.unblocked => const SizedBox.shrink(),
                       },
                     ),
                   ],
@@ -384,8 +383,6 @@ class _PauseStepState extends State<_PauseStep>
 
   @override
   Widget build(BuildContext context) {
-    // Wie minder beweging wil, ziet de balk in stappen in plaats van glijdend.
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -409,6 +406,11 @@ class _PauseStepState extends State<_PauseStep>
         const SizedBox(height: 40),
         Semantics(
           label: _ready
+              ? 'Pause finished'
+              : 'Pause in progress, a few seconds',
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => BreatheBar(value: _controller.value),
               ? AppLocalizations.of(context).pauseFinished
               : AppLocalizations.of(context).pauseInProgress,
           child: ClipRRect(

@@ -394,3 +394,48 @@ class MomentPrimaryButton extends StatelessWidget {
         ),
       );
 }
+
+/// Ronde sluitknop linksboven op de "adem even"-schermen. Gaat terug via
+/// `maybePop`, net als de systeemterugknop.
+class MomentCloseButton extends StatelessWidget {
+  const MomentCloseButton({super.key, required this.tooltip});
+
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.centerLeft,
+        child: IconButton(
+          onPressed: () => Navigator.maybePop(context),
+          tooltip: tooltip,
+          style: IconButton.styleFrom(
+            backgroundColor: RestPalette.surface,
+            foregroundColor: RestPalette.primary,
+            minimumSize: const Size(44, 44),
+          ),
+          icon: const Icon(Icons.close),
+        ),
+      );
+}
+
+/// De balk van de "adem even"-pauze, van 0 tot 1. Wie minder beweging wil,
+/// ziet hem in stappen vollopen in plaats van glijdend.
+class BreatheBar extends StatelessWidget {
+  const BreatheBar({super.key, required this.value});
+
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(100),
+      child: LinearProgressIndicator(
+        value: reduceMotion ? (value * 5).floor() / 5 : value,
+        minHeight: 8,
+        backgroundColor: RestPalette.surface,
+        color: RestPalette.primary,
+      ),
+    );
+  }
+}

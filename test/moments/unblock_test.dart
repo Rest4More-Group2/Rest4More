@@ -96,7 +96,8 @@ void main() {
     expect(calls.single.method, 'reapplyIfExpired');
   });
 
-  test('vrijgeven staat in het logboek en laat de sessie doorlopen', () async {
+  test('vrijgeven staat in het logboek en zet de timer van de sessie stil',
+      () async {
     final db = memoryDb();
     addTearDown(db.close);
     final container =
@@ -108,16 +109,46 @@ void main() {
           channel: channel, isAndroid: true, isIos: false),
       platform: SessionPlatform.android,
     );
-    final running = await runner.start(kind: MomentKind.focus, minutes: 25);
+    await runner.start(kind: MomentKind.focus, minutes: 25);
+    final until = DateTime.now().add(const Duration(minutes: 10));
 
-    await runner.logUnblock(running.id, 10);
+    final paused = await runner.pauseForUnblock(until: until, minutes: 10);
 
+    expect(paused!.isPaused(DateTime.now()), isTrue);
     final row = (await db.select(db.focusSessions).get()).single;
     expect(row.state, SessionState.active);
     final unblock =
         row.events.where((e) => e.event == SessionEventType.unblockGranted);
     expect(unblock.single.minutes, 10);
+    expect(unblock.single.at.isAtSameMomentAs(
+            until.subtract(const Duration(minutes: 10))), isTrue,
+        reason: 'de pauze is precies even lang als de vrijgave');
     expect(row.endedAt, isNull);
+  });
+
+  test('zonder lopende sessie wordt er niets gepauzeerd', () async {
+    final db = memoryDb();
+    addTearDown(db.close);
+    final container =
+        ProviderContainer(overrides: [databaseProvider.overrideWithValue(db)]);
+    addTearDown(container.dispose);
+    final runner = SessionRunner(
+      FocusSessionRepository(db),
+      MomentBlocking(container.read(momentProfileServiceProvider),
+          channel: channel, isAndroid: true, isIos: false),
+    );
+    expect(
+      await runner.pauseForUnblock(until: DateTime.now(), minutes: 5),
+      isNull,
+    );
+  });
+
+  test('weer dichtzetten gaat via het toestel, voor elke vrijgave', () async {
+    await service().revoke();
+    expect(calls.single.method, 'revokeUnblock');
+    calls.clear();
+    await service(android: false).revoke();
+    expect(calls.single.method, 'revokeUnblock');
   });
 
   test('een gebeurtenis zonder minuten schrijft geen minuten weg', () {
