@@ -61,7 +61,7 @@ class ReminderService {
     final reminders = await _plan();
     if (reminders == null) return;
     if (reminders.isEmpty) {
-      await _scheduler.cancelAll();
+      await _scheduler.cancelDailyReminders();
       await _store.cancelAll();
       return;
     }
