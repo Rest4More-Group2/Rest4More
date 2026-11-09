@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -105,12 +106,13 @@ class _TagMomentScreenState extends State<TagMomentScreen>
 
   Future<void> _scan() async {
     if (_scanning) return;
+    final l10n = AppLocalizations.of(context);
     final availability = await NfcManager.instance.checkAvailability();
     if (!mounted) return;
     if (availability != NfcAvailability.enabled) {
       _message(availability == NfcAvailability.disabled
-          ? 'NFC is turned off. Enable it in your phone settings.'
-          : 'This device does not support NFC.');
+          ? l10n.nfcOff
+          : l10n.nfcUnsupported);
       return;
     }
 
@@ -119,8 +121,8 @@ class _TagMomentScreenState extends State<TagMomentScreen>
       await NfcManager.instance.startSession(
         pollingOptions: TagService.pollingOptions,
         alertMessageIos: _active
-            ? 'Hold your iPhone near your tag to end'
-            : 'Hold your iPhone near your tag to begin',
+            ? l10n.holdNearTagToEnd
+            : l10n.holdNearTagToBegin,
         onSessionErrorIos: (error) {
           debugPrint('NFC session ended: ${error.code} ${error.message}');
           _scanning = false;
@@ -128,7 +130,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
           setState(() {});
           if (error.code !=
               NfcReaderErrorCodeIos.readerSessionInvalidationErrorUserCanceled) {
-            _message('Scanning stopped: ${error.message}');
+            _message(l10n.scanningStopped(error.message));
           }
         },
         onDiscovered: (tag) async {
@@ -137,7 +139,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
             final uuid = TagService.uuidFromTag(tag);
             final known = await TagService.getKnownTags();
             if (uuid == null || !known.contains(uuid)) {
-              message = 'This is not one of your paired tags.';
+              message = l10n.notYourTag;
             } else {
               final next = !_active;
               await MomentBlocking(_service).setBlocking(MomentKind.tag, next);
@@ -145,7 +147,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
             }
           } catch (e) {
             debugPrint('Tag scan error: $e');
-            message = 'Could not read this tag. Please try again.';
+            message = l10n.couldNotReadTag;
           } finally {
             _scanning = false;
             await NfcManager.instance.stopSession();
@@ -158,7 +160,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
     } catch (e) {
       debugPrint('NFC error: $e');
       _scanning = false;
-      _message('Could not start scanning.');
+      _message(l10n.couldNotStartScanning);
       if (mounted) setState(() {});
     }
   }
@@ -167,10 +169,10 @@ class _TagMomentScreenState extends State<TagMomentScreen>
   Widget build(BuildContext context) {
     final hasTags = _tagCount > 0;
     final primaryLabel = _scanning
-        ? 'Waiting for tag…'
+        ? AppLocalizations.of(context).waitingForTag
         : !hasTags
-            ? 'Pair a tag first'
-            : _active ? 'Scan tag to end' : 'Scan tag to begin';
+            ? AppLocalizations.of(context).pairTagFirst
+            : _active ? AppLocalizations.of(context).scanTagToEnd : AppLocalizations.of(context).scanTagToBegin;
 
     return Scaffold(
       backgroundColor: RestPalette.background,
@@ -226,7 +228,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                     children: [
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        tooltip: 'Back to Moments',
+                        tooltip: AppLocalizations.of(context).backToMoments,
                         style: IconButton.styleFrom(
                           backgroundColor: RestPalette.surface,
                           foregroundColor: RestPalette.primary,
@@ -235,7 +237,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                         icon: const Icon(Icons.chevron_left),
                       ),
                       const SizedBox(width: 12),
-                      Text('Moments', style: RestType.sans(15,
+                      Text(AppLocalizations.of(context).tabMoments, style: RestType.sans(15,
                           color: RestPalette.primary,
                           weight: FontWeight.w600)),
                     ],
@@ -256,11 +258,10 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('Tag', style: RestType.serif(44)),
+                  Text(AppLocalizations.of(context).momentTagTitle, style: RestType.serif(44)),
                   const SizedBox(height: 12),
                   Text(
-                    'Put your apps aside with a tap, and bring them back '
-                    'with the same tag.',
+                    AppLocalizations.of(context).tagMomentDescription,
                     style: RestType.sans(17, color: RestPalette.accent),
                   ),
                   const SizedBox(height: 24),
@@ -279,14 +280,14 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('TAG MOMENT', style: RestType.sans(11,
+                        Text(AppLocalizations.of(context).tagMomentEyebrow, style: RestType.sans(11,
                             color: RestPalette.accent,
                             weight: FontWeight.w600)),
                         const SizedBox(height: 14),
                         Row(
                           children: [
                             Expanded(child: Text(
-                              _loading ? 'Checking' : _active ? 'Active' : 'Not active',
+                              _loading ? AppLocalizations.of(context).statusChecking : _active ? AppLocalizations.of(context).statusActive : AppLocalizations.of(context).statusNotActive,
                               style: RestType.serif(28),
                             )),
                             Icon(_active ? Icons.shield : Icons.shield_outlined,
@@ -296,12 +297,10 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                         const SizedBox(height: 12),
                         Text(
                           _active
-                              ? 'Your apps are set aside. Only your tag can '
-                                'end this moment.'
+                              ? AppLocalizations.of(context).tagActiveBody
                               : hasTags
-                                  ? 'Ready when you are. Scan your tag to set '
-                                    'your apps aside.'
-                                  : 'Pair a tag to use this moment.',
+                                  ? AppLocalizations.of(context).tagReadyBody
+                                  : AppLocalizations.of(context).tagPairBody,
                           style: RestType.sans(14),
                         ),
                       ],
@@ -322,7 +321,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                         children: [
                           const Icon(Icons.apps_outlined, size: 22),
                           const SizedBox(width: 12),
-                          Expanded(child: Text('Choose apps to set aside',
+                          Expanded(child: Text(AppLocalizations.of(context).chooseAppsToSetAside,
                               style: RestType.sans(15,
                                   color: RestPalette.primary,
                                   weight: FontWeight.w600))),
@@ -341,23 +340,23 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('How it works', style: RestType.serif(27)),
+                        Text(AppLocalizations.of(context).howItWorks, style: RestType.serif(27)),
                         const SizedBox(height: 18),
-                        _step(1, 'Choose the apps you want to set aside.'),
+                        _step(1, AppLocalizations.of(context).tagStep1),
                         const SizedBox(height: 16),
-                        _step(2, 'Scan your tag to begin.'),
+                        _step(2, AppLocalizations.of(context).tagStep2),
                         const SizedBox(height: 16),
-                        _step(3, 'Scan the same tag again to end.'),
+                        _step(3, AppLocalizations.of(context).tagStep3),
                       ],
                     ),
                   ),
                   const SizedBox(height: 26),
-                  Text('A GENTLE REMINDER', textAlign: TextAlign.center,
+                  Text(AppLocalizations.of(context).aGentleReminder, textAlign: TextAlign.center,
                       style: RestType.sans(12,
                           color: RestPalette.accent,
                           weight: FontWeight.w600)),
                   const SizedBox(height: 10),
-                  Text('“Put it down. Pick it up when you choose.”',
+                  Text('“${AppLocalizations.of(context).tagQuote}”',
                       textAlign: TextAlign.center,
                       style: RestType.serif(24)
                           .copyWith(fontStyle: FontStyle.italic)),

@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/intake_providers.dart';
@@ -49,7 +50,7 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -59,7 +60,7 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      'Back',
+                      AppLocalizations.of(context).back,
                       style: TextStyle(
                         color: brown,
                         fontSize: 14,
@@ -71,8 +72,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                'STEP 3 OF 5',
+              Text(
+                AppLocalizations.of(context).stepOfFive(3),
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -82,8 +83,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               const SizedBox(height: 10),
 
-              const Text(
-                'When does your day\nusually wind down?',
+              Text(
+                AppLocalizations.of(context).rhythmTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -94,9 +95,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               const SizedBox(height: 14),
 
-              const Text(
-                'Tell us roughly when your energy begins to slip. '
-                'We’ll match your rest plan to your natural rhythm.',
+              Text(
+                AppLocalizations.of(context).rhythmIntro,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -108,8 +108,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               RhythmOptionCard(
                 icon: Icons.wb_twilight_outlined,
-                title: '8:00 – 10:00 PM',
-                description: 'I usually start winding down early.',
+                title: AppLocalizations.of(context).rhythmEarlyTitle,
+                description: AppLocalizations.of(context).rhythmEarlyDesc,
                 isSelected: selectedRhythm == 0,
                 onTap: () {
                   setState(() {
@@ -122,8 +122,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               RhythmOptionCard(
                 icon: Icons.nightlight_outlined,
-                title: '10:00 PM – 12:00 AM',
-                description: 'My evenings usually continue a little longer.',
+                title: AppLocalizations.of(context).rhythmMidTitle,
+                description: AppLocalizations.of(context).rhythmMidDesc,
                 isSelected: selectedRhythm == 1,
                 onTap: () {
                   setState(() {
@@ -136,8 +136,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
 
               RhythmOptionCard(
                 icon: Icons.bedtime_outlined,
-                title: 'After midnight',
-                description: 'I normally wind down quite late at night.',
+                title: AppLocalizations.of(context).rhythmLateTitle,
+                description: AppLocalizations.of(context).rhythmLateDesc,
                 isSelected: selectedRhythm == 2,
                 onTap: () {
                   setState(() {
@@ -172,8 +172,8 @@ class _RhythmScreenState extends ConsumerState<RhythmScreen> {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
+                  child: Text(
+                    AppLocalizations.of(context).continueLabel,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

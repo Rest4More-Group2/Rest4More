@@ -1,5 +1,5 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -94,7 +94,11 @@ Future<AppDatabase> pumpScreen(WidgetTester tester, Widget screen,
         reminderSchedulerProvider
             .overrideWithValue(scheduler ?? FakeReminderScheduler()),
       ],
-      child: MaterialApp(home: screen),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: screen,
+      ),
     ),
   );
   await tester.pump();

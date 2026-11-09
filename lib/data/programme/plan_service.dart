@@ -1,3 +1,4 @@
+import '../../l10n/app_localizations.dart';
 import '../database/app_database.dart';
 import '../database/enums.dart';
 import '../repositories/profile_repository.dart';
@@ -12,11 +13,15 @@ import 'plan_selector.dart';
 /// uitgewerkte inhoud van elke dag (zodat later te zien is wat de gebruiker
 /// kreeg, ook als de inhoud verandert).
 class PlanService {
-  PlanService(this._db, this._loadCatalog, {this._now = DateTime.now});
+  PlanService(this._db, this._loadCatalog,
+      {this._now = DateTime.now, this._l10n});
 
   final AppDatabase _db;
   final Future<ContentCatalog> Function() _loadCatalog;
   final DateTime Function() _now;
+
+  /// De taal voor de teksten die in het plan worden gezet. Zonder is het Engels.
+  final AppLocalizations Function()? _l10n;
 
   /// Versie van de regels die het plan samenstellen. Wordt bij de deelname
   /// bewaard. Verhoog dit als de selectie verandert.
@@ -31,11 +36,11 @@ class PlanService {
     if (profile.intakeCompletedAt == null) return false;
     if (await _hasEnrollment()) return false;
 
-    final input = PlanInput.fromProfile(profile);
+    final input = PlanInput.fromProfile(profile, l10n: _l10n?.call());
     if (input == null) return false;
 
     final catalog = await _loadCatalog();
-    final days = selectPlan(input, catalog);
+    final days = selectPlan(input, catalog, l10n: _l10n?.call());
 
     final now = _now();
     final start = planStartDate(now: now, reminderMinutes: input.reminderMinutes);

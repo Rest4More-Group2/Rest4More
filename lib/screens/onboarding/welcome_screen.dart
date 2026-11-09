@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'goal_screen.dart';
 
@@ -75,8 +76,8 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              const Text(
-                'WELCOME TO REST FOR MORE',
+              Text(
+                AppLocalizations.of(context).welcomeEyebrow,
                 style: TextStyle(
                   color: brown,
                   fontSize: 11,
@@ -86,8 +87,8 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              const Text(
-                'A thoughtful path to\nintentional rest',
+              Text(
+                AppLocalizations.of(context).welcomeTitle,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 32,
@@ -98,11 +99,8 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              const Text(
-                "We believe that productivity is only half of life’s "
-                "rhythm. Let us help you put the phone down, "
-                "clear your thoughts, and create personal "
-                "space for slow, deep recovery.",
+              Text(
+                AppLocalizations.of(context).welcomeBody,
                 style: TextStyle(
                   color: darkBrown,
                   fontSize: 14,
@@ -112,14 +110,14 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              const _BenefitRow(
-                text: 'No account needed to start your custom routine',
+              _BenefitRow(
+                text: AppLocalizations.of(context).welcomeBenefit1,
               ),
 
               const SizedBox(height: 14),
 
-              const _BenefitRow(
-                text: 'A gentle, guided 14-day progressive plan',
+              _BenefitRow(
+                text: AppLocalizations.of(context).welcomeBenefit2,
               ),
 
               const Spacer(),
@@ -144,8 +142,8 @@ class WelcomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(28),
                     ),
                   ),
-                  child: const Text(
-                    'Get started',
+                  child: Text(
+                    AppLocalizations.of(context).getStarted,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,

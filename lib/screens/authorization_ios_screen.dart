@@ -1,3 +1,4 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -90,7 +91,7 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen>
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () => Navigator.pop(context),
-                      tooltip: 'Back',
+                      tooltip: AppLocalizations.of(context).back,
                       style: IconButton.styleFrom(
                         backgroundColor: RestPalette.surface,
                         foregroundColor: RestPalette.primary,
@@ -126,16 +127,14 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen>
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      denied ? 'Access is off' : 'Screen Time access',
+                      denied ? AppLocalizations.of(context).accessIsOff : AppLocalizations.of(context).screenTimeAccess,
                       style: RestType.serif(44),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       denied
-                          ? 'Allow Screen Time access in Settings, then come '
-                            'back to choose your apps.'
-                          : 'Rest4More needs Screen Time access to set your '
-                            'chosen apps aside. Your choices stay on this phone.',
+                          ? AppLocalizations.of(context).allowScreenTimeInSettings
+                          : AppLocalizations.of(context).screenTimeNeeded,
                       style: RestType.sans(17, color: RestPalette.accent),
                     ),
                     const Spacer(),
@@ -153,7 +152,7 @@ class _AuthorizationIosScreenState extends State<AuthorizationIosScreen>
                       child: Row(
                         children: [
                           Text(
-                            denied ? 'Open Settings' : 'Allow access',
+                            denied ? AppLocalizations.of(context).openSettings : AppLocalizations.of(context).allowAccess,
                             style: RestType.sans(17,
                                 color: RestPalette.background,
                                 weight: FontWeight.w600),

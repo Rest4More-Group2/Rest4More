@@ -4,6 +4,8 @@ import '../database/app_database.dart';
 import '../database/enums.dart';
 import '../repositories/profile_repository.dart';
 import '../repositories/programme_repository.dart';
+import '../../l10n/app_localizations.dart';
+import '../../l10n/plan_labels.dart';
 import 'content_catalog.dart';
 import 'plan_explanation.dart';
 import 'plan_input.dart';
@@ -72,38 +74,45 @@ class PlanAdjustment {
         stepSize: stepSize == null ? const Value.absent() : Value(stepSize),
       );
 
-  List<PlanChange> changesFrom(Profile profile) {
+  List<PlanChange> changesFrom(Profile profile, {AppLocalizations? l10n}) {
+    final t = l10n ?? englishL10n();
     String goalText(PrimaryGoal? g) =>
-        PlanExplanation.goalLabels[g?.id] ?? 'Not chosen';
+        g == null || g == PrimaryGoal.unknown
+            ? t.notChosen
+            : goalLabel(t, g.id);
     String obstacleText(Obstacle? o) =>
-        PlanExplanation.obstacleLabels[o?.id] ?? 'Not chosen';
+        o == null || o == Obstacle.unknown
+            ? t.notChosen
+            : obstacleLabel(t, o.id);
     String activityText(PreferredActivity? a) =>
-        PlanExplanation.activityLabels[PlanPhrases.forActivity(a).activity] ??
-        'Not chosen';
+        PlanExplanation.activityLabel(t, PlanPhrases.forActivity(a, t).activity) ??
+        t.notChosen;
     String sizeText(StepSize? s) =>
-        s == StepSize.short ? 'Smaller steps' : 'Standard steps';
+        s == StepSize.short ? t.smallerSteps : t.standardSteps;
     return [
       if (goal != null)
-        PlanChange('Goal', goalText(profile.primaryGoal), goalText(goal)),
+        PlanChange(t.changeGoal, goalText(profile.primaryGoal), goalText(goal)),
       if (obstacle != null)
-        PlanChange('What gets in the way', obstacleText(profile.obstacle),
+        PlanChange(t.reasonObstacle, obstacleText(profile.obstacle),
             obstacleText(obstacle)),
       if (activity != null)
-        PlanChange('Calm activity', activityText(profile.preferredActivity),
+        PlanChange(t.calmActivity, activityText(profile.preferredActivity),
             activityText(activity)),
       if (stepSize != null)
-        PlanChange('Step size', sizeText(profile.stepSize), sizeText(stepSize)),
+        PlanChange(t.reasonStepSize, sizeText(profile.stepSize), sizeText(stepSize)),
     ];
   }
 }
 
 /// Voert een bevestigde aanpassing door. Schrijft alleen via de repositories.
 class PlanAdjustmentService {
-  PlanAdjustmentService(this._db, this._loadCatalog, {this._now = DateTime.now});
+  PlanAdjustmentService(this._db, this._loadCatalog,
+      {this._now = DateTime.now, this._l10n});
 
   final AppDatabase _db;
   final Future<ContentCatalog> Function() _loadCatalog;
   final DateTime Function() _now;
+  final AppLocalizations Function()? _l10n;
 
   /// Bewaart de gewijzigde antwoorden. Tijdens de onboarding is dat genoeg:
   /// het plan wordt aan het eind gemaakt. Loopt er al een programma, dan wordt
@@ -137,9 +146,9 @@ class PlanAdjustmentService {
         return;
       }
 
-      final input = PlanInput.fromProfile(await profiles.get());
+      final input = PlanInput.fromProfile(await profiles.get(), l10n: _l10n?.call());
       if (input == null) return;
-      final days = selectPlan(input, catalog);
+      final days = selectPlan(input, catalog, l10n: _l10n?.call());
       final start =
           planStartDate(now: _now(), reminderMinutes: input.reminderMinutes);
       final dates = planDates(start);

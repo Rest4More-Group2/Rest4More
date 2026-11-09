@@ -1,10 +1,14 @@
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_plans.dart';
+import 'package:rest4more/data/moments/moment_schedule.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
 import 'evening_screen.dart';
 import 'morning_screen.dart';
+import 'manual_routine_screen.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'today_screen.dart' show RestPalette;
 
 /// Avondpagina met het bewaarde plan. Opslaan schrijft het plan weg en sluit
@@ -19,7 +23,27 @@ class SavedEveningScreen extends ConsumerWidget {
       load: () async => await store.loadEvening() ?? EveningPlan.initial(),
       builder: (plan) => EveningScreen(
         initial: plan,
-        onSave: (p) => saveAndClose(context, 'Evening', () => store.saveEvening(p)),
+        onSave: (p) => saveAndClose(context, AppLocalizations.of(context).momentEveningTitle, () => store.saveEvening(p)),
+        onStartNow: (p) async {
+          try {
+            await store.saveEvening(p);
+          } on Object {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Could not save evening. Please try again.')),
+              );
+            }
+            return;
+          }
+          if (!context.mounted) return;
+          await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+            builder: (_) => ManualRoutineScreen(
+              kind: MomentKind.evening,
+              minutes: totalMinutes(p.steps),
+              strict: p.end == EveningEnd.atNextScan,
+            ),
+          ));
+        },
       ),
     );
   }
@@ -35,7 +59,27 @@ class SavedMorningScreen extends ConsumerWidget {
       load: () async => await store.loadMorning() ?? MorningPlan.initial(),
       builder: (plan) => MorningScreen(
         initial: plan,
-        onSave: (p) => saveAndClose(context, 'Morning', () => store.saveMorning(p)),
+        onSave: (p) => saveAndClose(context, AppLocalizations.of(context).momentMorningTitle, () => store.saveMorning(p)),
+        onStartNow: (p) async {
+          try {
+            await store.saveMorning(p);
+          } on Object {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Could not save morning. Please try again.')),
+              );
+            }
+            return;
+          }
+          if (!context.mounted) return;
+          await Navigator.of(context).push<void>(MaterialPageRoute<void>(
+            builder: (_) => ManualRoutineScreen(
+              kind: MomentKind.morning,
+              minutes: totalMinutes(p.steps),
+              strict: false,
+            ),
+          ));
+        },
       ),
     );
   }
@@ -48,17 +92,18 @@ Future<void> saveAndClose(
   String name,
   Future<void> Function() save,
 ) async {
+  final l10n = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final navigator = Navigator.of(context);
   try {
     await save();
   } on Object {
     messenger.showSnackBar(
-      SnackBar(content: Text('Could not save your $name. Please try again.')),
+      SnackBar(content: Text(l10n.couldNotSaveMoment(name))),
     );
     return;
   }
-  messenger.showSnackBar(SnackBar(content: Text('$name saved')));
+  messenger.showSnackBar(SnackBar(content: Text(l10n.momentSaved(name))));
   navigator.pop();
 }
 
@@ -86,7 +131,7 @@ class _SavedPageState<T> extends State<_SavedPage<T>> {
               child: snapshot.hasError
                   ? TextButton(
                       onPressed: () => setState(() => _future = widget.load()),
-                      child: const Text('Could not load. Try again'),
+                      child: Text(AppLocalizations.of(context).couldNotLoad),
                     )
                   : const CircularProgressIndicator(color: RestPalette.primary),
             ),

@@ -1,3 +1,5 @@
+import 'package:rest4more/l10n/app_localizations.dart';
+import 'package:rest4more/l10n/plan_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/database/app_database.dart';
@@ -81,8 +83,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your changes could not be saved. Please try again.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).adjustSaveFailed),
         ),
       );
       return;
@@ -118,13 +120,13 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
                           Navigator.pop(context);
                         }
                       },
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.arrow_back, size: 18, color: brown),
                           SizedBox(width: 6),
                           Text(
-                            'Back',
+                            AppLocalizations.of(context).back,
                             style: TextStyle(
                               color: brown,
                               fontSize: 14,
@@ -150,15 +152,15 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
     if (!_reviewing) {
       return [
         _MainButton(
-          label: 'Review changes',
+          label: AppLocalizations.of(context).reviewChanges,
           onPressed: _canReview ? () => setState(() => _reviewing = true) : null,
         ),
         const SizedBox(height: 12),
         Center(
           child: TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Keep my current plan',
+            child: Text(
+              AppLocalizations.of(context).keepCurrentPlan,
               style: TextStyle(
                 color: brown,
                 fontSize: 13,
@@ -170,15 +172,15 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
     }
     return [
       _MainButton(
-        label: 'Confirm changes',
+        label: AppLocalizations.of(context).confirmChanges,
         onPressed: _saving ? null : _confirm,
       ),
       const SizedBox(height: 12),
       Center(
         child: TextButton(
           onPressed: _saving ? null : () => setState(() => _reviewing = false),
-          child: const Text(
-            'Keep editing',
+          child: Text(
+            AppLocalizations.of(context).keepEditing,
             style: TextStyle(
               color: brown,
               fontSize: 13,
@@ -192,8 +194,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
   Widget _buildChoices() {
     return ListView(
       children: [
-        const Text(
-          'ADJUST YOUR PLAN',
+        Text(
+          AppLocalizations.of(context).adjustEyebrow,
           style: TextStyle(
             color: brown,
             fontSize: 11,
@@ -201,8 +203,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
-          'Make the plan\nfit you',
+        Text(
+          AppLocalizations.of(context).adjustTitle,
           style: TextStyle(
             color: darkBrown,
             fontSize: 32,
@@ -211,9 +213,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Change only what doesn’t fit. Your other answers stay as they are, '
-          'so you don’t have to start over.',
+        Text(
+          AppLocalizations.of(context).adjustIntro,
           style: TextStyle(
             color: darkBrown,
             fontSize: 14,
@@ -222,21 +223,20 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
         ),
         const SizedBox(height: 24),
         _Section(
-          title: 'How big should each step be?',
+          title: AppLocalizations.of(context).stepSizeQuestion,
           child: Column(
             children: [
               _SizeOption(
-                title: 'Standard steps',
-                description: 'The full version of each day’s step.',
+                title: AppLocalizations.of(context).standardSteps,
+                description: AppLocalizations.of(context).standardStepsDesc,
                 selected: !_smaller,
                 onTap: () => setState(() => _smaller = false),
               ),
               const SizedBox(height: 10),
               _SizeOption(
-                title: 'Smaller steps',
+                title: AppLocalizations.of(context).smallerSteps,
                 description:
-                    'A lighter version of each step. It counts just as much, '
-                    'and you keep all 14 days.',
+                    AppLocalizations.of(context).smallerStepsDesc,
                 selected: _smaller,
                 onTap: () => setState(() => _smaller = true),
               ),
@@ -244,29 +244,34 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           ),
         ),
         _Section(
-          title: 'Your goal',
+          title: AppLocalizations.of(context).yourGoal,
           child: _Chips<PrimaryGoal>(
             values: IntakeMapping.goals,
-            label: (g) => PlanExplanation.goalLabels[g.id]!,
+            label: (g) => goalLabel(AppLocalizations.of(context), g.id),
             selected: _goal,
             onTap: (g) => setState(() => _goal = g),
           ),
         ),
         _Section(
-          title: 'What gets in the way most?',
+          title: AppLocalizations.of(context).obstacleQuestion,
           child: _Chips<Obstacle>(
             values: IntakeMapping.obstacles,
-            label: (o) => PlanExplanation.obstacleLabels[o.id]!,
+            label: (o) => obstacleLabel(AppLocalizations.of(context), o.id),
             selected: _obstacle,
             onTap: (o) => setState(() => _obstacle = o),
           ),
         ),
         _Section(
-          title: 'Calm activity',
+          title: AppLocalizations.of(context).calmActivity,
           child: _Chips<PreferredActivity>(
             values: IntakeMapping.activities,
-            label: (a) => PlanExplanation
-                .activityLabels[PlanPhrases.forActivity(a).activity]!,
+            label: (a) => switch (a) {
+              PreferredActivity.reading =>
+                AppLocalizations.of(context).activityReadingTitle,
+              PreferredActivity.breathing =>
+                AppLocalizations.of(context).activityBreathingTitle,
+              _ => AppLocalizations.of(context).activityQuietTitle,
+            },
             selected: _activity,
             onTap: (a) => setState(() => _activity = a),
           ),
@@ -278,18 +283,19 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
   Widget _buildReview() {
     final profile = _profile!;
     final adjustment = _adjustment;
-    final changes = adjustment.changesFrom(profile);
+    final l10n = AppLocalizations.of(context);
+    final changes = adjustment.changesFrom(profile, l10n: l10n);
     final after = adjustment.applyTo(profile);
-    final input = PlanInput.fromProfile(after)!;
-    final preview = PlanPreview.build(input, _catalog!);
+    final input = PlanInput.fromProfile(after, l10n: l10n)!;
+    final preview = PlanPreview.build(input, _catalog!, l10n: l10n);
     final explanation = PlanExplanation.build(input, _catalog!,
-        windDownStartMinutes: after.bedtimeMinutes);
+        windDownStartMinutes: after.bedtimeMinutes, l10n: l10n);
     final running = ref.watch(activeEnrollmentProvider).value != null;
 
     return ListView(
       children: [
-        const Text(
-          'Review your changes',
+        Text(
+          AppLocalizations.of(context).reviewYourChanges,
           style: TextStyle(
             color: darkBrown,
             fontSize: 28,
@@ -298,8 +304,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Nothing is saved until you confirm.',
+        Text(
+          AppLocalizations.of(context).nothingSavedUntilConfirm,
           style: TextStyle(
             color: darkBrown,
             fontSize: 14,
@@ -344,10 +350,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           const SizedBox(height: 4),
           Text(
             adjustment.onlyStepSize
-                ? 'The days still to come get the new step size. Days you '
-                    'already did stay as they are.'
-                : 'Your new plan becomes your active plan and starts at day 1. '
-                    'What you already did stays saved.',
+                ? AppLocalizations.of(context).adjustRunningStepSize
+                : AppLocalizations.of(context).adjustRunningNewPlan,
             style: const TextStyle(
               color: brown,
               fontSize: 12,
@@ -356,8 +360,8 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
           ),
         ],
         const SizedBox(height: 20),
-        const Text(
-          'Your first days',
+        Text(
+          AppLocalizations.of(context).yourFirstDays,
           style: TextStyle(
             color: darkBrown,
             fontSize: 16,
@@ -372,7 +376,7 @@ class _AdjustPlanScreenState extends ConsumerState<AdjustPlanScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Day ${day.day}: ${day.title}',
+                  AppLocalizations.of(context).dayWithTitle(day.day, day.title),
                   style: const TextStyle(
                     color: darkBrown,
                     fontSize: 13,
