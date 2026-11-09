@@ -16,11 +16,13 @@ class MorningScreen extends StatefulWidget {
     super.key,
     this.initial,
     this.onSave,
+    this.onStartNow,
     this.now,
   });
 
   final MorningPlan? initial;
   final ValueChanged<MorningPlan>? onSave;
+  final Future<void> Function(MorningPlan)? onStartNow;
 
   /// Voor tests: de "nu" waarmee het voorbeeld wordt uitgerekend.
   final DateTime? now;
@@ -31,10 +33,28 @@ class MorningScreen extends StatefulWidget {
 
 class _MorningScreenState extends State<MorningScreen> {
   late MorningPlan _plan = widget.initial ?? MorningPlan.initial();
+  bool _starting = false;
+
+  Future<void> _startNow() async {
+    if (_starting || widget.onStartNow == null) return;
+    setState(() => _starting = true);
+    try {
+      await widget.onStartNow!(_plan);
+    } finally {
+      if (mounted) setState(() => _starting = false);
+    }
+  }
+
 
   void _setDay(MorningDay day) => setState(() {
         _plan = _plan.copyWith(days: [
           for (final d in _plan.days) d.weekday == day.weekday ? day : d,
+        ]);
+      });
+
+  void _setAllTimes(int minutes) => setState(() {
+        _plan = _plan.copyWith(days: [
+          for (final day in _plan.days) day.copyWith(wakeMinutes: minutes),
         ]);
       });
 
@@ -61,11 +81,23 @@ class _MorningScreenState extends State<MorningScreen> {
     return MomentPage(
       title: 'Morning',
       subtitle: 'Start the day before your phone does.',
-      bottom: MomentPrimaryButton(
-        label: 'Save morning',
-        onPressed: widget.onSave == null || steps.isEmpty
-            ? null
-            : () => widget.onSave!(_plan),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MomentPrimaryButton(
+            label: _starting ? 'Starting…' : 'Start Morning now',
+            onPressed: _starting || widget.onStartNow == null || steps.isEmpty
+                ? null
+                : _startNow,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _starting || widget.onSave == null || steps.isEmpty
+                ? null
+                : () => widget.onSave!(_plan),
+            child: const Text('Save morning'),
+          ),
+        ],
       ),
       children: [
         const MomentAppsSection(kind: MomentKind.morning),
@@ -76,6 +108,16 @@ class _MorningScreenState extends State<MorningScreen> {
               'at the time you choose here.',
           child: Column(
             children: [
+              Row(
+                children: [
+                  const Expanded(child: Text('Set time for all days')),
+                  TimeButton(
+                    minutes: _plan.days.first.wakeMinutes,
+                    onChanged: _setAllTimes,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               for (final day in _plan.days)
                 WeekdayTimeRow(
                   name: weekdayName(day.weekday),

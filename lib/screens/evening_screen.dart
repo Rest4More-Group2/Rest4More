@@ -15,11 +15,13 @@ class EveningScreen extends StatefulWidget {
     super.key,
     this.initial,
     this.onSave,
+    this.onStartNow,
     this.now,
   });
 
   final EveningPlan? initial;
   final ValueChanged<EveningPlan>? onSave;
+  final Future<void> Function(EveningPlan)? onStartNow;
 
   /// Voor tests: de "nu" waarmee het voorbeeld wordt uitgerekend.
   final DateTime? now;
@@ -30,10 +32,28 @@ class EveningScreen extends StatefulWidget {
 
 class _EveningScreenState extends State<EveningScreen> {
   late EveningPlan _plan = widget.initial ?? EveningPlan.initial();
+  bool _starting = false;
+
+  Future<void> _startNow() async {
+    if (_starting || widget.onStartNow == null) return;
+    setState(() => _starting = true);
+    try {
+      await widget.onStartNow!(_plan);
+    } finally {
+      if (mounted) setState(() => _starting = false);
+    }
+  }
+
 
   void _setDay(EveningDay day) => setState(() {
         _plan = _plan.copyWith(days: [
           for (final d in _plan.days) d.weekday == day.weekday ? day : d,
+        ]);
+      });
+
+  void _setAllTimes(int minutes) => setState(() {
+        _plan = _plan.copyWith(days: [
+          for (final day in _plan.days) day.copyWith(bedtimeMinutes: minutes),
         ]);
       });
 
@@ -67,11 +87,23 @@ class _EveningScreenState extends State<EveningScreen> {
     return MomentPage(
       title: 'Evening',
       subtitle: 'Pick your bedtime. We count back from there.',
-      bottom: MomentPrimaryButton(
-        label: 'Save evening',
-        onPressed: widget.onSave == null || steps.isEmpty
-            ? null
-            : () => widget.onSave!(_plan),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MomentPrimaryButton(
+            label: _starting ? 'Starting…' : 'Start Evening now',
+            onPressed: _starting || widget.onStartNow == null || steps.isEmpty
+                ? null
+                : _startNow,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _starting || widget.onSave == null || steps.isEmpty
+                ? null
+                : () => widget.onSave!(_plan),
+            child: const Text('Save evening'),
+          ),
+        ],
       ),
       children: [
         const MomentAppsSection(kind: MomentKind.evening),
@@ -81,6 +113,16 @@ class _EveningScreenState extends State<EveningScreen> {
               'before, so a Friday evening can end on Saturday at 00:30.',
           child: Column(
             children: [
+              Row(
+                children: [
+                  const Expanded(child: Text('Set time for all days')),
+                  TimeButton(
+                    minutes: _plan.days.first.bedtimeMinutes,
+                    onChanged: _setAllTimes,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               for (final day in _plan.days)
                 WeekdayTimeRow(
                   name: weekdayName(day.weekday),
