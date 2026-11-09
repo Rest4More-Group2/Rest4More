@@ -188,6 +188,7 @@ class TimeButton extends StatelessWidget {
           : () async {
               final picked = await showTimePicker(
                 context: context,
+                initialEntryMode: TimePickerEntryMode.input,
                 initialTime:
                     TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
                 builder: (context, child) => MediaQuery(
