@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,6 +9,9 @@ import UIKit
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+    // Herinneringen ook tonen als de app open is, en tikken doorgeven aan
+    // flutter_local_notifications.
+    UNUserNotificationCenter.current().delegate = self
     excludeSupportDirectoryFromBackup()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

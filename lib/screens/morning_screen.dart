@@ -18,11 +18,13 @@ class MorningScreen extends StatefulWidget {
     super.key,
     this.initial,
     this.onSave,
+    this.onStartNow,
     this.now,
   });
 
   final MorningPlan? initial;
   final ValueChanged<MorningPlan>? onSave;
+  final Future<void> Function(MorningPlan)? onStartNow;
 
   /// Voor tests: de "nu" waarmee het voorbeeld wordt uitgerekend.
   final DateTime? now;
@@ -37,6 +39,12 @@ class _MorningScreenState extends State<MorningScreen> {
   void _setDay(MorningDay day) => setState(() {
         _plan = _plan.copyWith(days: [
           for (final d in _plan.days) d.weekday == day.weekday ? day : d,
+        ]);
+      });
+
+  void _setAllTimes(int minutes) => setState(() {
+        _plan = _plan.copyWith(days: [
+          for (final day in _plan.days) day.copyWith(wakeMinutes: minutes),
         ]);
       });
 
@@ -76,6 +84,16 @@ class _MorningScreenState extends State<MorningScreen> {
           note: AppLocalizations.of(context).wakeUpNote,
           child: Column(
             children: [
+              Row(
+                children: [
+                  const Expanded(child: Text('Set time for all days')),
+                  TimeButton(
+                    minutes: _plan.days.first.wakeMinutes,
+                    onChanged: _setAllTimes,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               for (final day in _plan.days)
                 WeekdayTimeRow(
                   name: localizedWeekday(context, day.weekday),

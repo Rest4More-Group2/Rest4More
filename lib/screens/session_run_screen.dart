@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_schedule.dart';
+import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
@@ -21,14 +22,23 @@ enum _Phase { starting, running, ending, finished, failed, releaseFailed }
 /// naar het eindtijdstip en geeft de apps weer vrij. Eerder stoppen vraagt
 /// eerst bevestiging en wordt als `stoppedEarly` vastgelegd.
 class SessionRunScreen extends ConsumerStatefulWidget {
-  const SessionRunScreen({super.key, this.setup, this.resume})
-      : assert(setup != null || resume != null);
+  const SessionRunScreen({
+    super.key,
+    this.setup,
+    this.resume,
+    this.manualKind,
+    this.manualMinutes,
+  }) : assert(setup != null || resume != null || manualKind != null);
 
   /// Een nieuwe sessie starten.
   final FocusSetup? setup;
 
   /// Een al lopende sessie weer tonen.
   final RunningSession? resume;
+
+  /// A manually started Morning or Evening uses its saved steps duration.
+  final MomentKind? manualKind;
+  final int? manualMinutes;
 
   @override
   ConsumerState<SessionRunScreen> createState() => _SessionRunScreenState();
@@ -69,12 +79,16 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
       _run(resume);
       return;
     }
-    final setup = widget.setup!;
+    final setup = widget.setup;
     try {
+      final kind = widget.manualKind ?? setup!.kind.moment;
+      final profile = widget.manualKind == null
+          ? null
+          : await ref.read(momentProfileServiceProvider).ensure(kind);
       final session = await _runner.start(
-        kind: setup.kind.moment,
-        minutes: setup.minutes,
-        blockProfileId: setup.blockProfileId,
+        kind: kind,
+        minutes: widget.manualMinutes ?? setup!.minutes,
+        blockProfileId: profile?.id ?? setup?.blockProfileId,
       );
       if (mounted) _run(session);
     } on SessionRunningError catch (e) {
@@ -177,11 +191,17 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
   @override
   Widget build(BuildContext context) {
     final session = _session;
+    final l10n = AppLocalizations.of(context);
     final title = session?.kind.profileName ??
-        widget.setup?.kind.title(AppLocalizations.of(context)) ??
-        AppLocalizations.of(context).sessionTitle;
-    final iconIndex = switch (session?.kind.name ?? widget.setup?.kind.name) {
+        widget.setup?.kind.title(l10n) ??
+        widget.manualKind?.profileName ??
+        l10n.sessionTitle;
+    final iconIndex = switch (session?.kind.name ??
+        widget.manualKind?.name ??
+        widget.setup?.kind.name) {
       'reading' => 2,
+      'morning' => 0,
+      'evening' => 3,
       _ => 1,
     };
 

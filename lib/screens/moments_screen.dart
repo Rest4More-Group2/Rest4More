@@ -40,7 +40,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
     body: SafeArea(
       bottom: false,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+        padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
@@ -56,7 +56,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                     color: RestPalette.accent,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 8),
                 _momentCard(
                   id: 'focus',
                   title: MomentIntro.focus.title(AppLocalizations.of(context)),
@@ -70,7 +70,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 _momentCard(
                   id: 'reading',
                   title: MomentIntro.reading.title(AppLocalizations.of(context)),
@@ -84,7 +84,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 _momentCard(
                   id: 'tag',
                   title: AppLocalizations.of(context).momentTagTitle,
@@ -93,7 +93,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       AppLocalizations.of(context).momentTagDescription,
                   builder: (_) => const TagMomentScreen(),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 _momentCard(
                   id: 'evening',
                   title: MomentIntro.evening.title(AppLocalizations.of(context)),
@@ -104,7 +104,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                     next: (_) => const SavedEveningScreen(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 _momentCard(
                   id: 'morning',
                   title: MomentIntro.morning.title(AppLocalizations.of(context)),
@@ -138,7 +138,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: RestPalette.surface,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected ? RestPalette.primary : Colors.transparent,
             width: 2,
@@ -146,12 +146,12 @@ class _MomentsScreenState extends State<MomentsScreen> {
         ),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: () => setState(() => _selected = id),
+            onTap: () => _open(id, builder),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -160,7 +160,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       Expanded(
                         child: Text(
                           title,
-                          style: RestType.serif(27).copyWith(
+                          style: RestType.serif(23).copyWith(
                             fontWeight:
                                 selected ? FontWeight.w600 : FontWeight.w400,
                           ),
@@ -172,17 +172,19 @@ class _MomentsScreenState extends State<MomentsScreen> {
                         child: RestMomentIcon(
                           index: iconIndex,
                           color: RestPalette.primary,
-                          size: 22,
+                          size: 20,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
                   Text(
                     description,
-                    style: RestType.sans(16, color: RestPalette.accent),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: RestType.sans(14, color: RestPalette.accent),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 2),
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
@@ -190,7 +192,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       style: TextButton.styleFrom(
                         foregroundColor: RestPalette.primary,
                         padding: EdgeInsets.zero,
-                        minimumSize: const Size(48, 48),
+                        minimumSize: const Size(48, 32),
                       ),
                       child: Row(
                         children: [
