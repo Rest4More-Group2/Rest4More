@@ -4,6 +4,7 @@ import 'screens/app_root.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rest4more/data/progress/debug_progress_seed.dart';
 import 'package:rest4more/data/sync/debug_gdpr.dart';
 import 'package:rest4more/data/sync/debug_pull.dart';
 import 'package:rest4more/data/sync/debug_reset.dart';
@@ -11,6 +12,7 @@ import 'package:rest4more/data/sync/debug_seed.dart';
 import 'package:rest4more/data/sync/supabase_bootstrap.dart';
 import 'package:rest4more/data/sync/sync_scheduler.dart';
 import 'package:rest4more/providers/database_providers.dart';
+import 'package:rest4more/providers/plan_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/providers/sync_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
@@ -77,6 +79,13 @@ Future<void> main() async {
       container.read(databaseProvider),
       PreferencesSyncStateStore(),
     );
+  }
+  if (kDebugMode && const bool.fromEnvironment('DEBUG_SEED_PROGRESS')) {
+    // Wist de lokale database bij elke start en vult hem met voorbeelddata om
+    // het Progress-scherm te bekijken.
+    final db = container.read(databaseProvider);
+    await resetLocalData(db, PreferencesSyncStateStore());
+    await seedProgressDemo(db, container.read(contentCatalogLoaderProvider));
   }
   if (kDebugMode && const bool.fromEnvironment('DEBUG_SYNC')) {
     // Alleen om de synchronisatie te testen voordat er een toestemmingsscherm

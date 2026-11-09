@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/providers/notification_providers.dart';
 
 import 'profile_tab.dart';
+import 'progress_tab.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 import 'today_tab.dart';
 import 'moments_screen.dart';
@@ -26,7 +27,6 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell>
     with WidgetsBindingObserver {
   static const _todayTab = 0;
-  static const _progressTab = 2;
 
   int _selectedTab = _todayTab;
   StreamSubscription<int>? _taps;
@@ -68,12 +68,6 @@ class _AppShellState extends ConsumerState<AppShell>
   }
 
   void _selectTab(int index) {
-    if (index == _progressTab) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Progress is not available yet.')),
-      );
-      return;
-    }
     setState(() => _selectedTab = index);
   }
 
@@ -85,7 +79,7 @@ class _AppShellState extends ConsumerState<AppShell>
       children: [
         TodayTab(onStartStep: widget.onStartStep),
         MomentsScreen(onStartFocus: widget.onStartFocus),
-        const SizedBox.shrink(), // Progress: not available yet
+        const ProgressTab(),
         const ProfileTab(),
       ],
     ),
