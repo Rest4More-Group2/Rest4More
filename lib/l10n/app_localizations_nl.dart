@@ -1493,4 +1493,196 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get greetingEvening => 'Goedenavond';
+
+  @override
+  String get progressLoadError => 'Voortgang kon niet worden geladen.';
+
+  @override
+  String get progressMoments => 'Momenten';
+
+  @override
+  String get progressNoMoments =>
+      'Nog geen afgeronde momenten. Ze verschijnen hier zodra je er een afrondt.';
+
+  @override
+  String get progressMomentsCompleted => 'afgerond in totaal';
+
+  @override
+  String get progressLast7Days => 'in de afgelopen 7 dagen';
+
+  @override
+  String get progressInTotal => 'in totaal';
+
+  @override
+  String progressDaysWithMoment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dagen met een moment',
+      one: 'dag met een moment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressPlannedVsActual => 'Gepland tegenover werkelijk';
+
+  @override
+  String progressActualOfPlannedValue(int actual, int planned) {
+    return '$actual van $planned min';
+  }
+
+  @override
+  String get progressActualOfPlanned => 'werkelijke van geplande tijd';
+
+  @override
+  String progressCountOfTotal(int count, int total) {
+    return '$count van $total';
+  }
+
+  @override
+  String get progressFullLength => 'duurden de volledige geplande tijd';
+
+  @override
+  String get progressDailySteps => 'Dagelijkse stappen';
+
+  @override
+  String get progressNoPlan => 'Nog geen plan gestart.';
+
+  @override
+  String get progressStepsDone => 'stappen gedaan';
+
+  @override
+  String get progressStatusDone => 'gedaan';
+
+  @override
+  String get progressStatusSkipped => 'overgeslagen';
+
+  @override
+  String get progressStatusOpen => 'open';
+
+  @override
+  String get progressLegendSwapped => 'omgewisseld voor een kortere stap';
+
+  @override
+  String progressDayStatus(int day, String status) {
+    return 'Dag $day: $status';
+  }
+
+  @override
+  String progressDayStatusSwapped(int day, String status) {
+    return 'Dag $day: $status, omgewisseld';
+  }
+
+  @override
+  String progressDayNoMoment(String date) {
+    return '$date: geen moment';
+  }
+
+  @override
+  String progressDayMoments(String date, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count momenten',
+      one: '1 moment',
+    );
+    return '$date: $_temp0';
+  }
+
+  @override
+  String get progressPhoneAway => 'Telefoon weg';
+
+  @override
+  String get progressNoBlocked => 'Nog geen geblokkeerde tijd.';
+
+  @override
+  String get progressBlockedTotal => 'apps in totaal geblokkeerd';
+
+  @override
+  String get setTimeForAllDays => 'Stel de tijd in voor alle dagen';
+
+  @override
+  String get couldNotSaveEvening =>
+      'Avond opslaan is niet gelukt. Probeer het opnieuw.';
+
+  @override
+  String get couldNotSaveMorning =>
+      'Ochtend opslaan is niet gelukt. Probeer het opnieuw.';
+
+  @override
+  String get blockStartFailed =>
+      'Blokkeren starten is niet gelukt. Controleer de rechten en probeer het opnieuw.';
+
+  @override
+  String get strictEveningActive =>
+      'Je apps staan opzij. In de strikte modus blijft blokkeren aan tot je volgende NFC-scan, ook als je dit scherm verlaat.';
+
+  @override
+  String get scanNfcToEnd => 'Scan NFC om te stoppen';
+
+  @override
+  String get nfcScanTitle => 'NFC-tag scannen';
+
+  @override
+  String get nfcChecking => 'NFC controleren...';
+
+  @override
+  String get nfcDisabled =>
+      'NFC staat uit. Zet het aan in de instellingen van je telefoon en kom terug.';
+
+  @override
+  String get nfcHoldToUnblock =>
+      'Houd je telefoon tegen een NFC-tag om je apps te deblokkeren';
+
+  @override
+  String get nfcHoldToBlock =>
+      'Houd je telefoon tegen een NFC-tag om je apps te blokkeren';
+
+  @override
+  String get nfcChangeFailed =>
+      'Blokkeren wijzigen is niet gelukt. Probeer het opnieuw.';
+
+  @override
+  String get notifAllowTitle => 'Meldingen toestaan?';
+
+  @override
+  String notifAllowBody(String time) {
+    return 'Om je dagelijkse herinnering om $time te sturen, heeft Rest4More toestemming nodig voor meldingen. Je telefoon vraagt daar straks om.\n\nHerinneringen zijn optioneel. Als je nee zegt, kun je nog steeds alles in de app gebruiken.';
+  }
+
+  @override
+  String get notifDeniedTitle => 'Voorlopig geen herinneringen';
+
+  @override
+  String get notifDeniedBody =>
+      'Geen probleem. Je kunt Rest4More gewoon gebruiken, je krijgt alleen geen dagelijkse herinnering.\n\nAls je je bedenkt, kun je meldingen voor Rest4More toestaan in de instellingen van je telefoon.';
+
+  @override
+  String get notifBlockedTitle => 'Meldingen staan uit';
+
+  @override
+  String get notifBlockedBody =>
+      'Rest4More mag op deze telefoon geen meldingen sturen, dus we kunnen je dagelijkse herinnering niet sturen.\n\nJe kunt meldingen toestaan in de instellingen, of doorgaan zonder herinneringen. Al het andere in de app werkt hetzelfde.';
+
+  @override
+  String get notifContinueWithout => 'Doorgaan zonder herinneringen';
+
+  @override
+  String get dailyReminderTitle => 'Dagelijkse herinnering';
+
+  @override
+  String get dailyReminderSubtitle =>
+      'Een zacht duwtje voor je dagelijkse stap';
+
+  @override
+  String get reminderTimeLabel => 'Tijd van de herinnering';
+
+  @override
+  String get reminderOnNote =>
+      'Eén herinnering per dag op dit tijdstip. Op dagen dat je je stap al hebt gedaan, houden we ons stil.';
+
+  @override
+  String get reminderOffNote =>
+      'Herinneringen staan uit. Je kunt alles in de app ook zonder gebruiken.';
 }

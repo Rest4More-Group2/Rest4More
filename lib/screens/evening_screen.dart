@@ -36,16 +36,18 @@ class _EveningScreenState extends State<EveningScreen> {
   late EveningPlan _plan = widget.initial ?? EveningPlan.initial();
 
   void _setDay(EveningDay day) => setState(() {
-        _plan = _plan.copyWith(days: [
-          for (final d in _plan.days) d.weekday == day.weekday ? day : d,
-        ]);
-      });
+    _plan = _plan.copyWith(
+      days: [for (final d in _plan.days) d.weekday == day.weekday ? day : d],
+    );
+  });
 
   void _setAllTimes(int minutes) => setState(() {
-        _plan = _plan.copyWith(days: [
-          for (final day in _plan.days) day.copyWith(bedtimeMinutes: minutes),
-        ]);
-      });
+    _plan = _plan.copyWith(
+      days: [
+        for (final day in _plan.days) day.copyWith(bedtimeMinutes: minutes),
+      ],
+    );
+  });
 
   /// De eerstvolgende ingeschakelde avond, voor het voorbeeld.
   ({EveningDay day, EveningTimes times})? _preview() {
@@ -92,7 +94,9 @@ class _EveningScreenState extends State<EveningScreen> {
             children: [
               Row(
                 children: [
-                  const Expanded(child: Text('Set time for all days')),
+                  Expanded(
+                    child: Text(AppLocalizations.of(context).setTimeForAllDays),
+                  ),
                   TimeButton(
                     minutes: _plan.days.first.bedtimeMinutes,
                     onChanged: _setAllTimes,
@@ -105,7 +109,9 @@ class _EveningScreenState extends State<EveningScreen> {
                   name: localizedWeekday(context, day.weekday),
                   enabled: day.enabled,
                   minutes: day.bedtimeMinutes,
-                  hint: day.bedtimeAfterMidnight ? AppLocalizations.of(context).eveningAfterMidnight : null,
+                  hint: day.bedtimeAfterMidnight
+                      ? AppLocalizations.of(context).eveningAfterMidnight
+                      : null,
                   onEnabled: (v) => _setDay(day.copyWith(enabled: v)),
                   onMinutes: (m) => _setDay(day.copyWith(bedtimeMinutes: m)),
                 ),
@@ -131,7 +137,8 @@ class _EveningScreenState extends State<EveningScreen> {
                 options: const [15, 30, 45, 60],
                 selected: _plan.windDownLeadMinutes,
                 onSelected: (v) => setState(
-                    () => _plan = _plan.copyWith(windDownLeadMinutes: v)),
+                  () => _plan = _plan.copyWith(windDownLeadMinutes: v),
+                ),
                 labelOf: (v) => AppLocalizations.of(context).minutesShort(v),
               ),
               const SizedBox(height: 16),
@@ -140,8 +147,11 @@ class _EveningScreenState extends State<EveningScreen> {
                 options: const [0, 5, 10, 15, 30],
                 selected: _plan.secondReminderMinutes,
                 onSelected: (v) => setState(
-                    () => _plan = _plan.copyWith(secondReminderMinutes: v)),
-                labelOf: (v) => v == 0 ? AppLocalizations.of(context).off : AppLocalizations.of(context).afterMinutes(v),
+                  () => _plan = _plan.copyWith(secondReminderMinutes: v),
+                ),
+                labelOf: (v) => v == 0
+                    ? AppLocalizations.of(context).off
+                    : AppLocalizations.of(context).afterMinutes(v),
               ),
             ],
           ),
@@ -161,7 +171,9 @@ class _EveningScreenState extends State<EveningScreen> {
         ),
         if (preview != null && steps.isNotEmpty)
           MomentSection(
-            title: AppLocalizations.of(context).yourWeekdayEvening(localizedWeekday(context, preview.day.weekday)),
+            title: AppLocalizations.of(context).yourWeekdayEvening(
+              localizedWeekday(context, preview.day.weekday),
+            ),
             child: _timeline(preview.times, strict),
           ),
       ],
@@ -183,12 +195,19 @@ class _EveningScreenState extends State<EveningScreen> {
             title: _plan.steps[i].title,
             detail: i == 0
                 ? AppLocalizations.of(context).blockingStartsHere
-                : localizedDuration(AppLocalizations.of(context), stepMinutes(_plan.steps[i])),
+                : localizedDuration(
+                    AppLocalizations.of(context),
+                    stepMinutes(_plan.steps[i]),
+                  ),
           ),
         TimelineRow(
           time: formatTime(times.bedtime),
-          title: strict ? AppLocalizations.of(context).bedtime : AppLocalizations.of(context).bedtimeBlockingEnds,
-          detail: strict ? AppLocalizations.of(context).blockingStaysUntilScan : null,
+          title: strict
+              ? AppLocalizations.of(context).bedtime
+              : AppLocalizations.of(context).bedtimeBlockingEnds,
+          detail: strict
+              ? AppLocalizations.of(context).blockingStaysUntilScan
+              : null,
           last: true,
         ),
       ],
@@ -196,7 +215,7 @@ class _EveningScreenState extends State<EveningScreen> {
   }
 
   Widget _label(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Text(text, style: RestType.sans(14, weight: FontWeight.w600)),
-      );
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(text, style: RestType.sans(14, weight: FontWeight.w600)),
+  );
 }

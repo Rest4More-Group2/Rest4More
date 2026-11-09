@@ -78,8 +78,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
     setState(() => _busy = true);
     try {
       final minutes = _minutes;
-      final outcome = await askReminderPermission(context, ref,
-          time: _format(minutes));
+      final outcome = await askReminderPermission(
+        context,
+        ref,
+        time: _format(minutes),
+      );
       switch (outcome) {
         case ReminderPermissionOutcome.granted:
           await _save(enabled: true, minutes: minutes);
@@ -133,8 +136,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
     final summary = count == null
         ? l10n.tagsPairPrompt
         : count == 0
-            ? l10n.tagsNonePaired
-            : l10n.tagsPaired(count);
+        ? l10n.tagsNonePaired
+        : l10n.tagsPaired(count);
 
     return Scaffold(
       backgroundColor: RestPalette.background,
@@ -150,8 +153,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                 children: [
                   Text(l10n.profileTitle, style: RestType.serif(40)),
                   const SizedBox(height: 8),
-                  Text(l10n.profileSubtitle,
-                      style: RestType.sans(16, color: RestPalette.accent)),
+                  Text(
+                    l10n.profileSubtitle,
+                    style: RestType.sans(16, color: RestPalette.accent),
+                  ),
                   const SizedBox(height: 32),
                   Text(
                     'REMINDERS',
@@ -177,15 +182,19 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Daily reminder',
-                                    style: RestType.sans(16,
-                                        weight: FontWeight.w500),
+                                    l10n.dailyReminderTitle,
+                                    style: RestType.sans(
+                                      16,
+                                      weight: FontWeight.w500,
+                                    ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'A gentle nudge for your daily step',
-                                    style: RestType.sans(12,
-                                        color: RestPalette.accent),
+                                    l10n.dailyReminderSubtitle,
+                                    style: RestType.sans(
+                                      12,
+                                      color: RestPalette.accent,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -207,12 +216,16 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.schedule_rounded,
-                                      color: RestPalette.primary),
+                                  const Icon(
+                                    Icons.schedule_rounded,
+                                    color: RestPalette.primary,
+                                  ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: Text('Reminder time',
-                                        style: RestType.sans(14)),
+                                    child: Text(
+                                      l10n.reminderTimeLabel,
+                                      style: RestType.sans(14),
+                                    ),
                                   ),
                                   Text(
                                     _format(minutes),
@@ -222,8 +235,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                                       weight: FontWeight.w600,
                                     ),
                                   ),
-                                  const Icon(Icons.chevron_right,
-                                      color: RestPalette.primary),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: RestPalette.primary,
+                                  ),
                                 ],
                               ),
                             ),
@@ -236,11 +251,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
-                      enabled
-                          ? 'One reminder a day at this time. On days you '
-                              'have already done your step, we stay quiet.'
-                          : 'Reminders are off. You can use everything in '
-                              'the app without them.',
+                      enabled ? l10n.reminderOnNote : l10n.reminderOffNote,
                       style: RestType.sans(12, color: RestPalette.accent),
                     ),
                   ),
@@ -263,26 +274,44 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                             children: [
                               Row(
                                 children: [
-                                  Expanded(child: Text(l10n.nfcTagsTitle,
-                                      style: RestType.serif(27))),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.nfcTagsTitle,
+                                      style: RestType.serif(27),
+                                    ),
+                                  ),
                                   const RestMomentIcon(
-                                      index: 4,
-                                      color: RestPalette.primary,
-                                      size: 22),
+                                    index: 4,
+                                    color: RestPalette.primary,
+                                    size: 22,
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              Text(summary, style: RestType.sans(16,
-                                  color: RestPalette.accent)),
+                              Text(
+                                summary,
+                                style: RestType.sans(
+                                  16,
+                                  color: RestPalette.accent,
+                                ),
+                              ),
                               const SizedBox(height: 12),
                               Row(
                                 children: [
-                                  Text(l10n.manageTags, style: RestType.sans(15,
+                                  Text(
+                                    l10n.manageTags,
+                                    style: RestType.sans(
+                                      15,
                                       color: RestPalette.primary,
-                                      weight: FontWeight.w600)),
+                                      weight: FontWeight.w600,
+                                    ),
+                                  ),
                                   const Spacer(),
-                                  const Icon(Icons.chevron_right, size: 24,
-                                      color: RestPalette.primary),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    size: 24,
+                                    color: RestPalette.primary,
+                                  ),
                                 ],
                               ),
                             ],
@@ -326,29 +355,29 @@ class _LanguageCard extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
           child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l10n.languageTitle, style: RestType.serif(27)),
-          const SizedBox(height: 8),
-          RadioGroup<String?>(
-            groupValue: current,
-            onChanged: (code) => ref
-                .read(localeProvider.notifier)
-                .set(code == null ? null : Locale(code)),
-            child: Column(
-              children: [
-                for (final (code, label) in options)
-                  RadioListTile<String?>(
-                    value: code,
-                    title: Text(label, style: RestType.sans(16)),
-                    activeColor: RestPalette.primary,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-              ],
-            ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.languageTitle, style: RestType.serif(27)),
+              const SizedBox(height: 8),
+              RadioGroup<String?>(
+                groupValue: current,
+                onChanged: (code) => ref
+                    .read(localeProvider.notifier)
+                    .set(code == null ? null : Locale(code)),
+                child: Column(
+                  children: [
+                    for (final (code, label) in options)
+                      RadioListTile<String?>(
+                        value: code,
+                        title: Text(label, style: RestType.sans(16)),
+                        activeColor: RestPalette.primary,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
         ),
       ),
     );

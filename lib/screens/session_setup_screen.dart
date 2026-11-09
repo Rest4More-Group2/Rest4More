@@ -6,7 +6,7 @@ import 'package:rest4more/providers/repository_providers.dart';
 
 import 'moment_apps_section.dart';
 import 'moments_form_widgets.dart';
-import 'today_screen.dart' show RestType;
+import 'today_screen.dart' show RestPalette, RestType;
 
 /// Soort sessie. Focus en Reading werken hetzelfde; ze verschillen in tekst,
 /// duurkeuzes en welk opgeslagen app-profiel standaard gekozen is.
@@ -28,33 +28,30 @@ enum SessionKind {
     defaultMinutes: 40,
   );
 
-  const SessionKind({
-    required this.presets,
-    required this.defaultMinutes,
-  });
+  const SessionKind({required this.presets, required this.defaultMinutes});
 
   String title(AppLocalizations l10n) => switch (this) {
-        SessionKind.focus => l10n.momentFocusTitle,
-        SessionKind.reading => l10n.momentReadingTitle,
-      };
+    SessionKind.focus => l10n.momentFocusTitle,
+    SessionKind.reading => l10n.momentReadingTitle,
+  };
 
   String subtitle(AppLocalizations l10n) => switch (this) {
-        SessionKind.focus => l10n.sessionFocusSubtitle,
-        SessionKind.reading => l10n.sessionReadingSubtitle,
-      };
+    SessionKind.focus => l10n.sessionFocusSubtitle,
+    SessionKind.reading => l10n.sessionReadingSubtitle,
+  };
 
   String startLabel(AppLocalizations l10n) => switch (this) {
-        SessionKind.focus => l10n.startFocus,
-        SessionKind.reading => l10n.startReading,
-      };
+    SessionKind.focus => l10n.startFocus,
+    SessionKind.reading => l10n.startReading,
+  };
 
   final List<FocusPreset> presets;
   final int defaultMinutes;
 
   MomentKind get moment => switch (this) {
-        SessionKind.focus => MomentKind.focus,
-        SessionKind.reading => MomentKind.reading,
-      };
+    SessionKind.focus => MomentKind.focus,
+    SessionKind.reading => MomentKind.reading,
+  };
 }
 
 /// Vaste duur voor een sessie. [minutes] is null voor de eigen keuze.
@@ -66,14 +63,14 @@ class FocusPreset {
   final int? minutes;
 
   String localizedLabel(AppLocalizations l10n) => switch (label) {
-        'Quick' => l10n.presetQuick,
-        'Standard' => l10n.presetStandard,
-        'Deep' => l10n.presetDeep,
-        'Short' => l10n.presetShort,
-        'Chapter' => l10n.presetChapter,
-        'Long' => l10n.presetLong,
-        _ => l10n.presetCustom,
-      };
+    'Quick' => l10n.presetQuick,
+    'Standard' => l10n.presetStandard,
+    'Deep' => l10n.presetDeep,
+    'Short' => l10n.presetShort,
+    'Chapter' => l10n.presetChapter,
+    'Long' => l10n.presetLong,
+    _ => l10n.presetCustom,
+  };
 }
 
 /// Wat de gebruiker op het startscherm heeft gekozen.
@@ -92,7 +89,7 @@ class FocusSetup {
   final String blockProfileId;
 }
 
-const int minFocusMinutes = 5;
+const int minFocusMinutes = 1;
 const int maxFocusMinutes = 240;
 
 /// Startscherm van Focus en Reading: kies een voorinstelling, een duur en een profiel.
@@ -109,8 +106,7 @@ class SessionSetupScreen extends ConsumerStatefulWidget {
   final ValueChanged<FocusSetup>? onStart;
 
   @override
-  ConsumerState<SessionSetupScreen> createState() =>
-      _SessionSetupScreenState();
+  ConsumerState<SessionSetupScreen> createState() => _SessionSetupScreenState();
 }
 
 class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
@@ -122,13 +118,16 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   int get _minutes => _preset.minutes ?? _customMinutes;
 
   Future<void> _start() async {
-    final profile =
-        await ref.read(momentProfileServiceProvider).ensure(widget.kind.moment);
-    widget.onStart?.call(FocusSetup(
-      kind: widget.kind,
-      minutes: _minutes,
-      blockProfileId: profile.id,
-    ));
+    final profile = await ref
+        .read(momentProfileServiceProvider)
+        .ensure(widget.kind.moment);
+    widget.onStart?.call(
+      FocusSetup(
+        kind: widget.kind,
+        minutes: _minutes,
+        blockProfileId: profile.id,
+      ),
+    );
   }
 
   @override
@@ -157,7 +156,7 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
               ),
               if (_preset.minutes == null) ...[
                 const SizedBox(height: 16),
-                _MinutesStepper(
+                _DurationPicker(
                   minutes: _customMinutes,
                   onChanged: (m) => setState(() => _customMinutes = m),
                 ),
@@ -172,38 +171,65 @@ class _SessionSetupScreenState extends ConsumerState<SessionSetupScreen> {
   }
 }
 
-class _MinutesStepper extends StatelessWidget {
-  const _MinutesStepper({required this.minutes, required this.onChanged});
+/// Eigen duur kiezen met dezelfde tijdkiezer als de herinnering in het
+/// profiel. De gekozen tijd wordt gelezen als uren en minuten (01:30 = 90
+/// minuten), per minuut instelbaar.
+class _DurationPicker extends StatelessWidget {
+  const _DurationPicker({required this.minutes, required this.onChanged});
 
   final int minutes;
   final ValueChanged<int> onChanged;
 
+  Future<void> _pick(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    onChanged(
+      (picked.hour * 60 + picked.minute).clamp(
+        minFocusMinutes,
+        maxFocusMinutes,
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          IconButton.outlined(
-            tooltip: AppLocalizations.of(context).fewerMinutes,
-            onPressed: minutes <= minFocusMinutes
-                ? null
-                : () => onChanged(minutes - 5),
-            icon: const Icon(Icons.remove),
+  Widget build(BuildContext context) {
+    final h = (minutes ~/ 60).toString().padLeft(2, '0');
+    final m = (minutes % 60).toString().padLeft(2, '0');
+    return Row(
+      children: [
+        OutlinedButton(
+          onPressed: () => _pick(context),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: RestPalette.primary,
+            side: const BorderSide(color: RestPalette.border),
+            backgroundColor: RestPalette.background,
+            shape: const StadiumBorder(),
+            minimumSize: const Size(84, 44),
           ),
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context).minutesShort(minutes),
-              textAlign: TextAlign.center,
-              style: RestType.serif(30),
+          child: Text(
+            '$h:$m',
+            style: RestType.sans(
+              16,
+              color: RestPalette.primary,
+              weight: FontWeight.w600,
             ),
           ),
-          IconButton.outlined(
-            tooltip: AppLocalizations.of(context).moreMinutes,
-            onPressed: minutes >= maxFocusMinutes
-                ? null
-                : () => onChanged(minutes + 5),
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      );
+        ),
+        const SizedBox(width: 16),
+        Text(
+          AppLocalizations.of(context).minutesShort(minutes),
+          style: RestType.serif(30),
+        ),
+      ],
+    );
+  }
 }
 
 /// Vraagt of de sessie echt eerder moet stoppen. Geeft true als de gebruiker
@@ -213,7 +239,10 @@ Future<bool> confirmStopEarly(BuildContext context) async {
     context: context,
     builder: (context) => AlertDialog(
       backgroundColor: RestPalette.background,
-      title: Text(AppLocalizations.of(context).endSessionEarlyTitle, style: RestType.serif(26)),
+      title: Text(
+        AppLocalizations.of(context).endSessionEarlyTitle,
+        style: RestType.serif(26),
+      ),
       content: Text(
         AppLocalizations.of(context).endSessionEarlyBody,
         style: RestType.sans(15),

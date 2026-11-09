@@ -17,12 +17,17 @@ Future<void> tapText(WidgetTester tester, String text) async {
 }
 
 void main() {
-  screenTest('al toegestaan: geen uitleg en geen systeemvenster',
-      (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.granted);
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
+  screenTest('al toegestaan: geen uitleg en geen systeemvenster', (
+    tester,
+  ) async {
+    final permission = FakeNotificationPermission(
+      NotificationPermissionStatus.granted,
+    );
+    final db = await pumpScreen(
+      tester,
+      const ReminderScreen(),
+      permission: permission,
+    );
     await tapText(tester, 'Done');
 
     expect(find.text('Allow notifications?'), findsNothing);
@@ -32,10 +37,14 @@ void main() {
   });
 
   screenTest('Maybe later vraagt nooit om toestemming', (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.notDetermined);
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
+    final permission = FakeNotificationPermission(
+      NotificationPermissionStatus.notDetermined,
+    );
+    final db = await pumpScreen(
+      tester,
+      const ReminderScreen(),
+      permission: permission,
+    );
     await tapText(tester, 'Maybe later');
 
     expect(permission.requests, 0);
@@ -44,10 +53,14 @@ void main() {
   });
 
   screenTest('herinnering uitgezet: Done vraagt niets', (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.notDetermined);
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
+    final permission = FakeNotificationPermission(
+      NotificationPermissionStatus.notDetermined,
+    );
+    final db = await pumpScreen(
+      tester,
+      const ReminderScreen(),
+      permission: permission,
+    );
     await tester.tap(find.byType(Switch));
     await tester.pump();
     await tapText(tester, 'Done');
@@ -56,33 +69,43 @@ void main() {
     expect((await ProfileRepository(db).get()).notifyProgramme, isFalse);
   });
 
-  screenTest('eerst uitleg, dan het systeem; toegestaan bewaart de herinnering',
-      (tester) async {
+  screenTest(
+    'eerst uitleg, dan het systeem; toegestaan bewaart de herinnering',
+    (tester) async {
+      final permission = FakeNotificationPermission(
+        NotificationPermissionStatus.notDetermined,
+        afterRequest: NotificationPermissionStatus.granted,
+      );
+      final db = await pumpScreen(
+        tester,
+        const ReminderScreen(),
+        permission: permission,
+      );
+      await tapText(tester, 'Done');
+
+      expect(find.text('Allow notifications?'), findsOneWidget);
+      expect(permission.requests, 0, reason: 'nog niet voor de uitleg');
+
+      await tapText(tester, 'Continue');
+      expect(permission.requests, 1);
+      final profile = await ProfileRepository(db).get();
+      expect(profile.notifyProgramme, isTrue);
+      expect(profile.notifyTimeMinutes, 22 * 60);
+      expect(find.byType(AppShell), findsOneWidget);
+    },
+  );
+
+  screenTest('Not now in de uitleg: verder zonder herinnering, geen venster', (
+    tester,
+  ) async {
     final permission = FakeNotificationPermission(
       NotificationPermissionStatus.notDetermined,
-      afterRequest: NotificationPermissionStatus.granted,
     );
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
-    await tapText(tester, 'Done');
-
-    expect(find.text('Allow notifications?'), findsOneWidget);
-    expect(permission.requests, 0, reason: 'nog niet voor de uitleg');
-
-    await tapText(tester, 'Continue');
-    expect(permission.requests, 1);
-    final profile = await ProfileRepository(db).get();
-    expect(profile.notifyProgramme, isTrue);
-    expect(profile.notifyTimeMinutes, 22 * 60);
-    expect(find.byType(AppShell), findsOneWidget);
-  });
-
-  screenTest('Not now in de uitleg: verder zonder herinnering, geen venster',
-      (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.notDetermined);
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
+    final db = await pumpScreen(
+      tester,
+      const ReminderScreen(),
+      permission: permission,
+    );
     await tapText(tester, 'Done');
     await tapText(tester, 'Not now');
 
@@ -93,36 +116,43 @@ void main() {
     expect(find.byType(AppShell), findsOneWidget);
   });
 
-  screenTest('geweigerd: uitleg wat dat betekent en verder zonder herinnering',
-      (tester) async {
+  screenTest(
+    'geweigerd: uitleg wat dat betekent en verder zonder herinnering',
+    (tester) async {
+      final permission = FakeNotificationPermission(
+        NotificationPermissionStatus.notDetermined,
+        afterRequest: NotificationPermissionStatus.blocked,
+      );
+      final db = await pumpScreen(
+        tester,
+        const ReminderScreen(),
+        permission: permission,
+      );
+      await tapText(tester, 'Done');
+      await tapText(tester, 'Continue');
+
+      expect(find.text('No reminders for now'), findsOneWidget);
+      expect(find.byType(AppShell), findsNothing);
+
+      await tapText(tester, 'Continue');
+      final profile = await ProfileRepository(db).get();
+      expect(profile.intakeCompletedAt, isNotNull);
+      expect(profile.notifyProgramme, isFalse);
+      expect(find.byType(AppShell), findsOneWidget);
+    },
+  );
+
+  screenTest('geblokkeerd: geen systeemvenster, wel de weg naar instellingen', (
+    tester,
+  ) async {
     final permission = FakeNotificationPermission(
-      NotificationPermissionStatus.notDetermined,
-      afterRequest: NotificationPermissionStatus.blocked,
+      NotificationPermissionStatus.blocked,
     );
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
-    await tapText(tester, 'Done');
-    await tapText(tester, 'Continue');
-
-    expect(find.text('No reminders for now'), findsOneWidget);
-    expect(find.byType(AppShell), findsNothing);
-
-    await tapText(tester, 'Continue');
-    final profile = await ProfileRepository(db).get();
-    expect(profile.intakeCompletedAt, isNotNull);
-    expect(profile.notifyProgramme, isFalse);
-    expect(find.byType(AppShell), findsOneWidget);
-  });
-
-  screenTest('geblokkeerd: geen systeemvenster, wel de weg naar instellingen',
-      (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.blocked);
     await pumpScreen(tester, const ReminderScreen(), permission: permission);
     await tapText(tester, 'Done');
 
     expect(find.text('Notifications are turned off'), findsOneWidget);
-    await tapText(tester, 'Open settings');
+    await tapText(tester, 'Open Settings');
     expect(permission.settingsOpened, 1);
     expect(permission.requests, 0);
     expect(find.byType(ReminderScreen), findsOneWidget);
@@ -135,12 +165,17 @@ void main() {
     expect(find.byType(AppShell), findsOneWidget);
   });
 
-  screenTest('geblokkeerd: verder zonder herinnering kan altijd',
-      (tester) async {
-    final permission =
-        FakeNotificationPermission(NotificationPermissionStatus.blocked);
-    final db = await pumpScreen(tester, const ReminderScreen(),
-        permission: permission);
+  screenTest('geblokkeerd: verder zonder herinnering kan altijd', (
+    tester,
+  ) async {
+    final permission = FakeNotificationPermission(
+      NotificationPermissionStatus.blocked,
+    );
+    final db = await pumpScreen(
+      tester,
+      const ReminderScreen(),
+      permission: permission,
+    );
     await tapText(tester, 'Done');
     await tapText(tester, 'Continue without reminders');
 

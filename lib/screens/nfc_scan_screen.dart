@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_blocking.dart';
@@ -14,7 +15,8 @@ class NfcScanScreen extends StatefulWidget {
 }
 
 class _NfcScanScreenState extends State<NfcScanScreen> {
-  String _status = 'Checking NFC...';
+  /// Null zolang NFC nog wordt gecontroleerd.
+  String? _status;
   bool _canScan = false;
   bool _isBlocked = false;
   bool _started = false;
@@ -52,18 +54,18 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
     if (availability != NfcAvailability.enabled) {
       setState(() {
         _canScan = false;
+        final l10n = AppLocalizations.of(context);
         _status = availability == NfcAvailability.disabled
-            ? 'NFC is turned off. Enable it in your phone settings and come back.'
-            : 'This device does not support NFC.';
+            ? l10n.nfcDisabled
+            : l10n.nfcUnsupported;
       });
       return;
     }
 
     setState(() {
       _canScan = true;
-      _status = _isBlocked
-          ? 'Hold your phone against an NFC tag to unblock your apps'
-          : 'Hold your phone against an NFC tag to block your apps';
+      final l10n = AppLocalizations.of(context);
+      _status = _isBlocked ? l10n.nfcHoldToUnblock : l10n.nfcHoldToBlock;
     });
 
     _sessionActive = true;
@@ -93,7 +95,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
       if (mounted) {
         setState(() {
           _canScan = false;
-          _status = 'Could not change blocking. Please try again.';
+          _status = AppLocalizations.of(context).nfcChangeFailed;
         });
       }
     }
@@ -106,7 +108,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.decoration,
         foregroundColor: AppColors.background,
-        title: const Text('Scan NFC tag'),
+        title: Text(AppLocalizations.of(context).nfcScanTitle),
       ),
       body: Center(
         child: Padding(
@@ -121,7 +123,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                _status,
+                _status ?? AppLocalizations.of(context).nfcChecking,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.text),
               ),
@@ -133,7 +135,7 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
                     foregroundColor: AppColors.primaryAction,
                     side: BorderSide(color: AppColors.primaryAction),
                   ),
-                  child: const Text('Try again'),
+                  child: Text(AppLocalizations.of(context).tryAgain),
                 ),
               ],
             ],

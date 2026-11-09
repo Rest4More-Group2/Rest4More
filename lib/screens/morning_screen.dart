@@ -37,16 +37,16 @@ class _MorningScreenState extends State<MorningScreen> {
   late MorningPlan _plan = widget.initial ?? MorningPlan.initial();
 
   void _setDay(MorningDay day) => setState(() {
-        _plan = _plan.copyWith(days: [
-          for (final d in _plan.days) d.weekday == day.weekday ? day : d,
-        ]);
-      });
+    _plan = _plan.copyWith(
+      days: [for (final d in _plan.days) d.weekday == day.weekday ? day : d],
+    );
+  });
 
   void _setAllTimes(int minutes) => setState(() {
-        _plan = _plan.copyWith(days: [
-          for (final day in _plan.days) day.copyWith(wakeMinutes: minutes),
-        ]);
-      });
+    _plan = _plan.copyWith(
+      days: [for (final day in _plan.days) day.copyWith(wakeMinutes: minutes)],
+    );
+  });
 
   ({MorningDay day, DateTime start, DateTime end})? _preview() {
     final now = widget.now ?? DateTime.now();
@@ -86,7 +86,9 @@ class _MorningScreenState extends State<MorningScreen> {
             children: [
               Row(
                 children: [
-                  const Expanded(child: Text('Set time for all days')),
+                  Expanded(
+                    child: Text(AppLocalizations.of(context).setTimeForAllDays),
+                  ),
                   TimeButton(
                     minutes: _plan.days.first.wakeMinutes,
                     onChanged: _setAllTimes,
@@ -116,7 +118,9 @@ class _MorningScreenState extends State<MorningScreen> {
         ),
         if (preview != null && steps.isNotEmpty)
           MomentSection(
-            title: AppLocalizations.of(context).yourWeekdayMorning(localizedWeekday(context, preview.day.weekday)),
+            title: AppLocalizations.of(context).yourWeekdayMorning(
+              localizedWeekday(context, preview.day.weekday),
+            ),
             note: AppLocalizations.of(context).timerOnlyNote,
             child: _timeline(preview.start, preview.end),
           ),
@@ -138,7 +142,10 @@ class _MorningScreenState extends State<MorningScreen> {
             title: _plan.steps[i].title,
             detail: i == 0
                 ? AppLocalizations.of(context).blockingStartsHere
-                : localizedDuration(AppLocalizations.of(context), stepMinutes(_plan.steps[i])),
+                : localizedDuration(
+                    AppLocalizations.of(context),
+                    stepMinutes(_plan.steps[i]),
+                  ),
           ),
         TimelineRow(
           time: formatTime(end),

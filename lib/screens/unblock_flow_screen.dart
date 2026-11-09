@@ -130,24 +130,25 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
           now: widget.now,
         )
       : Scaffold(
-        backgroundColor: RestPalette.background,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const MomentCloseButton(
-                        tooltip: 'Cancel and keep it blocked'),
-                    if (_step != _Step.done)
+          backgroundColor: RestPalette.background,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const MomentCloseButton(
+                        tooltip: 'Cancel and keep it blocked',
+                      ),
                       Align(
                         alignment: Alignment.centerLeft,
                         child: IconButton(
                           onPressed: () => Navigator.maybePop(context),
-                          tooltip: AppLocalizations.of(context).cancelKeepBlocked,
+                          tooltip: AppLocalizations.of(context)
+                              .cancelKeepBlocked,
                           style: IconButton.styleFrom(
                             backgroundColor: RestPalette.surface,
                             foregroundColor: RestPalette.primary,
@@ -156,25 +157,25 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                           icon: const Icon(Icons.close),
                         ),
                       ),
-                    Expanded(
-                      child: switch (_step) {
-                        _Step.choose => _chooseStep(),
-                        _Step.pause => _PauseStep(
+                      Expanded(
+                        child: switch (_step) {
+                          _Step.choose => _chooseStep(),
+                          _Step.pause => _PauseStep(
                             duration: widget.pause,
                             onContinue: () =>
                                 setState(() => _step = _Step.duration),
                           ),
-                        _Step.duration => _durationStep(),
-                        _Step.unblocked => const SizedBox.shrink(),
-                      },
-                    ),
-                  ],
+                          _Step.duration => _durationStep(),
+                          _Step.unblocked => const SizedBox.shrink(),
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
+        );
 
   Widget _chooseStep() {
     final apps = _apps;
@@ -182,7 +183,10 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        Text(AppLocalizations.of(context).whichAppNeeded, style: RestType.serif(36)),
+        Text(
+          AppLocalizations.of(context).whichAppNeeded,
+          style: RestType.serif(36),
+        ),
         const SizedBox(height: 10),
         Text(
           AppLocalizations.of(context).onlyOneOpens,
@@ -192,37 +196,45 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
         Expanded(
           child: _loadFailed
               ? Center(
-                  child: Text(AppLocalizations.of(context).couldNotReadBlocked,
-                      style: RestType.sans(16)))
+                  child: Text(
+                    AppLocalizations.of(context).couldNotReadBlocked,
+                    style: RestType.sans(16),
+                  ),
+                )
               : apps == null
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                          color: RestPalette.primary))
-                  : apps.isEmpty
-                      ? Center(
-                          child: Text(AppLocalizations.of(context).nothingBlocked,
-                              style: RestType.sans(16)))
-                      : ListView(
-                          children: [
-                            for (final app in apps)
-                              ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: app.icon != null
-                                    ? Image.memory(app.icon!,
-                                        width: 36, height: 36)
-                                    : const Icon(Icons.apps,
-                                        color: RestPalette.primary),
-                                title: Text(app.name,
-                                    style: RestType.sans(16,
-                                        weight: FontWeight.w600)),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => setState(() {
-                                  _app = app;
-                                  _step = _Step.pause;
-                                }),
+              ? const Center(
+                  child: CircularProgressIndicator(color: RestPalette.primary),
+                )
+              : apps.isEmpty
+              ? Center(
+                  child: Text(
+                    AppLocalizations.of(context).nothingBlocked,
+                    style: RestType.sans(16),
+                  ),
+                )
+              : ListView(
+                  children: [
+                    for (final app in apps)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: app.icon != null
+                            ? Image.memory(app.icon!, width: 36, height: 36)
+                            : const Icon(
+                                Icons.apps,
+                                color: RestPalette.primary,
                               ),
-                          ],
+                        title: Text(
+                          app.name,
+                          style: RestType.sans(16, weight: FontWeight.w600),
                         ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => setState(() {
+                          _app = app;
+                          _step = _Step.pause;
+                        }),
+                      ),
+                  ],
+                ),
         ),
       ],
     );
@@ -235,7 +247,10 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 12),
-        Text(AppLocalizations.of(context).howLongNeed, style: RestType.serif(36)),
+        Text(
+          AppLocalizations.of(context).howLongNeed,
+          style: RestType.serif(36),
+        ),
         const SizedBox(height: 24),
         Expanded(
           child: Row(
@@ -253,7 +268,8 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                       min: 0,
                       max: (UnblockPolicy.minutes.length - 1).toDouble(),
                       divisions: UnblockPolicy.minutes.length - 1,
-                      label: AppLocalizations.of(context).minutesShort(_minutes),
+                      label: AppLocalizations.of(context)
+                          .minutesShort(_minutes),
                       activeColor: RestPalette.primary,
                       inactiveColor: RestPalette.surface,
                       onChanged: (v) {
@@ -273,13 +289,17 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('$_minutes', style: RestType.serif(120)),
-                    Text(AppLocalizations.of(context).minuteUnit(_minutes),
-                        style: RestType.sans(20, color: RestPalette.accent)),
+                    Text(
+                      AppLocalizations.of(context).minuteUnit(_minutes),
+                      style: RestType.sans(20, color: RestPalette.accent),
+                    ),
                     const SizedBox(height: 20),
                     Text(
                       name == null
-                          ? AppLocalizations.of(context).appsAvailableUntil(formatTime(until))
-                          : AppLocalizations.of(context).nameAvailableUntil(name, formatTime(until)),
+                          ? AppLocalizations.of(context)
+                                .appsAvailableUntil(formatTime(until))
+                          : AppLocalizations.of(context)
+                                .nameAvailableUntil(name, formatTime(until)),
                       style: RestType.sans(16),
                     ),
                   ],
@@ -303,42 +323,16 @@ class _UnblockFlowScreenState extends ConsumerState<UnblockFlowScreen> {
             minimumSize: const Size(double.infinity, 58),
           ),
           child: Text(
-            _working ? AppLocalizations.of(context).unblocking : AppLocalizations.of(context).unblock,
-            style: RestType.sans(17,
-                color: RestPalette.ink, weight: FontWeight.w700),
+            _working
+                ? AppLocalizations.of(context).unblocking
+                : AppLocalizations.of(context).unblock,
+            style: RestType.sans(
+              17,
+              color: RestPalette.ink,
+              weight: FontWeight.w700,
+            ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _doneStep() {
-    final until = _until!;
-    final name = _app?.name;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Spacer(),
-        Text(AppLocalizations.of(context).unblocked, textAlign: TextAlign.center,
-            style: RestType.serif(44)),
-        const SizedBox(height: 12),
-        Text(
-          name == null
-              ? AppLocalizations.of(context).appsNowAvailable(formatTime(until))
-              : AppLocalizations.of(context).appNowAvailable(name, formatTime(until)),
-          textAlign: TextAlign.center,
-          style: RestType.sans(16, color: RestPalette.accent),
-        ),
-        const Spacer(),
-        MomentPrimaryButton(
-          label: _app != null ? AppLocalizations.of(context).openApp(_app!.name) : AppLocalizations.of(context).done,
-          onPressed: _open,
-        ),
-        if (_app != null)
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context).notNow),
-          ),
       ],
     );
   }
@@ -383,6 +377,7 @@ class _PauseStepState extends State<_PauseStep>
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -406,11 +401,6 @@ class _PauseStepState extends State<_PauseStep>
         const SizedBox(height: 40),
         Semantics(
           label: _ready
-              ? 'Pause finished'
-              : 'Pause in progress, a few seconds',
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) => BreatheBar(value: _controller.value),
               ? AppLocalizations.of(context).pauseFinished
               : AppLocalizations.of(context).pauseInProgress,
           child: ClipRRect(

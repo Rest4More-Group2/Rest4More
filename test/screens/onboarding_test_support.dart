@@ -62,6 +62,28 @@ class FakeReminderScheduler implements ReminderScheduler {
 
   @override
   Future<int?> launchedFrom() async => launchId;
+
+  @override
+  Stream<String> get sessionEndTaps => const Stream<String>.empty();
+
+  @override
+  Future<void> cancelDailyReminders() async {
+    cancels++;
+    scheduled = const [];
+  }
+
+  @override
+  Future<String?> launchedFromSessionEnd() async => null;
+
+  @override
+  Future<void> scheduleSessionEnd({
+    required String sessionId,
+    required String sessionName,
+    required DateTime endsAt,
+  }) async {}
+
+  @override
+  Future<void> cancelSessionEnd() async {}
 }
 
 /// Een hoog telefoonscherm en een database in het geheugen, zoals de andere

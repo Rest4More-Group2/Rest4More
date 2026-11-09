@@ -1,5 +1,6 @@
 import 'package:rest4more/l10n/format.dart';
 import 'package:rest4more/l10n/app_localizations.dart';
+
 import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
@@ -15,13 +16,14 @@ import 'moment_app_picker_screen.dart';
 import 'moments_form_widgets.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
-final _momentProfileProvider =
-    StreamProvider.autoDispose.family<BlockProfile?, MomentKind>(
-  (ref, kind) => ref.watch(momentProfileServiceProvider).watch(kind),
-);
+final _momentProfileProvider = StreamProvider.autoDispose
+    .family<BlockProfile?, MomentKind>(
+      (ref, kind) => ref.watch(momentProfileServiceProvider).watch(kind),
+    );
 
-const MethodChannel _blockingChannel =
-    MethodChannel('com.example.app_blocking_prototype/blocking');
+const MethodChannel _blockingChannel = MethodChannel(
+  'com.example.app_blocking_prototype/blocking',
+);
 
 /// Uitkomst van [chooseMomentApps].
 enum AppsChoice {
@@ -56,8 +58,8 @@ Future<AppsChoice> chooseMomentApps(
     // de blokkade starten terwijl de app dicht is.
     if (kind == MomentKind.tag) await TagSelectionSync(service).mirror();
     return outcome;
-  } on Object catch (e) {
-    onMessage('Could not save your apps: $e');
+  } on Object {
+    onMessage(AppLocalizations.of(context).couldNotSaveApps);
     return AppsChoice.unchanged;
   }
 }
@@ -66,17 +68,20 @@ Future<AppsChoice> _chooseAndroid(BuildContext context, MomentKind kind) async {
   // Blokkeren werkt via de toegankelijkheidsservice: vraag daar eerst om.
   var enabled = true;
   try {
-    enabled = await _blockingChannel.invokeMethod<bool>('isAccessibilityEnabled') ??
+    enabled =
+        await _blockingChannel.invokeMethod<bool>('isAccessibilityEnabled') ??
         true;
   } on Object {
     // Niet te controleren: ga door naar de kiezer.
   }
   if (!context.mounted) return AppsChoice.unchanged;
   final picker = MomentAppPickerScreen(kind: kind);
-  await Navigator.of(context).push<void>(MaterialPageRoute<void>(
-    builder: (_) =>
-        enabled ? picker : AccessibilityAccessScreen(next: (_) => picker),
-  ));
+  await Navigator.of(context).push<void>(
+    MaterialPageRoute<void>(
+      builder: (_) =>
+          enabled ? picker : AccessibilityAccessScreen(next: (_) => picker),
+    ),
+  );
   return AppsChoice.unchanged;
 }
 
@@ -88,24 +93,28 @@ Future<AppsChoice> _chooseIos(
   MomentKind kind,
   void Function(String) onMessage,
 ) async {
-  final status =
-      await _blockingChannel.invokeMethod<String>('checkAuthorizationStatus');
+  final status = await _blockingChannel.invokeMethod<String>(
+    'checkAuthorizationStatus',
+  );
   if (status != 'approved') {
     await _blockingChannel.invokeMethod<bool>('requestAuthorization');
   }
   final current = await service.iosSelection(kind);
-  final result = await _blockingChannel.invokeMethod<Object>(
-    'showAppPicker',
-    {'returnSelection': true, 'selection': current},
-  );
+  final result = await _blockingChannel.invokeMethod<Object>('showAppPicker', {
+    'returnSelection': true,
+    'selection': current,
+  });
   if (result is! Map) {
     // Een oude build geeft niets terug en bewaart niets per moment.
-    onMessage('Nothing was saved. Stop the app and run it again so the new '
-        'picker code is built (a hot reload is not enough).');
+    onMessage(
+      'Nothing was saved. Stop the app and run it again so the new '
+      'picker code is built (a hot reload is not enough).',
+    );
     return AppsChoice.unchanged;
   }
   final blob = result['selection'];
-  final total = ((result['apps'] as int?) ?? 0) +
+  final total =
+      ((result['apps'] as int?) ?? 0) +
       ((result['categories'] as int?) ?? 0) +
       ((result['websites'] as int?) ?? 0);
   if (blob is! Uint8List || total == 0) {
@@ -140,8 +149,9 @@ class _MomentAppsSectionState extends ConsumerState<MomentAppsSection> {
   }
 
   Future<void> _loadIos() async {
-    final blob =
-        await ref.read(momentProfileServiceProvider).iosSelection(widget.kind);
+    final blob = await ref
+        .read(momentProfileServiceProvider)
+        .iosSelection(widget.kind);
     if (mounted) setState(() => _iosChosen = blob != null);
   }
 
@@ -173,11 +183,13 @@ class _MomentAppsSectionState extends ConsumerState<MomentAppsSection> {
     final summary = !chosen
         ? AppLocalizations.of(context).noAppsChosen
         : io.Platform.isIOS
-            ? AppLocalizations.of(context).appsChosen
-            : AppLocalizations.of(context).appsChosenCount(count);
+        ? AppLocalizations.of(context).appsChosen
+        : AppLocalizations.of(context).appsChosenCount(count);
     return MomentSection(
       title: AppLocalizations.of(context).appsToBlock,
-      note: AppLocalizations.of(context).onlyUsedFor(momentKindName(AppLocalizations.of(context), widget.kind)),
+      note: AppLocalizations.of(
+        context,
+      ).onlyUsedFor(momentKindName(AppLocalizations.of(context), widget.kind)),
       child: Row(
         children: [
           Expanded(child: Text(summary, style: RestType.sans(15))),
@@ -191,7 +203,9 @@ class _MomentAppsSectionState extends ConsumerState<MomentAppsSection> {
               minimumSize: const Size(44, 44),
             ),
             child: Text(
-              chosen ? AppLocalizations.of(context).change : AppLocalizations.of(context).chooseApps,
+              chosen
+                  ? AppLocalizations.of(context).change
+                  : AppLocalizations.of(context).chooseApps,
               style: RestType.sans(
                 14,
                 color: RestPalette.primary,

@@ -2629,6 +2629,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Good evening'**
   String get greetingEvening;
+
+  /// No description provided for @progressLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress could not be loaded.'**
+  String get progressLoadError;
+
+  /// No description provided for @progressMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments'**
+  String get progressMoments;
+
+  /// No description provided for @progressNoMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed moments yet. They appear here once you finish one.'**
+  String get progressNoMoments;
+
+  /// No description provided for @progressMomentsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'completed in total'**
+  String get progressMomentsCompleted;
+
+  /// No description provided for @progressLast7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'in the last 7 days'**
+  String get progressLast7Days;
+
+  /// No description provided for @progressInTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'in total'**
+  String get progressInTotal;
+
+  /// No description provided for @progressDaysWithMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day with a moment} other{days with a moment}}'**
+  String progressDaysWithMoment(int count);
+
+  /// No description provided for @progressPlannedVsActual.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned vs actual'**
+  String get progressPlannedVsActual;
+
+  /// No description provided for @progressActualOfPlannedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{actual} of {planned} min'**
+  String progressActualOfPlannedValue(int actual, int planned);
+
+  /// No description provided for @progressActualOfPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'actual of planned time'**
+  String get progressActualOfPlanned;
+
+  /// No description provided for @progressCountOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total}'**
+  String progressCountOfTotal(int count, int total);
+
+  /// No description provided for @progressFullLength.
+  ///
+  /// In en, this message translates to:
+  /// **'lasted their full planned time'**
+  String get progressFullLength;
+
+  /// No description provided for @progressDailySteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily steps'**
+  String get progressDailySteps;
+
+  /// No description provided for @progressNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan started yet.'**
+  String get progressNoPlan;
+
+  /// No description provided for @progressStepsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'steps done'**
+  String get progressStepsDone;
+
+  /// No description provided for @progressStatusDone.
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get progressStatusDone;
+
+  /// No description provided for @progressStatusSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'skipped'**
+  String get progressStatusSkipped;
+
+  /// No description provided for @progressStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'open'**
+  String get progressStatusOpen;
+
+  /// No description provided for @progressLegendSwapped.
+  ///
+  /// In en, this message translates to:
+  /// **'swapped for a shorter step'**
+  String get progressLegendSwapped;
+
+  /// No description provided for @progressDayStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}: {status}'**
+  String progressDayStatus(int day, String status);
+
+  /// No description provided for @progressDayStatusSwapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}: {status}, swapped'**
+  String progressDayStatusSwapped(int day, String status);
+
+  /// No description provided for @progressDayNoMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: no moment'**
+  String progressDayNoMoment(String date);
+
+  /// No description provided for @progressDayMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {count, plural, =1{1 moment} other{{count} moments}}'**
+  String progressDayMoments(String date, int count);
+
+  /// No description provided for @progressPhoneAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone-away'**
+  String get progressPhoneAway;
+
+  /// No description provided for @progressNoBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'No blocked time yet.'**
+  String get progressNoBlocked;
+
+  /// No description provided for @progressBlockedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'apps blocked in total'**
+  String get progressBlockedTotal;
+
+  /// No description provided for @setTimeForAllDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Set time for all days'**
+  String get setTimeForAllDays;
+
+  /// No description provided for @couldNotSaveEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save evening. Please try again.'**
+  String get couldNotSaveEvening;
+
+  /// No description provided for @couldNotSaveMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save morning. Please try again.'**
+  String get couldNotSaveMorning;
+
+  /// No description provided for @blockStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start blocking. Check permissions and try again.'**
+  String get blockStartFailed;
+
+  /// No description provided for @strictEveningActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your apps are set aside. In strict mode, blocking stays on until your next NFC scan, even if you leave this screen.'**
+  String get strictEveningActive;
+
+  /// No description provided for @scanNfcToEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan NFC to end'**
+  String get scanNfcToEnd;
+
+  /// No description provided for @nfcScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan NFC tag'**
+  String get nfcScanTitle;
+
+  /// No description provided for @nfcChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking NFC...'**
+  String get nfcChecking;
+
+  /// No description provided for @nfcDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'NFC is turned off. Enable it in your phone settings and come back.'**
+  String get nfcDisabled;
+
+  /// No description provided for @nfcHoldToUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone against an NFC tag to unblock your apps'**
+  String get nfcHoldToUnblock;
+
+  /// No description provided for @nfcHoldToBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone against an NFC tag to block your apps'**
+  String get nfcHoldToBlock;
+
+  /// No description provided for @nfcChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change blocking. Please try again.'**
+  String get nfcChangeFailed;
+
+  /// No description provided for @notifAllowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications?'**
+  String get notifAllowTitle;
+
+  /// No description provided for @notifAllowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To send your daily reminder at {time}, Rest4More needs permission to show notifications. Your phone will ask you next.\n\nReminders are optional. If you say no, you can still use everything in the app.'**
+  String notifAllowBody(String time);
+
+  /// No description provided for @notifDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders for now'**
+  String get notifDeniedTitle;
+
+  /// No description provided for @notifDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s okay. You can use Rest4More as usual, you just won\'t get a daily reminder.\n\nIf you change your mind, you can allow notifications for Rest4More in your phone\'s settings.'**
+  String get notifDeniedBody;
+
+  /// No description provided for @notifBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off'**
+  String get notifBlockedTitle;
+
+  /// No description provided for @notifBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest4More is not allowed to send notifications on this phone, so we can\'t send your daily reminder.\n\nYou can allow notifications in Settings, or continue without reminders. Everything else in the app works the same.'**
+  String get notifBlockedBody;
+
+  /// No description provided for @notifContinueWithout.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue without reminders'**
+  String get notifContinueWithout;
+
+  /// No description provided for @dailyReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get dailyReminderTitle;
+
+  /// No description provided for @dailyReminderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A gentle nudge for your daily step'**
+  String get dailyReminderSubtitle;
+
+  /// No description provided for @reminderTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get reminderTimeLabel;
+
+  /// No description provided for @reminderOnNote.
+  ///
+  /// In en, this message translates to:
+  /// **'One reminder a day at this time. On days you have already done your step, we stay quiet.'**
+  String get reminderOnNote;
+
+  /// No description provided for @reminderOffNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are off. You can use everything in the app without them.'**
+  String get reminderOffNote;
 }
 
 class _AppLocalizationsDelegate

@@ -791,5 +791,126 @@
   "notChosen": "Not chosen",
   "greetingMorning": "Good morning",
   "greetingAfternoon": "Good afternoon",
-  "greetingEvening": "Good evening"
+  "greetingEvening": "Good evening",
+  "progressLoadError": "Progress could not be loaded.",
+  "progressMoments": "Moments",
+  "progressNoMoments": "No completed moments yet. They appear here once you finish one.",
+  "progressMomentsCompleted": "completed in total",
+  "progressLast7Days": "in the last 7 days",
+  "progressInTotal": "in total",
+  "progressDaysWithMoment": "{count, plural, =1{day with a moment} other{days with a moment}}",
+  "@progressDaysWithMoment": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressPlannedVsActual": "Planned vs actual",
+  "progressActualOfPlannedValue": "{actual} of {planned} min",
+  "@progressActualOfPlannedValue": {
+    "placeholders": {
+      "actual": {
+        "type": "int"
+      },
+      "planned": {
+        "type": "int"
+      }
+    }
+  },
+  "progressActualOfPlanned": "actual of planned time",
+  "progressCountOfTotal": "{count} of {total}",
+  "@progressCountOfTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressFullLength": "lasted their full planned time",
+  "progressDailySteps": "Daily steps",
+  "progressNoPlan": "No plan started yet.",
+  "progressStepsDone": "steps done",
+  "progressStatusDone": "done",
+  "progressStatusSkipped": "skipped",
+  "progressStatusOpen": "open",
+  "progressLegendSwapped": "swapped for a shorter step",
+  "progressDayStatus": "Day {day}: {status}",
+  "@progressDayStatus": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "progressDayStatusSwapped": "Day {day}: {status}, swapped",
+  "@progressDayStatusSwapped": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "progressDayNoMoment": "{date}: no moment",
+  "@progressDayNoMoment": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "progressDayMoments": "{date}: {count, plural, =1{1 moment} other{{count} moments}}",
+  "@progressDayMoments": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressPhoneAway": "Phone-away",
+  "progressNoBlocked": "No blocked time yet.",
+  "progressBlockedTotal": "apps blocked in total",
+  "setTimeForAllDays": "Set time for all days",
+  "couldNotSaveEvening": "Could not save evening. Please try again.",
+  "couldNotSaveMorning": "Could not save morning. Please try again.",
+  "blockStartFailed": "Could not start blocking. Check permissions and try again.",
+  "strictEveningActive": "Your apps are set aside. In strict mode, blocking stays on until your next NFC scan, even if you leave this screen.",
+  "scanNfcToEnd": "Scan NFC to end",
+  "nfcScanTitle": "Scan NFC tag",
+  "nfcChecking": "Checking NFC...",
+  "nfcDisabled": "NFC is turned off. Enable it in your phone settings and come back.",
+  "nfcHoldToUnblock": "Hold your phone against an NFC tag to unblock your apps",
+  "nfcHoldToBlock": "Hold your phone against an NFC tag to block your apps",
+  "nfcChangeFailed": "Could not change blocking. Please try again.",
+  "notifAllowTitle": "Allow notifications?",
+  "notifAllowBody": "To send your daily reminder at {time}, Rest4More needs permission to show notifications. Your phone will ask you next.\n\nReminders are optional. If you say no, you can still use everything in the app.",
+  "@notifAllowBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDeniedTitle": "No reminders for now",
+  "notifDeniedBody": "That's okay. You can use Rest4More as usual, you just won't get a daily reminder.\n\nIf you change your mind, you can allow notifications for Rest4More in your phone's settings.",
+  "notifBlockedTitle": "Notifications are turned off",
+  "notifBlockedBody": "Rest4More is not allowed to send notifications on this phone, so we can't send your daily reminder.\n\nYou can allow notifications in Settings, or continue without reminders. Everything else in the app works the same.",
+  "notifContinueWithout": "Continue without reminders",
+  "dailyReminderTitle": "Daily reminder",
+  "dailyReminderSubtitle": "A gentle nudge for your daily step",
+  "reminderTimeLabel": "Reminder time",
+  "reminderOnNote": "One reminder a day at this time. On days you have already done your step, we stay quiet.",
+  "reminderOffNote": "Reminders are off. You can use everything in the app without them."
 }

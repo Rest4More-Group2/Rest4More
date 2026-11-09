@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_blocking.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
+import 'package:rest4more/l10n/format.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
 import 'nfc_scan_screen.dart';
@@ -54,13 +56,17 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
   }
 
   Future<void> _start() async {
-    setState(() { _busy = true; _error = null; });
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
     try {
       await _blocking.setBlocking(widget.kind, true);
       if (mounted) setState(() => _active = true);
     } catch (_) {
-      if (mounted) setState(() => _error =
-          'Could not start blocking. Check permissions and try again.');
+      if (mounted) {
+        setState(() => _error = AppLocalizations.of(context).blockStartFailed);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -70,10 +76,9 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => const NfcScanScreen(),
-        settings: RouteSettings(arguments: (
-          isBlocked: true,
-          moment: widget.kind,
-        )),
+        settings: RouteSettings(
+          arguments: (isBlocked: true, moment: widget.kind),
+        ),
       ),
     );
     if (!mounted) return;
@@ -85,7 +90,9 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: RestPalette.background,
-    appBar: AppBar(title: Text(widget.kind.profileName)),
+    appBar: AppBar(
+      title: Text(momentKindName(AppLocalizations.of(context), widget.kind)),
+    ),
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -93,23 +100,33 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Your evening', style: RestType.serif(36)),
+            Text(
+              AppLocalizations.of(context).yourEvening,
+              style: RestType.serif(36),
+            ),
             const SizedBox(height: 18),
             if (_busy) const Center(child: CircularProgressIndicator()),
             if (_error != null) Text(_error!, style: RestType.sans(16)),
             if (_active)
-              Text('Your apps are set aside. In strict mode, blocking '
-                  'stays on until your next NFC scan, even if you leave '
-                  'this screen.', style: RestType.sans(16)),
+              Text(
+                AppLocalizations.of(context).strictEveningActive,
+                style: RestType.sans(16),
+              ),
             if (!_busy) ...[
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: _error != null
                     ? _start
-                    : _active ? _scanToEnd : () => Navigator.pop(context),
-                child: Text(_error != null
-                    ? 'Try again'
-                    : _active ? 'Scan NFC to end' : 'Done'),
+                    : _active
+                    ? _scanToEnd
+                    : () => Navigator.pop(context),
+                child: Text(
+                  _error != null
+                      ? AppLocalizations.of(context).tryAgain
+                      : _active
+                      ? AppLocalizations.of(context).scanNfcToEnd
+                      : AppLocalizations.of(context).done,
+                ),
               ),
             ],
           ],

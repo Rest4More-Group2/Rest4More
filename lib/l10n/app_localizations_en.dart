@@ -1482,4 +1482,192 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get greetingEvening => 'Good evening';
+
+  @override
+  String get progressLoadError => 'Progress could not be loaded.';
+
+  @override
+  String get progressMoments => 'Moments';
+
+  @override
+  String get progressNoMoments =>
+      'No completed moments yet. They appear here once you finish one.';
+
+  @override
+  String get progressMomentsCompleted => 'completed in total';
+
+  @override
+  String get progressLast7Days => 'in the last 7 days';
+
+  @override
+  String get progressInTotal => 'in total';
+
+  @override
+  String progressDaysWithMoment(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days with a moment',
+      one: 'day with a moment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressPlannedVsActual => 'Planned vs actual';
+
+  @override
+  String progressActualOfPlannedValue(int actual, int planned) {
+    return '$actual of $planned min';
+  }
+
+  @override
+  String get progressActualOfPlanned => 'actual of planned time';
+
+  @override
+  String progressCountOfTotal(int count, int total) {
+    return '$count of $total';
+  }
+
+  @override
+  String get progressFullLength => 'lasted their full planned time';
+
+  @override
+  String get progressDailySteps => 'Daily steps';
+
+  @override
+  String get progressNoPlan => 'No plan started yet.';
+
+  @override
+  String get progressStepsDone => 'steps done';
+
+  @override
+  String get progressStatusDone => 'done';
+
+  @override
+  String get progressStatusSkipped => 'skipped';
+
+  @override
+  String get progressStatusOpen => 'open';
+
+  @override
+  String get progressLegendSwapped => 'swapped for a shorter step';
+
+  @override
+  String progressDayStatus(int day, String status) {
+    return 'Day $day: $status';
+  }
+
+  @override
+  String progressDayStatusSwapped(int day, String status) {
+    return 'Day $day: $status, swapped';
+  }
+
+  @override
+  String progressDayNoMoment(String date) {
+    return '$date: no moment';
+  }
+
+  @override
+  String progressDayMoments(String date, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count moments',
+      one: '1 moment',
+    );
+    return '$date: $_temp0';
+  }
+
+  @override
+  String get progressPhoneAway => 'Phone-away';
+
+  @override
+  String get progressNoBlocked => 'No blocked time yet.';
+
+  @override
+  String get progressBlockedTotal => 'apps blocked in total';
+
+  @override
+  String get setTimeForAllDays => 'Set time for all days';
+
+  @override
+  String get couldNotSaveEvening => 'Could not save evening. Please try again.';
+
+  @override
+  String get couldNotSaveMorning => 'Could not save morning. Please try again.';
+
+  @override
+  String get blockStartFailed =>
+      'Could not start blocking. Check permissions and try again.';
+
+  @override
+  String get strictEveningActive =>
+      'Your apps are set aside. In strict mode, blocking stays on until your next NFC scan, even if you leave this screen.';
+
+  @override
+  String get scanNfcToEnd => 'Scan NFC to end';
+
+  @override
+  String get nfcScanTitle => 'Scan NFC tag';
+
+  @override
+  String get nfcChecking => 'Checking NFC...';
+
+  @override
+  String get nfcDisabled =>
+      'NFC is turned off. Enable it in your phone settings and come back.';
+
+  @override
+  String get nfcHoldToUnblock =>
+      'Hold your phone against an NFC tag to unblock your apps';
+
+  @override
+  String get nfcHoldToBlock =>
+      'Hold your phone against an NFC tag to block your apps';
+
+  @override
+  String get nfcChangeFailed => 'Could not change blocking. Please try again.';
+
+  @override
+  String get notifAllowTitle => 'Allow notifications?';
+
+  @override
+  String notifAllowBody(String time) {
+    return 'To send your daily reminder at $time, Rest4More needs permission to show notifications. Your phone will ask you next.\n\nReminders are optional. If you say no, you can still use everything in the app.';
+  }
+
+  @override
+  String get notifDeniedTitle => 'No reminders for now';
+
+  @override
+  String get notifDeniedBody =>
+      'That\'s okay. You can use Rest4More as usual, you just won\'t get a daily reminder.\n\nIf you change your mind, you can allow notifications for Rest4More in your phone\'s settings.';
+
+  @override
+  String get notifBlockedTitle => 'Notifications are turned off';
+
+  @override
+  String get notifBlockedBody =>
+      'Rest4More is not allowed to send notifications on this phone, so we can\'t send your daily reminder.\n\nYou can allow notifications in Settings, or continue without reminders. Everything else in the app works the same.';
+
+  @override
+  String get notifContinueWithout => 'Continue without reminders';
+
+  @override
+  String get dailyReminderTitle => 'Daily reminder';
+
+  @override
+  String get dailyReminderSubtitle => 'A gentle nudge for your daily step';
+
+  @override
+  String get reminderTimeLabel => 'Reminder time';
+
+  @override
+  String get reminderOnNote =>
+      'One reminder a day at this time. On days you have already done your step, we stay quiet.';
+
+  @override
+  String get reminderOffNote =>
+      'Reminders are off. You can use everything in the app without them.';
 }

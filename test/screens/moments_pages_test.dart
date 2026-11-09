@@ -51,17 +51,26 @@ void main() {
     expect(started?.minutes, 90);
   });
 
-  screenTest('Focus: eigen duur stapt per 5 minuten', (tester) async {
+  screenTest('Focus: eigen duur kies je met de tijdkiezer, per minuut',
+      (tester) async {
     FocusSetup? started;
     await pumpScreen(tester, SessionSetupScreen(onStart: (s) => started = s));
     await tester.tap(find.text('Custom'));
     await tester.pump();
-    await tester.tap(find.byTooltip('More minutes'));
-    await tester.pump();
+    await tester.tap(find.text('00:30'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.keyboard_outlined));
+    await tester.pumpAndSettle();
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), '01');
+    await tester.enterText(fields.at(1), '07');
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('01:07'), findsOneWidget);
     await tester.tap(find.text('Start Focus'));
     await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 100)));
-    expect(started?.minutes, 35);
+    expect(started?.minutes, 67);
   });
 
   screenTest('Evening telt terug over de stappen en slaat het plan op',

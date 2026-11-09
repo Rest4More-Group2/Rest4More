@@ -31,7 +31,6 @@ class _AppShellState extends ConsumerState<AppShell>
     with WidgetsBindingObserver {
   static const _todayTab = 0;
   static const _momentsTab = 1;
-  static const _progressTab = 2;
 
   int _selectedTab = _todayTab;
   StreamSubscription<int>? _taps;
@@ -115,15 +114,6 @@ class _AppShellState extends ConsumerState<AppShell>
   }
 
   void _selectTab(int index) {
-    if (index == _progressTab) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).progressNotAvailable),
-        ),
-      );
-      return;
-    }
-
     setState(() => _selectedTab = index);
   }
 
@@ -195,50 +185,24 @@ class _AppShellState extends ConsumerState<AppShell>
                               size: 24,
                             ),
                           ),
-                        ),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeInOut,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? RestPalette.primary.withValues(alpha: 0.08)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(14),
+                          const SizedBox(height: 6),
+                          Text(
+                            labels[index],
+                            style: RestType.sans(
+                              11,
+                              color: color,
+                              weight: selected
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedScale(
-                                scale: selected ? 1.1 : 1,
-                                duration: const Duration(milliseconds: 220),
-                                child: RestMomentIcon(
-                                  index: index,
-                                  color: color,
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                labels[index],
-                                style: RestType.sans(
-                                  11,
-                                  color: color,
-                                  weight: selected
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                  );
-                }),
-              ),
-            ),
+                  ),
+                ),
+              );
+            }),
           ),
         ),
       ),
