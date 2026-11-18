@@ -16,6 +16,8 @@ class PairedTagsScreen extends StatefulWidget {
 
 class _PairedTagsScreenState extends State<PairedTagsScreen> {
   List<String> _tags = [];
+  Map<String, String> _names = {};
+  Map<String, int> _numbers = {};
   bool _loading = true;
   bool _scanning = false;
 
@@ -38,7 +40,16 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
     try {
       final tags = await TagService.getKnownTags();
       if (!mounted) return;
-      setState(() => _tags = tags..sort());
+      final names = await TagService.getTagNames();
+      final numbers = await TagService.getTagNumbers(tags);
+      if (!mounted) return;
+      // Order by the permanent number so a tag keeps its place in the list.
+      tags.sort((a, b) => numbers[a]!.compareTo(numbers[b]!));
+      setState(() {
+        _tags = tags;
+        _names = names;
+        _numbers = numbers;
+      });
     } catch (e) {
       debugPrint('MethodChannel error: $e');
       if (mounted) {
@@ -62,6 +73,48 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
     } catch (e) {
       debugPrint('MethodChannel error: $e');
       _showMessage(l10n.couldNotRemoveTag);
+    }
+  }
+
+  String _displayName(String uuid) =>
+      _names[uuid] ?? AppLocalizations.of(context).tagNumber(_numbers[uuid] ?? 1);
+
+  Future<void> _rename(String uuid) async {
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController(text: _names[uuid] ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: RestPalette.background,
+        title: Text(l10n.renameTag, style: RestType.serif(24)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 30,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(hintText: _displayName(uuid)),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == null) return;
+    try {
+      await TagService.setTagName(uuid, result);
+      await _load();
+    } catch (e) {
+      debugPrint('Rename error: $e');
+      _showMessage(l10n.couldNotRenameTag);
     }
   }
 
@@ -285,11 +338,20 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(AppLocalizations.of(context).tagNumber(index + 1), style: RestType.serif(22)),
+              Text(_displayName(uuid), style: RestType.serif(22)),
               Text(uuid.substring(0, 8),
                   style: RestType.sans(12, color: RestPalette.accent)),
             ],
           ),
+        ),
+        IconButton(
+          tooltip: AppLocalizations.of(context).renameTag,
+          onPressed: () => _rename(uuid),
+          style: IconButton.styleFrom(
+            foregroundColor: RestPalette.primary,
+            minimumSize: const Size(48, 48),
+          ),
+          icon: const Icon(Icons.edit_outlined),
         ),
         IconButton(
           tooltip: AppLocalizations.of(context).removeTag,

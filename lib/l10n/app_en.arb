@@ -320,6 +320,9 @@
   "bedtimeBlockingEnds": "Bedtime · blocking ends",
   "blockingStaysUntilScan": "Blocking stays until your next scan.",
   "saveMorning": "Save morning",
+  "startMorningNow": "Start morning now",
+  "startEveningNow": "Start evening now",
+  "startingRoutine": "Starting…",
   "wakeUpTimePerDay": "Wake-up time per day",
   "wakeUpNote": "This is not your phone alarm. The app cannot hook into the system alarm, so set the same time there. Your morning starts at the time you choose here.",
   "yourMorning": "Your morning",
@@ -652,6 +655,8 @@
       }
     }
   },
+  "renameTag": "Rename tag",
+  "couldNotRenameTag": "Could not rename the tag.",
   "removeTag": "Remove tag",
   "noStepsYet": "No steps yet. Add the first one.",
   "editStep": "Edit step",

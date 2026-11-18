@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/nfc_manager_android.dart';
 import 'package:nfc_manager/nfc_manager_ios.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TagService {
   static const _channel = MethodChannel(
@@ -59,6 +60,60 @@ class TagService {
 
   static Future<void> removeKnownTag(String uuid) =>
       _channel.invokeMethod('removeKnownTag', {'uuid': uuid});
+
+  static const _namesKey = 'tag_names';
+  static const _numbersKey = 'tag_numbers';
+  static const _nextNumberKey = 'tag_next_number';
+
+  /// User-chosen names by tag UUID. Tags without an entry have no custom name.
+  static Future<Map<String, String>> getTagNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    return _readMap(prefs, _namesKey).map((k, v) => MapEntry(k, v as String));
+  }
+
+  /// Saves [name] for [uuid]; a blank name clears it back to the default.
+  static Future<void> setTagName(String uuid, String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    final names = _readMap(prefs, _namesKey);
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      names.remove(uuid);
+    } else {
+      names[uuid] = trimmed;
+    }
+    await prefs.setString(_namesKey, jsonEncode(names));
+  }
+
+  /// A permanent number per tag for its default name ("Tag 2"). Numbers are
+  /// handed out once and never reused, so removing a tag does not renumber
+  /// the others.
+  static Future<Map<String, int>> getTagNumbers(Iterable<String> uuids) async {
+    final prefs = await SharedPreferences.getInstance();
+    final numbers = _readMap(prefs, _numbersKey);
+    var next = prefs.getInt(_nextNumberKey) ?? 1;
+    var changed = false;
+    for (final uuid in uuids) {
+      if (!numbers.containsKey(uuid)) {
+        numbers[uuid] = next++;
+        changed = true;
+      }
+    }
+    if (changed) {
+      await prefs.setString(_numbersKey, jsonEncode(numbers));
+      await prefs.setInt(_nextNumberKey, next);
+    }
+    return {for (final u in uuids) u: numbers[u] as int};
+  }
+
+  static Map<String, dynamic> _readMap(SharedPreferences prefs, String key) {
+    final raw = prefs.getString(key);
+    if (raw == null) return {};
+    try {
+      return Map<String, dynamic>.from(jsonDecode(raw) as Map);
+    } catch (_) {
+      return {};
+    }
+  }
 
   /// Returns the lowercase UUID if [url] is one of our tag links, else null.
   static String? parseTagUuid(String url) {

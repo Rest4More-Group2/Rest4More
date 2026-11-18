@@ -681,6 +681,15 @@ class AppLocalizationsNl extends AppLocalizations {
   String get saveMorning => 'Ochtend opslaan';
 
   @override
+  String get startMorningNow => 'Start ochtend nu';
+
+  @override
+  String get startEveningNow => 'Start avond nu';
+
+  @override
+  String get startingRoutine => 'Starten…';
+
+  @override
   String get wakeUpTimePerDay => 'Wektijd per dag';
 
   @override
@@ -1257,6 +1266,12 @@ class AppLocalizationsNl extends AppLocalizations {
   String tagNumber(int n) {
     return 'Tag $n';
   }
+
+  @override
+  String get renameTag => 'Tag hernoemen';
+
+  @override
+  String get couldNotRenameTag => 'Kon de tag niet hernoemen.';
 
   @override
   String get removeTag => 'Tag verwijderen';

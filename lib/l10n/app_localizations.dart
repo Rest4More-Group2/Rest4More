@@ -1274,6 +1274,24 @@ abstract class AppLocalizations {
   /// **'Save morning'**
   String get saveMorning;
 
+  /// No description provided for @startMorningNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Start morning now'**
+  String get startMorningNow;
+
+  /// No description provided for @startEveningNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Start evening now'**
+  String get startEveningNow;
+
+  /// No description provided for @startingRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get startingRoutine;
+
   /// No description provided for @wakeUpTimePerDay.
   ///
   /// In en, this message translates to:
@@ -2221,6 +2239,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tag {n}'**
   String tagNumber(int n);
+
+  /// No description provided for @renameTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename tag'**
+  String get renameTag;
+
+  /// No description provided for @couldNotRenameTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not rename the tag.'**
+  String get couldNotRenameTag;
 
   /// No description provided for @removeTag.
   ///

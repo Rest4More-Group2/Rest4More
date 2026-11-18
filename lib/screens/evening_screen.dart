@@ -34,6 +34,17 @@ class EveningScreen extends StatefulWidget {
 
 class _EveningScreenState extends State<EveningScreen> {
   late EveningPlan _plan = widget.initial ?? EveningPlan.initial();
+  bool _starting = false;
+
+  Future<void> _startNow() async {
+    if (_starting || widget.onStartNow == null) return;
+    setState(() => _starting = true);
+    try {
+      await widget.onStartNow!(_plan);
+    } finally {
+      if (mounted) setState(() => _starting = false);
+    }
+  }
 
   void _setDay(EveningDay day) => setState(() {
     _plan = _plan.copyWith(
@@ -79,11 +90,25 @@ class _EveningScreenState extends State<EveningScreen> {
     return MomentPage(
       title: AppLocalizations.of(context).momentEveningTitle,
       subtitle: AppLocalizations.of(context).eveningSubtitle,
-      bottom: MomentPrimaryButton(
-        label: AppLocalizations.of(context).saveEvening,
-        onPressed: widget.onSave == null || steps.isEmpty
-            ? null
-            : () => widget.onSave!(_plan),
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MomentPrimaryButton(
+            label: _starting
+                ? AppLocalizations.of(context).startingRoutine
+                : AppLocalizations.of(context).startEveningNow,
+            onPressed: _starting || widget.onStartNow == null || steps.isEmpty
+                ? null
+                : _startNow,
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _starting || widget.onSave == null || steps.isEmpty
+                ? null
+                : () => widget.onSave!(_plan),
+            child: Text(AppLocalizations.of(context).saveEvening),
+          ),
+        ],
       ),
       children: [
         const MomentAppsSection(kind: MomentKind.evening),

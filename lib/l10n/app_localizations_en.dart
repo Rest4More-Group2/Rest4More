@@ -675,6 +675,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveMorning => 'Save morning';
 
   @override
+  String get startMorningNow => 'Start morning now';
+
+  @override
+  String get startEveningNow => 'Start evening now';
+
+  @override
+  String get startingRoutine => 'Starting…';
+
+  @override
   String get wakeUpTimePerDay => 'Wake-up time per day';
 
   @override
@@ -1247,6 +1256,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String tagNumber(int n) {
     return 'Tag $n';
   }
+
+  @override
+  String get renameTag => 'Rename tag';
+
+  @override
+  String get couldNotRenameTag => 'Could not rename the tag.';
 
   @override
   String get removeTag => 'Remove tag';
