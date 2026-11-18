@@ -13,6 +13,7 @@ import 'package:rest4more/providers/repository_providers.dart';
 import 'moment_apps_section.dart';
 import 'moments_widgets.dart';
 import 'paired_tags_screen.dart';
+import 'nfc_guide_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
 /// A Focus-like moment where your chosen apps are put aside with a tap of a
@@ -349,6 +350,22 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                         const SizedBox(height: 16),
                         _step(3, 'Scan the same tag again to end.'),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const NfcGuideScreen(),
+                      ),
+                    ),
+                    icon: const Icon(Icons.help_outline),
+                    label: Text('How to use your NFC card',
+                        style: RestType.sans(15,
+                            color: RestPalette.primary,
+                            weight: FontWeight.w600)),
+                    style: TextButton.styleFrom(
+                      foregroundColor: RestPalette.primary,
                     ),
                   ),
                   const SizedBox(height: 26),
