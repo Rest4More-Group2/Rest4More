@@ -33,6 +33,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
   bool _sentToSettings = false;
 
   int? _tagCount;
+  List<({String name, String id})> _tagRows = [];
 
   @override
   void initState() {
@@ -113,7 +114,19 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
   Future<void> _loadTagCount() async {
     try {
       final tags = await TagService.getKnownTags();
-      if (mounted) setState(() => _tagCount = tags.length);
+      final names = await TagService.getTagNames();
+      final numbers = await TagService.getTagNumbers(tags);
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final sorted = [...tags]
+        ..sort((a, b) => numbers[a]!.compareTo(numbers[b]!));
+      setState(() {
+        _tagCount = tags.length;
+        _tagRows = [
+          for (final u in sorted)
+            (name: names[u] ?? l10n.tagNumber(numbers[u]!), id: u.substring(0, 8)),
+        ];
+      });
     } catch (e) {
       debugPrint('MethodChannel error: $e');
     }
@@ -295,6 +308,17 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                                   color: RestPalette.accent,
                                 ),
                               ),
+                              for (final t in _tagRows) ...[
+                                const SizedBox(height: 14),
+                                Text(t.name, style: RestType.serif(20)),
+                                Text(
+                                  t.id,
+                                  style: RestType.sans(
+                                    12,
+                                    color: RestPalette.accent,
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 12),
                               Row(
                                 children: [

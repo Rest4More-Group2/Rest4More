@@ -81,33 +81,13 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
 
   Future<void> _rename(String uuid) async {
     final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(text: _names[uuid] ?? '');
     final result = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: RestPalette.background,
-        title: Text(l10n.renameTag, style: RestType.serif(24)),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 30,
-          textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(hintText: _displayName(uuid)),
-          onSubmitted: (v) => Navigator.pop(ctx, v),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, controller.text),
-            child: Text(l10n.save),
-          ),
-        ],
+      builder: (_) => _RenameTagDialog(
+        initial: _names[uuid] ?? '',
+        hint: _displayName(uuid),
       ),
     );
-    controller.dispose();
     if (result == null) return;
     try {
       await TagService.setTagName(uuid, result);
@@ -365,4 +345,61 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
       ],
     ),
   );
+}
+
+/// Owns its controller so it is disposed together with the dialog, after the
+/// close animation, instead of while the dialog is still on screen.
+class _RenameTagDialog extends StatefulWidget {
+  const _RenameTagDialog({required this.initial, required this.hint});
+
+  final String initial;
+  final String hint;
+
+  @override
+  State<_RenameTagDialog> createState() => _RenameTagDialogState();
+}
+
+class _RenameTagDialogState extends State<_RenameTagDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      backgroundColor: RestPalette.background,
+      title: Text(l10n.renameTag, style: RestType.serif(24)),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        maxLength: 30,
+        textCapitalization: TextCapitalization.sentences,
+        style: RestType.sans(17, color: RestPalette.primary),
+        decoration: InputDecoration(
+          hintText: widget.hint,
+          hintStyle: RestType.sans(
+            17,
+            color: RestPalette.accent.withValues(alpha: 0.5),
+          ),
+        ),
+        onSubmitted: (v) => Navigator.pop(context, v),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: Text(l10n.save),
+        ),
+      ],
+    );
+  }
 }
