@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'screens/app_root.dart';
 
@@ -34,6 +35,8 @@ import 'package:rest4more/data/repositories/profile_repository.dart';
 @pragma('vm:entry-point')
 void blockMain() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Fonts are bundled in assets/google_fonts; never fetch at runtime.
+  GoogleFonts.config.allowRuntimeFetching = false;
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -44,6 +47,8 @@ void blockMain() {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Fonts are bundled in assets/google_fonts; never fetch at runtime.
+  GoogleFonts.config.allowRuntimeFetching = false;
   final remote = await initSupabaseRemote();
   if (kDebugMode && remote != null) debugPrint('[sync] Supabase gestart');
   final container = ProviderContainer(
