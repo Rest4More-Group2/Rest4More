@@ -5,6 +5,7 @@ import 'package:nfc_manager/nfc_manager_ios.dart';
 import 'package:rest4more/data/tags/tag_service.dart';
 
 import 'moments_widgets.dart';
+import 'nfc_guide_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
 
 class PairedTagsScreen extends StatefulWidget {
@@ -253,6 +254,25 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
                 Text(
                   AppLocalizations.of(context).pairTagOnce,
                   style: RestType.sans(17, color: RestPalette.accent),
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const NfcGuideScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.help_outline),
+                  label: Text('How to use your NFC card',
+                      style: RestType.sans(15,
+                          color: RestPalette.primary,
+                          weight: FontWeight.w600)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: RestPalette.primary,
+                    side: const BorderSide(color: RestPalette.primary),
+                    shape: const StadiumBorder(),
+                    minimumSize: const Size(double.infinity, 54),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 if (_scanning) ...[
