@@ -123,6 +123,14 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('End session'));
     await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    // Daarna de optionele vraag waarom, met een reden die lokaal blijft.
+    expect(find.text('End this moment early?'), findsOneWidget);
+    await tester.tap(find.text('A notification'));
+    await tester.pump();
+    await tester.tap(find.text('End moment'));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 200)));
     await tester.pump(const Duration(seconds: 1));
@@ -130,6 +138,10 @@ void main() {
     expect(find.text('Session ended'), findsOneWidget);
     final rows = await tester.runAsync(() => db.select(db.focusSessions).get());
     expect(rows!.single.outcome, SessionOutcome.stoppedEarly);
+    final reasons =
+        await tester.runAsync(() => db.select(db.sessionEndReasons).get());
+    expect(reasons!.single.sessionId, rows.single.id);
+    expect(reasons.single.reason, EndReason.notification);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

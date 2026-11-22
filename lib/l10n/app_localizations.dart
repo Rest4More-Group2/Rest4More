@@ -3151,6 +3151,498 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough).'**
   String get pickerNotSavedStale;
+
+  /// No description provided for @progressTabThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get progressTabThisWeek;
+
+  /// No description provided for @progressTabPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get progressTabPatterns;
+
+  /// No description provided for @progressPreviousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous week'**
+  String get progressPreviousWeek;
+
+  /// No description provided for @progressNextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get progressNextWeek;
+
+  /// No description provided for @progressYourWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week'**
+  String get progressYourWeek;
+
+  /// No description provided for @progressFirstWeekEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week fills in after your first moment. Start one from Moments whenever you like.'**
+  String get progressFirstWeekEmpty;
+
+  /// No description provided for @progressWeekEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No moments this week.'**
+  String get progressWeekEmpty;
+
+  /// No description provided for @progressWinMoreCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 moment completed} other{{count} moments completed}} — {more} more than last week.'**
+  String progressWinMoreCompleted(int count, int more);
+
+  /// No description provided for @progressWinMoreProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} protected — {more} more than last week.'**
+  String progressWinMoreProtected(String duration, String more);
+
+  /// No description provided for @progressWinFewerEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'{fewer, plural, =1{1 fewer early stop} other{{fewer} fewer early stops}} than last week.'**
+  String progressWinFewerEarly(int fewer);
+
+  /// No description provided for @progressWinCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You completed a moment this week.} other{You completed {count} moments this week.}}'**
+  String progressWinCompleted(int count);
+
+  /// No description provided for @progressMomentsCompletedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'moments completed'**
+  String get progressMomentsCompletedLabel;
+
+  /// No description provided for @progressProtectedTime.
+  ///
+  /// In en, this message translates to:
+  /// **'protected time'**
+  String get progressProtectedTime;
+
+  /// No description provided for @progressSessionTime.
+  ///
+  /// In en, this message translates to:
+  /// **'session time'**
+  String get progressSessionTime;
+
+  /// No description provided for @progressSessionTimeNoBlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'session time without blocking'**
+  String get progressSessionTimeNoBlocking;
+
+  /// No description provided for @progressEndedEarlyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ended early'**
+  String get progressEndedEarlyLabel;
+
+  /// No description provided for @progressMinutesPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes per day'**
+  String get progressMinutesPerDay;
+
+  /// No description provided for @progressLegendCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'completed'**
+  String get progressLegendCompleted;
+
+  /// No description provided for @progressLegendEndedEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'ended early'**
+  String get progressLegendEndedEarly;
+
+  /// No description provided for @progressBarSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {completed} min completed, {early} min ended early'**
+  String progressBarSemantics(String day, int completed, int early);
+
+  /// No description provided for @progressSentenceNoneEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'No moment ended early this week.'**
+  String get progressSentenceNoneEarly;
+
+  /// No description provided for @progressSentenceAllEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The one early stop happened {when}.} =2{Both early stops happened {when}.} other{All {count} early stops happened {when}.}}'**
+  String progressSentenceAllEarly(int count, String when);
+
+  /// No description provided for @progressEarlyOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} early stops happened {when}.'**
+  String progressEarlyOfTotal(int count, int total, String when);
+
+  /// No description provided for @progressWhenBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'before {time}'**
+  String progressWhenBefore(String time);
+
+  /// No description provided for @progressWhenBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'between {start} and {end}'**
+  String progressWhenBetween(String start, String end);
+
+  /// No description provided for @progressWhenAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'after {time}'**
+  String progressWhenAfter(String time);
+
+  /// No description provided for @progressBucketBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {time}'**
+  String progressBucketBefore(String time);
+
+  /// No description provided for @progressBucketBetween.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String progressBucketBetween(String start, String end);
+
+  /// No description provided for @progressBucketAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After {time}'**
+  String progressBucketAfter(String time);
+
+  /// No description provided for @progressSeePatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'See patterns'**
+  String get progressSeePatterns;
+
+  /// No description provided for @progressComparedLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to last week'**
+  String get progressComparedLastWeek;
+
+  /// No description provided for @progressComparedLast4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared to the 4 weeks before'**
+  String get progressComparedLast4Weeks;
+
+  /// No description provided for @progressCompareMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments completed'**
+  String get progressCompareMoments;
+
+  /// No description provided for @progressCompareProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected time'**
+  String get progressCompareProtected;
+
+  /// No description provided for @progressCompareSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Session time'**
+  String get progressCompareSession;
+
+  /// No description provided for @progressCompareEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended early'**
+  String get progressCompareEnded;
+
+  /// No description provided for @progressCompareThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{now} this week · {before} last week'**
+  String progressCompareThisWeek(String now, String before);
+
+  /// No description provided for @progressCompareThatWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{now} that week · {before} the week before'**
+  String progressCompareThatWeek(String now, String before);
+
+  /// No description provided for @progressCompare4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{now} in these 4 weeks · {before} in the 4 before'**
+  String progressCompare4Weeks(String now, String before);
+
+  /// No description provided for @progressToggleLastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get progressToggleLastWeek;
+
+  /// No description provided for @progressToggleLast4Weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 weeks'**
+  String get progressToggleLast4Weeks;
+
+  /// No description provided for @progressNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'same'**
+  String get progressNoChange;
+
+  /// No description provided for @progressBlockedThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'apps blocked this week'**
+  String get progressBlockedThisWeek;
+
+  /// No description provided for @progressBlockedThatWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'apps blocked that week'**
+  String get progressBlockedThatWeek;
+
+  /// No description provided for @progressBlockedSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: blocking was active during your moments.'**
+  String get progressBlockedSource;
+
+  /// No description provided for @progressPatternsBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 weeks · based on {moments} moments, {early} ended early'**
+  String progressPatternsBasis(int moments, int early);
+
+  /// No description provided for @progressInsightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something we noticed'**
+  String get progressInsightTitle;
+
+  /// No description provided for @progressInsightLaterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting your wind-down a bit earlier could make it easier to finish your evening moment.'**
+  String get progressInsightLaterBody;
+
+  /// No description provided for @progressInsightFirstBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The start of your evening seems hardest. A shorter first moment could make it easier to keep going.'**
+  String get progressInsightFirstBody;
+
+  /// No description provided for @progressInsightBeforeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These stops happen before your evening starts at {time}. If your evening starts at another time, you can change it.'**
+  String progressInsightBeforeBody(String time);
+
+  /// No description provided for @progressInsightMoveReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Move reminder to {time}'**
+  String progressInsightMoveReminder(String time);
+
+  /// No description provided for @progressInsightChangeEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Change evening start'**
+  String get progressInsightChangeEvening;
+
+  /// No description provided for @progressInsightNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get progressInsightNotNow;
+
+  /// No description provided for @progressReminderMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily reminder is now at {time}.'**
+  String progressReminderMoved(String time);
+
+  /// No description provided for @progressWhenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When moments end early'**
+  String get progressWhenTitle;
+
+  /// No description provided for @progressWhenFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Times follow your evening, which starts at {time}.'**
+  String progressWhenFooter(String time);
+
+  /// No description provided for @progressChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get progressChange;
+
+  /// No description provided for @progressChangeEveningTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Change when your evening starts'**
+  String get progressChangeEveningTooltip;
+
+  /// No description provided for @progressBucketCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {count}'**
+  String progressBucketCount(String label, int count);
+
+  /// No description provided for @progressWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why they ended early'**
+  String get progressWhyTitle;
+
+  /// No description provided for @progressWhyFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} early stops have a reason. You can skip the question any time.'**
+  String progressWhyFooter(int count, int total);
+
+  /// No description provided for @progressWhyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reasons yet. You can pick one when you end a moment early.'**
+  String get progressWhyNone;
+
+  /// No description provided for @progressNoEarlyStops.
+  ///
+  /// In en, this message translates to:
+  /// **'No moments ended early in the last 4 weeks.'**
+  String get progressNoEarlyStops;
+
+  /// No description provided for @progressWeekdayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments completed by weekday'**
+  String get progressWeekdayTitle;
+
+  /// No description provided for @progressWeekdayRing.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {done} of {total} completed'**
+  String progressWeekdayRing(String day, int done, int total);
+
+  /// No description provided for @progressWeekendHarder.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekends are harder: {done} of {total} weekend moments completed.'**
+  String progressWeekendHarder(int done, int total);
+
+  /// No description provided for @progressWeekendEasier.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekends go well: {done} of {total} weekend moments completed.'**
+  String progressWeekendEasier(int done, int total);
+
+  /// No description provided for @progressLowDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns appear after {count} moments'**
+  String progressLowDataTitle(int count);
+
+  /// No description provided for @progressLowDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'With fewer moments, percentages and patterns can be misleading. Keep going — we’ll show you when and why moments end early.'**
+  String get progressLowDataBody;
+
+  /// No description provided for @progressLowDataCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} moments so far'**
+  String progressLowDataCount(int count, int total);
+
+  /// No description provided for @endReasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this moment early?'**
+  String get endReasonTitle;
+
+  /// No description provided for @endReasonStrictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your evening ended early'**
+  String get endReasonStrictTitle;
+
+  /// No description provided for @endReasonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened? This is optional and helps your Patterns.'**
+  String get endReasonBody;
+
+  /// No description provided for @endReasonCouldntSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t sleep'**
+  String get endReasonCouldntSleep;
+
+  /// No description provided for @endReasonNeededPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed my phone'**
+  String get endReasonNeededPhone;
+
+  /// No description provided for @endReasonNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification'**
+  String get endReasonNotification;
+
+  /// No description provided for @endReasonJustWanted.
+  ///
+  /// In en, this message translates to:
+  /// **'Just wanted to'**
+  String get endReasonJustWanted;
+
+  /// No description provided for @endReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get endReasonOther;
+
+  /// No description provided for @endReasonEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End moment'**
+  String get endReasonEnd;
+
+  /// No description provided for @endReasonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get endReasonSave;
+
+  /// No description provided for @endReasonSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get endReasonSkip;
+
+  /// No description provided for @endReasonPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer stays on this phone.'**
+  String get endReasonPrivacy;
 }
 
 class _AppLocalizationsDelegate

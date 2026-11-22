@@ -107,6 +107,46 @@ class FocusSessionRepository {
     });
   }
 
+  /// Legt een sessie vast die al voorbij is, in één keer. Voor een strakke
+  /// avond: die loopt buiten de timer om (blokkeren aan, eindigen alleen met
+  /// een scan), dus er is geen open sessie om stap voor stap bij te werken.
+  /// Raakt de unieke "één open sessie"-index niet, want de rij is al dicht.
+  Future<FocusSession> recordFinished({
+    required String mode,
+    required SessionSource source,
+    required SessionPlatform platform,
+    required DateTime startedAt,
+    required DateTime endedAt,
+    required SessionOutcome outcome,
+    DateTime? blockingConfirmedAt,
+    DateTime? blockingReleasedAt,
+  }) {
+    final now = _now().toUtc();
+    return _db.into(_db.focusSessions).insertReturning(
+          FocusSessionsCompanion.insert(
+            mode: mode,
+            source: source,
+            platform: platform,
+            state: SessionState.completed,
+            startedAt: startedAt.toUtc(),
+            localDate: LocalDate.format(startedAt.toLocal()),
+            updatedAt: now,
+            endedAt: Value(endedAt.toUtc()),
+            outcome: Value(outcome),
+            blockingConfirmedAt: Value(blockingConfirmedAt?.toUtc()),
+            blockingReleasedAt: Value(blockingReleasedAt?.toUtc()),
+            events: Value([
+              SessionEventData(
+                at: endedAt.toUtc(),
+                event: SessionEventType.transition,
+                fromState: SessionState.active,
+                toState: SessionState.completed,
+              ),
+            ]),
+          ),
+        );
+  }
+
   Future<FocusSession> _load(String id) async {
     final row = await (_db.select(_db.focusSessions)
           ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))

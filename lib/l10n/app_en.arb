@@ -1021,5 +1021,343 @@
     }
   },
   "sessionEndNotifBody": "You’ve made space for yourself. Return when you’re ready.",
-  "pickerNotSavedStale": "Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough)."
+  "pickerNotSavedStale": "Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough).",
+  "progressTabThisWeek": "This week",
+  "progressTabPatterns": "Patterns",
+  "progressPreviousWeek": "Previous week",
+  "progressNextWeek": "Next week",
+  "progressYourWeek": "Your week",
+  "progressFirstWeekEmpty": "Your week fills in after your first moment. Start one from Moments whenever you like.",
+  "progressWeekEmpty": "No moments this week.",
+  "progressWinMoreCompleted": "{count, plural, =1{1 moment completed} other{{count} moments completed}} — {more} more than last week.",
+  "@progressWinMoreCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "more": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWinMoreProtected": "{duration} protected — {more} more than last week.",
+  "@progressWinMoreProtected": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      },
+      "more": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWinFewerEarly": "{fewer, plural, =1{1 fewer early stop} other{{fewer} fewer early stops}} than last week.",
+  "@progressWinFewerEarly": {
+    "placeholders": {
+      "fewer": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWinCompleted": "{count, plural, =1{You completed a moment this week.} other{You completed {count} moments this week.}}",
+  "@progressWinCompleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressMomentsCompletedLabel": "moments completed",
+  "progressProtectedTime": "protected time",
+  "progressSessionTime": "session time",
+  "progressSessionTimeNoBlocking": "session time without blocking",
+  "progressEndedEarlyLabel": "ended early",
+  "progressMinutesPerDay": "Minutes per day",
+  "progressLegendCompleted": "completed",
+  "progressLegendEndedEarly": "ended early",
+  "progressBarSemantics": "{day}: {completed} min completed, {early} min ended early",
+  "@progressBarSemantics": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "completed": {
+        "type": "int"
+      },
+      "early": {
+        "type": "int"
+      }
+    }
+  },
+  "progressSentenceNoneEarly": "No moment ended early this week.",
+  "progressSentenceAllEarly": "{count, plural, =1{The one early stop happened {when}.} =2{Both early stops happened {when}.} other{All {count} early stops happened {when}.}}",
+  "@progressSentenceAllEarly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "progressEarlyOfTotal": "{count} of {total} early stops happened {when}.",
+  "@progressEarlyOfTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWhenBefore": "before {time}",
+  "@progressWhenBefore": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWhenBetween": "between {start} and {end}",
+  "@progressWhenBetween": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWhenAfter": "after {time}",
+  "@progressWhenAfter": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressBucketBefore": "Before {time}",
+  "@progressBucketBefore": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressBucketBetween": "{start} – {end}",
+  "@progressBucketBetween": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "progressBucketAfter": "After {time}",
+  "@progressBucketAfter": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressSeePatterns": "See patterns",
+  "progressComparedLastWeek": "Compared to last week",
+  "progressComparedLast4Weeks": "Compared to the 4 weeks before",
+  "progressCompareMoments": "Moments completed",
+  "progressCompareProtected": "Protected time",
+  "progressCompareSession": "Session time",
+  "progressCompareEnded": "Ended early",
+  "progressCompareThisWeek": "{now} this week · {before} last week",
+  "@progressCompareThisWeek": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompareThatWeek": "{now} that week · {before} the week before",
+  "@progressCompareThatWeek": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      }
+    }
+  },
+  "progressCompare4Weeks": "{now} in these 4 weeks · {before} in the 4 before",
+  "@progressCompare4Weeks": {
+    "placeholders": {
+      "now": {
+        "type": "String"
+      },
+      "before": {
+        "type": "String"
+      }
+    }
+  },
+  "progressToggleLastWeek": "Last week",
+  "progressToggleLast4Weeks": "Last 4 weeks",
+  "progressNoChange": "same",
+  "progressBlockedThisWeek": "apps blocked this week",
+  "progressBlockedThatWeek": "apps blocked that week",
+  "progressBlockedSource": "Source: blocking was active during your moments.",
+  "progressPatternsBasis": "Last 4 weeks · based on {moments} moments, {early} ended early",
+  "@progressPatternsBasis": {
+    "placeholders": {
+      "moments": {
+        "type": "int"
+      },
+      "early": {
+        "type": "int"
+      }
+    }
+  },
+  "progressInsightTitle": "Something we noticed",
+  "progressInsightLaterBody": "Starting your wind-down a bit earlier could make it easier to finish your evening moment.",
+  "progressInsightFirstBody": "The start of your evening seems hardest. A shorter first moment could make it easier to keep going.",
+  "progressInsightBeforeBody": "These stops happen before your evening starts at {time}. If your evening starts at another time, you can change it.",
+  "@progressInsightBeforeBody": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressInsightMoveReminder": "Move reminder to {time}",
+  "@progressInsightMoveReminder": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressInsightChangeEvening": "Change evening start",
+  "progressInsightNotNow": "Not now",
+  "progressReminderMoved": "Your daily reminder is now at {time}.",
+  "@progressReminderMoved": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressWhenTitle": "When moments end early",
+  "progressWhenFooter": "Times follow your evening, which starts at {time}.",
+  "@progressWhenFooter": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressChange": "Change",
+  "progressChangeEveningTooltip": "Change when your evening starts",
+  "progressBucketCount": "{label}: {count}",
+  "@progressBucketCount": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWhyTitle": "Why they ended early",
+  "progressWhyFooter": "{count} of {total} early stops have a reason. You can skip the question any time.",
+  "@progressWhyFooter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWhyNone": "No reasons yet. You can pick one when you end a moment early.",
+  "progressNoEarlyStops": "No moments ended early in the last 4 weeks.",
+  "progressWeekdayTitle": "Moments completed by weekday",
+  "progressWeekdayRing": "{day}: {done} of {total} completed",
+  "@progressWeekdayRing": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekendHarder": "Weekends are harder: {done} of {total} weekend moments completed.",
+  "@progressWeekendHarder": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressWeekendEasier": "Weekends go well: {done} of {total} weekend moments completed.",
+  "@progressWeekendEasier": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "progressLowDataTitle": "Patterns appear after {count} moments",
+  "@progressLowDataTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "progressLowDataBody": "With fewer moments, percentages and patterns can be misleading. Keep going — we’ll show you when and why moments end early.",
+  "progressLowDataCount": "{count} of {total} moments so far",
+  "@progressLowDataCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "endReasonTitle": "End this moment early?",
+  "endReasonStrictTitle": "Your evening ended early",
+  "endReasonBody": "What happened? This is optional and helps your Patterns.",
+  "endReasonCouldntSleep": "Couldn’t sleep",
+  "endReasonNeededPhone": "Needed my phone",
+  "endReasonNotification": "A notification",
+  "endReasonJustWanted": "Just wanted to",
+  "endReasonOther": "Something else",
+  "endReasonEnd": "End moment",
+  "endReasonSave": "Save",
+  "endReasonSkip": "Skip",
+  "endReasonPrivacy": "Your answer stays on this phone."
 }

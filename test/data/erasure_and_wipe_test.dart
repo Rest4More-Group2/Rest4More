@@ -176,7 +176,7 @@ void main() {
           .save(block.id, Uint8List.fromList([1, 2, 3]));
       final json = jsonDecode(await local.exportAsJson()) as Map;
 
-      expect(json['schema_version'], 4);
+      expect(json['schema_version'], 5);
       for (final table in [
         'profiles',
         'consent_records',
@@ -189,6 +189,7 @@ void main() {
         'programme_enrollments',
         'programme_days',
         'local_notifications',
+        'session_end_reasons',
         'entitlements',
       ]) {
         expect(json.containsKey(table), isTrue, reason: table);

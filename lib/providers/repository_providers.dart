@@ -104,7 +104,7 @@ final programmeDaysProvider = StreamProvider<List<ProgrammeDay>>((ref) {
 
 /// Alles wat Progress laat zien, uit sessies, dagen en profiel.
 final progressSummaryProvider = Provider<AsyncValue<ProgressSummary>>((ref) {
-  final sessions = ref.watch(_sessionHistoryProvider);
+  final sessions = ref.watch(sessionHistoryProvider);
   final days = ref.watch(programmeDaysProvider);
   for (final part in [sessions, days]) {
     if (part.hasError) {
@@ -119,7 +119,8 @@ final progressSummaryProvider = Provider<AsyncValue<ProgressSummary>>((ref) {
   ));
 });
 
-final _sessionHistoryProvider = StreamProvider<List<FocusSession>>(
+/// Afgeronde sessies, nieuwste eerst. Gedeeld door Progress en de analyse.
+final sessionHistoryProvider = StreamProvider<List<FocusSession>>(
   (ref) =>
       ref.watch(focusSessionRepositoryProvider).watchHistory(limit: 1000),
 );

@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rest4more/data/progress/moment_records.dart';
+import 'package:rest4more/data/progress/progress_analytics.dart';
+import 'package:rest4more/data/repositories/session_end_reason_repository.dart';
 import 'package:rest4more/data/database/enums.dart';
 import 'package:rest4more/data/progress/debug_progress_seed.dart';
 import 'package:rest4more/data/progress/progress_summary.dart';
@@ -52,5 +55,30 @@ void main() {
     // Zeven afgeronde momenten (20+20+30+12+10+20+20 min) en de noodstop van
     // 8 min: ook die tijd stond blokkeren aan.
     expect(s.blockedSeconds, (20 + 20 + 30 + 12 + 10 + 20 + 8 + 20) * 60);
+  });
+
+  test('vier weken voorbeeldmomenten geven genoeg voor Patterns', () async {
+    final db = memoryDb();
+    addTearDown(db.close);
+    final now = DateTime(2026, 11, 22, 12);
+    final count = await seedProgressWeeks(db, now: () => now);
+    final sessions = await db.select(db.focusSessions).get();
+    final reasons = await SessionEndReasonRepository(db).watchAll().first;
+    expect(sessions, hasLength(count));
+
+    final a = ProgressAnalytics(
+      records: momentRecords(sessions, reasons),
+      now: now,
+    );
+    final p = a.patterns();
+    expect(p.enoughData, isTrue);
+    expect(p.moments, greaterThanOrEqualTo(15));
+    expect(p.endedEarly, greaterThan(0));
+    expect(p.withReason, lessThanOrEqualTo(p.endedEarly));
+    expect(a.week(0).stats.moments, greaterThan(0));
+    // Een paar momenten zonder blokkade, voor "sessietijd".
+    expect(sessions.any((s) => s.blockingConfirmedAt == null), isTrue);
+    // Geen open sessie achtergelaten.
+    expect(sessions.every((s) => s.endedAt != null), isTrue);
   });
 }

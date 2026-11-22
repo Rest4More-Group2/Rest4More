@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_blocking.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'package:rest4more/l10n/format.dart';
+import 'package:rest4more/providers/progress_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'end_reason_sheet.dart';
 import 'nfc_scan_screen.dart';
 import 'session_run_screen.dart';
 import 'today_screen.dart' show RestPalette, RestType;
@@ -63,6 +65,7 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
     try {
       await _blocking.setBlocking(widget.kind, true);
       if (mounted) setState(() => _active = true);
+      await _logStart();
     } catch (_) {
       if (mounted) {
         setState(() => _error = AppLocalizations.of(context).blockStartFailed);
@@ -84,6 +87,36 @@ class _StrictManualEveningState extends ConsumerState<_StrictManualEvening> {
     if (!mounted) return;
     if (result == false) {
       setState(() => _active = false);
+      await _logEnd();
+    }
+  }
+
+  /// Legt de avond vast voor Progress. De flow zelf verandert niet: lukt
+  /// het vastleggen niet, dan merkt de gebruiker daar niets van.
+  Future<void> _logStart() async {
+    try {
+      await ref.read(strictNightLogProvider).begin();
+    } on Object {
+      // Alleen voor Progress.
+    }
+  }
+
+  /// Na de kaart: vastleggen, en bij een vroege stop de optionele vraag
+  /// waarom. De blokkade is dan al uit.
+  Future<void> _logEnd() async {
+    try {
+      final result = await ref
+          .read(strictNightLogProvider)
+          .end(mode: widget.kind.name);
+      if (result == null || !result.endedEarly || !mounted) return;
+      final choice = await showEndReasonSheet(context, afterEnd: true);
+      final reason = choice.reason;
+      if (reason == null) return;
+      await ref
+          .read(sessionEndReasonRepositoryProvider)
+          .set(result.sessionId, reason);
+    } on Object {
+      // Alleen voor Progress.
     }
   }
 

@@ -16,7 +16,8 @@ void main() {
       (tester) async {
     await pumpScreen(tester, const Scaffold(body: ProgressTab()));
     await settle(tester);
-    expect(find.textContaining('No completed moments yet'), findsOneWidget);
+    expect(find.textContaining('Your week fills in after your first moment'),
+        findsOneWidget);
     expect(find.text('No plan started yet.'), findsOneWidget);
     expect(find.text('No blocked time yet.'), findsOneWidget);
   });
