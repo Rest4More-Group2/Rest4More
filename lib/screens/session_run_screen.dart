@@ -13,6 +13,8 @@ import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/progress_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'moment_timer_display.dart';
+
 import 'end_early_screen.dart';
 import 'end_reason_sheet.dart';
 import 'moments_form_widgets.dart';
@@ -456,9 +458,9 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
             ? 1.0
             : 1 - left.inSeconds / session.total.inSeconds;
         return [
-          Semantics(
-            liveRegion: false,
-            label: isOvertime
+          MomentTimerDisplay(
+            clockText: formatClock(isOvertime ? over : left),
+            semanticLabel: isOvertime
                 ? formatClock(over)
                 : AppLocalizations.of(context).timeLeft(
                     localizedDuration(
@@ -466,21 +468,8 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
                       minutesLeft(left),
                     ),
                   ),
-            child: Text(
-              formatClock(isOvertime ? over : left),
-              textAlign: TextAlign.center,
-              style: RestType.serif(72),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: LinearProgressIndicator(
-              value: progress.clamp(0.0, 1.0),
-              minHeight: 6,
-              backgroundColor: RestPalette.surface,
-              color: isOvertime ? Colors.green : RestPalette.primary,
-            ),
+            progress: progress,
+            barColor: isOvertime ? Colors.green : RestPalette.primary,
           ),
           const SizedBox(height: 20),
           Text(

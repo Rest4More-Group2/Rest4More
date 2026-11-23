@@ -7,28 +7,77 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'daily_reminder_plan.dart';
 
-/// A tap on a notification for a timed session.
+enum EveningReminderKind { headsUp, followUp }
+
+/// Identifies the evening and the scheduled start when a reminder is tapped.
+class EveningReminderTap {
+  const EveningReminderTap({
+    required this.eveningDate,
+    required this.startsAt,
+    required this.kind,
+  });
+
+  /// The calendar day the evening belongs to, including for late bedtimes.
+  final DateTime eveningDate;
+  final DateTime startsAt;
+  final EveningReminderKind kind;
+
+  static const prefix = 'evening-routine:';
+
+  String get payload {
+    final date = DateTime.utc(
+      eveningDate.year,
+      eveningDate.month,
+      eveningDate.day,
+    );
+
+    return '$prefix${date.millisecondsSinceEpoch}:'
+        '${startsAt.millisecondsSinceEpoch}:${kind.name}';
+  }
+
+  static EveningReminderTap? parse(String? payload) {
+    if (payload == null || !payload.startsWith(prefix)) return null;
+
+    final parts = payload.substring(prefix.length).split(':');
+    if (parts.length != 3) return null;
+
+    final dayMillis = int.tryParse(parts[0]);
+    final startMillis = int.tryParse(parts[1]);
+    final kind = switch (parts[2]) {
+      'headsUp' => EveningReminderKind.headsUp,
+      'followUp' => EveningReminderKind.followUp,
+      _ => null,
+    };
+
+    if (dayMillis == null || startMillis == null || kind == null) {
+      return null;
+    }
+
+    try {
+      final day = DateTime.fromMillisecondsSinceEpoch(dayMillis, isUtc: true);
+      return EveningReminderTap(
+        eveningDate: DateTime(day.year, day.month, day.day),
+        startsAt: DateTime.fromMillisecondsSinceEpoch(startMillis),
+        kind: kind,
+      );
+    } on ArgumentError {
+      return null;
+    }
+  }
+}
+
 abstract class ReminderScheduler {
-  /// Daily reminder ID tapped while the app is running.
   Stream<int> get taps;
-
-  /// Session ID from a timer-end notification tapped while the app is running.
   Stream<String> get sessionEndTaps;
+  Stream<EveningReminderTap> get eveningReminderTaps;
 
-  /// Replaces the scheduled daily reminders.
   Future<void> replaceAll(List<DailyReminder> reminders);
-
-  /// Removes daily reminders only, leaving timer notifications scheduled.
   Future<void> cancelDailyReminders();
-
-  /// Removes every notification managed by this plugin.
   Future<void> cancelAll();
 
-  /// ID of a daily reminder that launched the app, or null.
   Future<int?> launchedFrom();
-
-  /// Session ID of a timer-end notification that launched the app, or null.
   Future<String?> launchedFromSessionEnd();
+  Future<EveningReminderTap?> launchedFromEveningReminder();
 
   Future<void> scheduleSessionEnd({
     required String sessionId,
@@ -38,14 +87,33 @@ abstract class ReminderScheduler {
   });
 
   Future<void> cancelSessionEnd();
+
+  /// Replaces the reminders for one evening. Pass null for followUpAt
+  /// when the user selects Off.
+  Future<void> scheduleEveningReminders({
+    required DateTime eveningDate,
+    required DateTime startsAt,
+    required DateTime headsUpAt,
+    required DateTime? followUpAt,
+    required String headsUpTitle,
+    required String headsUpBody,
+    required String followUpTitle,
+    required String followUpBody,
+  });
+
+  Future<void> cancelEveningReminders(DateTime eveningDate);
 }
 
 class LocalReminderScheduler implements ReminderScheduler {
   LocalReminderScheduler([FlutterLocalNotificationsPlugin? plugin])
-    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _sessionEndNotificationId = 900000001;
   static const _dailyTimerNotificationId = 900000002;
+
+  // Two IDs per evening: one for the heads-up and one for the follow-up.
+  static const _eveningIdBase = 1000000000;
+  static const _eveningIdLimit = 1100000000;
 
   static const _sessionPayloadPrefix = 'session-end:';
   static const _dailyTimerPayloadPrefix = 'daily-timer:';
@@ -53,6 +121,8 @@ class LocalReminderScheduler implements ReminderScheduler {
   final FlutterLocalNotificationsPlugin _plugin;
   final _taps = StreamController<int>.broadcast();
   final _sessionEndTaps = StreamController<String>.broadcast();
+  final _eveningReminderTaps =
+      StreamController<EveningReminderTap>.broadcast();
 
   Future<void>? _ready;
 
@@ -85,14 +155,39 @@ class LocalReminderScheduler implements ReminderScheduler {
     ),
   );
 
+  static const _eveningReminderDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      'evening_routine_reminders',
+      'Evening routine reminders',
+      channelDescription: 'Heads-up and follow-up for your evening routine.',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    ),
+    iOS: DarwinNotificationDetails(
+      presentAlert: true,
+      presentBanner: true,
+      presentList: true,
+      presentSound: true,
+      presentBadge: false,
+      interruptionLevel: InterruptionLevel.active,
+    ),
+  );
+
   @override
   Stream<int> get taps => _taps.stream;
 
   @override
   Stream<String> get sessionEndTaps => _sessionEndTaps.stream;
 
+  @override
+  Stream<EveningReminderTap> get eveningReminderTaps =>
+      _eveningReminderTaps.stream;
+
   Future<void> _init() => _ready ??= () async {
     tz_data.initializeTimeZones();
+
     await _plugin.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -105,6 +200,13 @@ class LocalReminderScheduler implements ReminderScheduler {
       ),
       onDidReceiveNotificationResponse: (response) {
         final payload = response.payload;
+
+        if (payload != null && payload.startsWith(EveningReminderTap.prefix)) {
+          final tap = EveningReminderTap.parse(payload);
+          if (tap != null) _eveningReminderTaps.add(tap);
+          return;
+        }
+
         if (payload != null && payload.startsWith(_sessionPayloadPrefix)) {
           _sessionEndTaps.add(payload.substring(_sessionPayloadPrefix.length));
           return;
@@ -116,13 +218,12 @@ class LocalReminderScheduler implements ReminderScheduler {
     );
   }();
 
-  /// Refresh the device time zone before scheduling local notifications.
   Future<void> _useDeviceTimeZone() async {
     try {
       final zone = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(zone.identifier));
     } on Object {
-      // UTC remains available if the device time zone cannot be read.
+      // Keep the current timezone if the device timezone cannot be read.
     }
   }
 
@@ -168,8 +269,6 @@ class LocalReminderScheduler implements ReminderScheduler {
   }) async {
     await _init();
     await _useDeviceTimeZone();
-
-    // Only one Focus or Reading session can be active at a time.
     await _plugin.cancel(id: _sessionEndNotificationId);
 
     if (!endsAt.isAfter(DateTime.now())) return;
@@ -191,13 +290,91 @@ class LocalReminderScheduler implements ReminderScheduler {
     await _plugin.cancel(id: _sessionEndNotificationId);
   }
 
-  /// Android can use exact delivery when allowed; otherwise use inexact
-  /// delivery without requesting exact-alarm permission.
+  int _eveningId(DateTime eveningDate, EveningReminderKind kind) {
+    // UTC calendar dates keep the ID stable across daylight-saving changes.
+    final day = DateTime.utc(
+      eveningDate.year,
+      eveningDate.month,
+      eveningDate.day,
+    ).difference(DateTime.utc(2000)).inDays;
+
+    return _eveningIdBase + day * 2 + kind.index;
+  }
+
+  @override
+  Future<void> scheduleEveningReminders({
+    required DateTime eveningDate,
+    required DateTime startsAt,
+    required DateTime headsUpAt,
+    required DateTime? followUpAt,
+    required String headsUpTitle,
+    required String headsUpBody,
+    required String followUpTitle,
+    required String followUpBody,
+  }) async {
+    await _init();
+    await _useDeviceTimeZone();
+
+    final mode = await _scheduleMode();
+
+    Future<void> replaceReminder({
+      required EveningReminderKind kind,
+      required DateTime? at,
+      required String title,
+      required String body,
+    }) async {
+      final id = _eveningId(eveningDate, kind);
+
+      // This also clears an old follow-up when the user switches it off.
+      if (at == null || !at.isAfter(DateTime.now())) {
+        await _plugin.cancel(id: id);
+        return;
+      }
+
+      final tap = EveningReminderTap(
+        eveningDate: eveningDate,
+        startsAt: startsAt,
+        kind: kind,
+      );
+
+      await _plugin.zonedSchedule(
+        id: id,
+        scheduledDate: tz.TZDateTime.from(at, tz.local),
+        notificationDetails: _eveningReminderDetails,
+        androidScheduleMode: mode,
+        title: title,
+        body: body,
+        payload: tap.payload,
+      );
+    }
+
+    await replaceReminder(
+      kind: EveningReminderKind.headsUp,
+      at: headsUpAt,
+      title: headsUpTitle,
+      body: headsUpBody,
+    );
+
+    await replaceReminder(
+      kind: EveningReminderKind.followUp,
+      at: followUpAt,
+      title: followUpTitle,
+      body: followUpBody,
+    );
+  }
+
+  @override
+  Future<void> cancelEveningReminders(DateTime eveningDate) async {
+    await _init();
+    for (final kind in EveningReminderKind.values) {
+      await _plugin.cancel(id: _eveningId(eveningDate, kind));
+    }
+  }
+
   Future<AndroidScheduleMode> _scheduleMode() async {
-    final android = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+
     if (android == null) return AndroidScheduleMode.exactAllowWhileIdle;
 
     final exact = await android.canScheduleExactNotifications() ?? false;
@@ -206,11 +383,13 @@ class LocalReminderScheduler implements ReminderScheduler {
         : AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
-  bool _isTimerNotification(int id, String? payload) {
+  bool _isNonDailyNotification(int id, String? payload) {
     return id == _sessionEndNotificationId ||
         id == _dailyTimerNotificationId ||
+        (id >= _eveningIdBase && id < _eveningIdLimit) ||
         (payload?.startsWith(_sessionPayloadPrefix) ?? false) ||
-        (payload?.startsWith(_dailyTimerPayloadPrefix) ?? false);
+        (payload?.startsWith(_dailyTimerPayloadPrefix) ?? false) ||
+        (payload?.startsWith(EveningReminderTap.prefix) ?? false);
   }
 
   @override
@@ -219,61 +398,64 @@ class LocalReminderScheduler implements ReminderScheduler {
 
     final pending = await _plugin.pendingNotificationRequests();
     for (final request in pending) {
-      if (!_isTimerNotification(request.id, request.payload)) {
+      if (!_isNonDailyNotification(request.id, request.payload)) {
         await _plugin.cancel(id: request.id);
       }
     }
 
-    // Also clear daily reminders already delivered to Notification Center,
-    // while preserving timer notifications.
+    // Active notifications may only expose an ID, so the reserved evening
+    // ID range also protects reminders already in the notification center.
     try {
       final active = await _plugin.getActiveNotifications();
       for (final notification in active) {
         final id = notification.id;
-        if (id != null && !_isTimerNotification(id, null)) {
+        if (id != null && !_isNonDailyNotification(id, null)) {
           await _plugin.cancel(id: id);
         }
       }
     } on Object {
-      // Pending reminders were still cleared if active notifications aren't
-      // supported by the current platform.
+      // Some platforms only support querying pending notifications.
     }
   }
 
-  /// Explicitly cancels every notification managed by this plugin.
   @override
   Future<void> cancelAll() async {
     await _init();
     await _plugin.cancelAll();
   }
 
-  @override
-  Future<int?> launchedFrom() async {
+  Future<NotificationResponse?> _launchResponse() async {
     await _init();
     final details = await _plugin.getNotificationAppLaunchDetails();
-    if (details == null || !details.didNotificationLaunchApp) return null;
 
-    final response = details.notificationResponse;
-    if (response?.payload?.startsWith(_sessionPayloadPrefix) ?? false) {
+    if (details == null || !details.didNotificationLaunchApp) return null;
+    return details.notificationResponse;
+  }
+
+  @override
+  Future<int?> launchedFrom() async {
+    final response = await _launchResponse();
+    final id = response?.id;
+    if (id == null || _isNonDailyNotification(id, response?.payload)) {
       return null;
     }
-    if (response?.payload?.startsWith(_dailyTimerPayloadPrefix) ?? false) {
-      return null;
-    }
-    return response?.id;
+    return id;
   }
 
   @override
   Future<String?> launchedFromSessionEnd() async {
-    await _init();
-    final details = await _plugin.getNotificationAppLaunchDetails();
-    if (details == null || !details.didNotificationLaunchApp) return null;
+    final response = await _launchResponse();
+    final payload = response?.payload;
 
-    final payload = details.notificationResponse?.payload;
     if (payload == null || !payload.startsWith(_sessionPayloadPrefix)) {
       return null;
     }
-
     return payload.substring(_sessionPayloadPrefix.length);
+  }
+
+  @override
+  Future<EveningReminderTap?> launchedFromEveningReminder() async {
+    final response = await _launchResponse();
+    return EveningReminderTap.parse(response?.payload);
   }
 }
