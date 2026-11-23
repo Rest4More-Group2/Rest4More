@@ -10,9 +10,11 @@ import 'package:rest4more/data/moments/moment_schedule.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
 import 'package:rest4more/data/moments/session_runner.dart';
 import 'package:rest4more/providers/notification_providers.dart';
+import 'package:rest4more/providers/progress_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
 import 'end_early_screen.dart';
+import 'end_reason_sheet.dart';
 import 'moments_form_widgets.dart';
 import 'moments_widgets.dart';
 import 'session_setup_screen.dart';
@@ -331,10 +333,26 @@ class _SessionRunScreenState extends ConsumerState<SessionRunScreen>
     final end = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(builder: (_) => const EndEarlyScreen()),
     );
+    if (end != true || !mounted || _phase != _Phase.running) {
+      _askingToStop = false;
+      return;
+    }
+    // Daarna de optionele vraag waarom. "Keep going" laat de sessie lopen.
+    final choice = await showEndReasonSheet(context);
     _askingToStop = false;
     // De sessie kan intussen vanzelf afgelopen zijn.
-    if (end == true && mounted && _phase == _Phase.running) {
-      await _finish(early: true);
+    final session = _session;
+    if (!choice.end || !mounted || _phase != _Phase.running) return;
+    await _finish(early: true);
+    final reason = choice.reason;
+    if (reason != null && session != null) {
+      try {
+        await ref
+            .read(sessionEndReasonRepositoryProvider)
+            .set(session.id, reason);
+      } on Object {
+        // Alleen voor Patterns; het stoppen zelf is gelukt.
+      }
     }
   }
 

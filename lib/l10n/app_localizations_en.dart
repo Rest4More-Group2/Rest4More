@@ -1813,4 +1813,339 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pickerNotSavedStale =>
       'Nothing was saved. Stop the app and run it again so the new picker code is built (a hot reload is not enough).';
+
+  @override
+  String get progressTabThisWeek => 'This week';
+
+  @override
+  String get progressTabPatterns => 'Patterns';
+
+  @override
+  String get progressPreviousWeek => 'Previous week';
+
+  @override
+  String get progressNextWeek => 'Next week';
+
+  @override
+  String get progressYourWeek => 'Your week';
+
+  @override
+  String get progressFirstWeekEmpty =>
+      'Your week fills in after your first moment. Start one from Moments whenever you like.';
+
+  @override
+  String get progressWeekEmpty => 'No moments this week.';
+
+  @override
+  String progressWinMoreCompleted(int count, int more) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count moments completed',
+      one: '1 moment completed',
+    );
+    return '$_temp0 — $more more than last week.';
+  }
+
+  @override
+  String progressWinMoreProtected(String duration, String more) {
+    return '$duration protected — $more more than last week.';
+  }
+
+  @override
+  String progressWinFewerEarly(int fewer) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fewer,
+      locale: localeName,
+      other: '$fewer fewer early stops',
+      one: '1 fewer early stop',
+    );
+    return '$_temp0 than last week.';
+  }
+
+  @override
+  String progressWinCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You completed $count moments this week.',
+      one: 'You completed a moment this week.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressMomentsCompletedLabel => 'moments completed';
+
+  @override
+  String get progressProtectedTime => 'protected time';
+
+  @override
+  String get progressSessionTime => 'session time';
+
+  @override
+  String get progressSessionTimeNoBlocking => 'session time without blocking';
+
+  @override
+  String get progressEndedEarlyLabel => 'ended early';
+
+  @override
+  String get progressMinutesPerDay => 'Minutes per day';
+
+  @override
+  String get progressLegendCompleted => 'completed';
+
+  @override
+  String get progressLegendEndedEarly => 'ended early';
+
+  @override
+  String progressBarSemantics(String day, int completed, int early) {
+    return '$day: $completed min completed, $early min ended early';
+  }
+
+  @override
+  String get progressSentenceNoneEarly => 'No moment ended early this week.';
+
+  @override
+  String progressSentenceAllEarly(int count, String when) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $count early stops happened $when.',
+      two: 'Both early stops happened $when.',
+      one: 'The one early stop happened $when.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressEarlyOfTotal(int count, int total, String when) {
+    return '$count of $total early stops happened $when.';
+  }
+
+  @override
+  String progressWhenBefore(String time) {
+    return 'before $time';
+  }
+
+  @override
+  String progressWhenBetween(String start, String end) {
+    return 'between $start and $end';
+  }
+
+  @override
+  String progressWhenAfter(String time) {
+    return 'after $time';
+  }
+
+  @override
+  String progressBucketBefore(String time) {
+    return 'Before $time';
+  }
+
+  @override
+  String progressBucketBetween(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String progressBucketAfter(String time) {
+    return 'After $time';
+  }
+
+  @override
+  String get progressSeePatterns => 'See patterns';
+
+  @override
+  String get progressComparedLastWeek => 'Compared to last week';
+
+  @override
+  String get progressComparedLast4Weeks => 'Compared to the 4 weeks before';
+
+  @override
+  String get progressCompareMoments => 'Moments completed';
+
+  @override
+  String get progressCompareProtected => 'Protected time';
+
+  @override
+  String get progressCompareSession => 'Session time';
+
+  @override
+  String get progressCompareEnded => 'Ended early';
+
+  @override
+  String progressCompareThisWeek(String now, String before) {
+    return '$now this week · $before last week';
+  }
+
+  @override
+  String progressCompareThatWeek(String now, String before) {
+    return '$now that week · $before the week before';
+  }
+
+  @override
+  String progressCompare4Weeks(String now, String before) {
+    return '$now in these 4 weeks · $before in the 4 before';
+  }
+
+  @override
+  String get progressToggleLastWeek => 'Last week';
+
+  @override
+  String get progressToggleLast4Weeks => 'Last 4 weeks';
+
+  @override
+  String get progressNoChange => 'same';
+
+  @override
+  String get progressBlockedThisWeek => 'apps blocked this week';
+
+  @override
+  String get progressBlockedThatWeek => 'apps blocked that week';
+
+  @override
+  String get progressBlockedSource =>
+      'Source: blocking was active during your moments.';
+
+  @override
+  String progressPatternsBasis(int moments, int early) {
+    return 'Last 4 weeks · based on $moments moments, $early ended early';
+  }
+
+  @override
+  String get progressInsightTitle => 'Something we noticed';
+
+  @override
+  String get progressInsightLaterBody =>
+      'Starting your wind-down a bit earlier could make it easier to finish your evening moment.';
+
+  @override
+  String get progressInsightFirstBody =>
+      'The start of your evening seems hardest. A shorter first moment could make it easier to keep going.';
+
+  @override
+  String progressInsightBeforeBody(String time) {
+    return 'These stops happen before your evening starts at $time. If your evening starts at another time, you can change it.';
+  }
+
+  @override
+  String progressInsightMoveReminder(String time) {
+    return 'Move reminder to $time';
+  }
+
+  @override
+  String get progressInsightChangeEvening => 'Change evening start';
+
+  @override
+  String get progressInsightNotNow => 'Not now';
+
+  @override
+  String progressReminderMoved(String time) {
+    return 'Your daily reminder is now at $time.';
+  }
+
+  @override
+  String get progressWhenTitle => 'When moments end early';
+
+  @override
+  String progressWhenFooter(String time) {
+    return 'Times follow your evening, which starts at $time.';
+  }
+
+  @override
+  String get progressChange => 'Change';
+
+  @override
+  String get progressChangeEveningTooltip => 'Change when your evening starts';
+
+  @override
+  String progressBucketCount(String label, int count) {
+    return '$label: $count';
+  }
+
+  @override
+  String get progressWhyTitle => 'Why they ended early';
+
+  @override
+  String progressWhyFooter(int count, int total) {
+    return '$count of $total early stops have a reason. You can skip the question any time.';
+  }
+
+  @override
+  String get progressWhyNone =>
+      'No reasons yet. You can pick one when you end a moment early.';
+
+  @override
+  String get progressNoEarlyStops =>
+      'No moments ended early in the last 4 weeks.';
+
+  @override
+  String get progressWeekdayTitle => 'Moments completed by weekday';
+
+  @override
+  String progressWeekdayRing(String day, int done, int total) {
+    return '$day: $done of $total completed';
+  }
+
+  @override
+  String progressWeekendHarder(int done, int total) {
+    return 'Weekends are harder: $done of $total weekend moments completed.';
+  }
+
+  @override
+  String progressWeekendEasier(int done, int total) {
+    return 'Weekends go well: $done of $total weekend moments completed.';
+  }
+
+  @override
+  String progressLowDataTitle(int count) {
+    return 'Patterns appear after $count moments';
+  }
+
+  @override
+  String get progressLowDataBody =>
+      'With fewer moments, percentages and patterns can be misleading. Keep going — we’ll show you when and why moments end early.';
+
+  @override
+  String progressLowDataCount(int count, int total) {
+    return '$count of $total moments so far';
+  }
+
+  @override
+  String get endReasonTitle => 'End this moment early?';
+
+  @override
+  String get endReasonStrictTitle => 'Your evening ended early';
+
+  @override
+  String get endReasonBody =>
+      'What happened? This is optional and helps your Patterns.';
+
+  @override
+  String get endReasonCouldntSleep => 'Couldn’t sleep';
+
+  @override
+  String get endReasonNeededPhone => 'Needed my phone';
+
+  @override
+  String get endReasonNotification => 'A notification';
+
+  @override
+  String get endReasonJustWanted => 'Just wanted to';
+
+  @override
+  String get endReasonOther => 'Something else';
+
+  @override
+  String get endReasonEnd => 'End moment';
+
+  @override
+  String get endReasonSave => 'Save';
+
+  @override
+  String get endReasonSkip => 'Skip';
+
+  @override
+  String get endReasonPrivacy => 'Your answer stays on this phone.';
 }

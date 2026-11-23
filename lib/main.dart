@@ -96,6 +96,19 @@ Future<void> main() async {
     await resetLocalData(db, PreferencesSyncStateStore());
     await seedProgressDemo(db, container.read(contentCatalogLoaderProvider));
   }
+  if (kDebugMode && const bool.fromEnvironment('DEBUG_SEED_PROGRESS_WEEKS')) {
+    // Zoals hierboven, maar met ongeveer vier weken aan momenten, redenen
+    // voor eerder stoppen en momenten zonder blokkade: genoeg voor Patterns.
+    final db = container.read(databaseProvider);
+    await resetLocalData(db, PreferencesSyncStateStore());
+    await seedProgressDemo(
+      db,
+      container.read(contentCatalogLoaderProvider),
+      withMoments: false,
+    );
+    final seeded = await seedProgressWeeks(db);
+    debugPrint('[progress] $seeded voorbeeldmomenten aangemaakt');
+  }
   if (kDebugMode && const bool.fromEnvironment('DEBUG_SYNC')) {
     // Alleen om de synchronisatie te testen voordat er een toestemmingsscherm
     // is: geef toestemming en vergeet dat er vandaag al gepusht is.

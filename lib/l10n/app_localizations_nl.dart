@@ -1831,4 +1831,341 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get pickerNotSavedStale =>
       'Er is niets opgeslagen. Stop de app en start hem opnieuw zodat de nieuwe kiezer wordt gebouwd (hot reload is niet genoeg).';
+
+  @override
+  String get progressTabThisWeek => 'Deze week';
+
+  @override
+  String get progressTabPatterns => 'Patronen';
+
+  @override
+  String get progressPreviousWeek => 'Vorige week';
+
+  @override
+  String get progressNextWeek => 'Volgende week';
+
+  @override
+  String get progressYourWeek => 'Jouw week';
+
+  @override
+  String get progressFirstWeekEmpty =>
+      'Je week vult zich na je eerste moment. Start er een vanuit Momenten wanneer je wilt.';
+
+  @override
+  String get progressWeekEmpty => 'Geen momenten deze week.';
+
+  @override
+  String progressWinMoreCompleted(int count, int more) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count momenten afgerond',
+      one: '1 moment afgerond',
+    );
+    return '$_temp0 — $more meer dan vorige week.';
+  }
+
+  @override
+  String progressWinMoreProtected(String duration, String more) {
+    return '$duration beschermd — $more meer dan vorige week.';
+  }
+
+  @override
+  String progressWinFewerEarly(int fewer) {
+    String _temp0 = intl.Intl.pluralLogic(
+      fewer,
+      locale: localeName,
+      other: '$fewer keer minder',
+      one: '1 keer minder',
+    );
+    return '$_temp0 eerder gestopt dan vorige week.';
+  }
+
+  @override
+  String progressWinCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Je hebt deze week $count momenten afgerond.',
+      one: 'Je hebt deze week een moment afgerond.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressMomentsCompletedLabel => 'momenten afgerond';
+
+  @override
+  String get progressProtectedTime => 'beschermde tijd';
+
+  @override
+  String get progressSessionTime => 'sessietijd';
+
+  @override
+  String get progressSessionTimeNoBlocking => 'sessietijd zonder blokkeren';
+
+  @override
+  String get progressEndedEarlyLabel => 'eerder gestopt';
+
+  @override
+  String get progressMinutesPerDay => 'Minuten per dag';
+
+  @override
+  String get progressLegendCompleted => 'afgerond';
+
+  @override
+  String get progressLegendEndedEarly => 'eerder gestopt';
+
+  @override
+  String progressBarSemantics(String day, int completed, int early) {
+    return '$day: $completed min afgerond, $early min eerder gestopt';
+  }
+
+  @override
+  String get progressSentenceNoneEarly =>
+      'Deze week stopte geen enkel moment eerder.';
+
+  @override
+  String progressSentenceAllEarly(int count, String when) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count vroege stops waren $when.',
+      two: 'Beide vroege stops waren $when.',
+      one: 'De ene vroege stop was $when.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String progressEarlyOfTotal(int count, int total, String when) {
+    return '$count van de $total vroege stops waren $when.';
+  }
+
+  @override
+  String progressWhenBefore(String time) {
+    return 'voor $time';
+  }
+
+  @override
+  String progressWhenBetween(String start, String end) {
+    return 'tussen $start en $end';
+  }
+
+  @override
+  String progressWhenAfter(String time) {
+    return 'na $time';
+  }
+
+  @override
+  String progressBucketBefore(String time) {
+    return 'Voor $time';
+  }
+
+  @override
+  String progressBucketBetween(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String progressBucketAfter(String time) {
+    return 'Na $time';
+  }
+
+  @override
+  String get progressSeePatterns => 'Bekijk patronen';
+
+  @override
+  String get progressComparedLastWeek => 'Vergeleken met vorige week';
+
+  @override
+  String get progressComparedLast4Weeks => 'Vergeleken met de 4 weken ervoor';
+
+  @override
+  String get progressCompareMoments => 'Momenten afgerond';
+
+  @override
+  String get progressCompareProtected => 'Beschermde tijd';
+
+  @override
+  String get progressCompareSession => 'Sessietijd';
+
+  @override
+  String get progressCompareEnded => 'Eerder gestopt';
+
+  @override
+  String progressCompareThisWeek(String now, String before) {
+    return '$now deze week · $before vorige week';
+  }
+
+  @override
+  String progressCompareThatWeek(String now, String before) {
+    return '$now die week · $before de week ervoor';
+  }
+
+  @override
+  String progressCompare4Weeks(String now, String before) {
+    return '$now in deze 4 weken · $before in de 4 ervoor';
+  }
+
+  @override
+  String get progressToggleLastWeek => 'Vorige week';
+
+  @override
+  String get progressToggleLast4Weeks => 'Laatste 4 weken';
+
+  @override
+  String get progressNoChange => 'gelijk';
+
+  @override
+  String get progressBlockedThisWeek => 'apps geblokkeerd deze week';
+
+  @override
+  String get progressBlockedThatWeek => 'apps geblokkeerd die week';
+
+  @override
+  String get progressBlockedSource =>
+      'Bron: blokkeren stond aan tijdens je momenten.';
+
+  @override
+  String progressPatternsBasis(int moments, int early) {
+    return 'Laatste 4 weken · op basis van $moments momenten, $early eerder gestopt';
+  }
+
+  @override
+  String get progressInsightTitle => 'Iets wat ons opviel';
+
+  @override
+  String get progressInsightLaterBody =>
+      'Wat eerder beginnen met afbouwen kan het makkelijker maken om je avondmoment af te maken.';
+
+  @override
+  String get progressInsightFirstBody =>
+      'Het begin van je avond lijkt het lastigst. Een korter eerste moment kan helpen om door te gaan.';
+
+  @override
+  String progressInsightBeforeBody(String time) {
+    return 'Deze stops zijn voordat je avond begint om $time. Begint je avond op een ander moment, dan kun je dat aanpassen.';
+  }
+
+  @override
+  String progressInsightMoveReminder(String time) {
+    return 'Herinnering naar $time';
+  }
+
+  @override
+  String get progressInsightChangeEvening => 'Avondstart aanpassen';
+
+  @override
+  String get progressInsightNotNow => 'Niet nu';
+
+  @override
+  String progressReminderMoved(String time) {
+    return 'Je dagelijkse herinnering staat nu op $time.';
+  }
+
+  @override
+  String get progressWhenTitle => 'Wanneer momenten eerder stoppen';
+
+  @override
+  String progressWhenFooter(String time) {
+    return 'De tijden volgen je avond, die begint om $time.';
+  }
+
+  @override
+  String get progressChange => 'Aanpassen';
+
+  @override
+  String get progressChangeEveningTooltip =>
+      'Aanpassen wanneer je avond begint';
+
+  @override
+  String progressBucketCount(String label, int count) {
+    return '$label: $count';
+  }
+
+  @override
+  String get progressWhyTitle => 'Waarom ze eerder stopten';
+
+  @override
+  String progressWhyFooter(int count, int total) {
+    return '$count van de $total vroege stops hebben een reden. Je kunt de vraag altijd overslaan.';
+  }
+
+  @override
+  String get progressWhyNone =>
+      'Nog geen redenen. Je kunt er een kiezen als je een moment eerder stopt.';
+
+  @override
+  String get progressNoEarlyStops =>
+      'In de laatste 4 weken stopte geen moment eerder.';
+
+  @override
+  String get progressWeekdayTitle => 'Afgeronde momenten per weekdag';
+
+  @override
+  String progressWeekdayRing(String day, int done, int total) {
+    return '$day: $done van $total afgerond';
+  }
+
+  @override
+  String progressWeekendHarder(int done, int total) {
+    return 'In het weekend is het lastiger: $done van de $total weekendmomenten afgerond.';
+  }
+
+  @override
+  String progressWeekendEasier(int done, int total) {
+    return 'In het weekend gaat het goed: $done van de $total weekendmomenten afgerond.';
+  }
+
+  @override
+  String progressLowDataTitle(int count) {
+    return 'Patronen verschijnen na $count momenten';
+  }
+
+  @override
+  String get progressLowDataBody =>
+      'Met minder momenten kunnen percentages en patronen misleiden. Ga gewoon door — we laten je zien wanneer en waarom momenten eerder stoppen.';
+
+  @override
+  String progressLowDataCount(int count, int total) {
+    return '$count van $total momenten tot nu toe';
+  }
+
+  @override
+  String get endReasonTitle => 'Dit moment eerder stoppen?';
+
+  @override
+  String get endReasonStrictTitle => 'Je avond stopte eerder';
+
+  @override
+  String get endReasonBody =>
+      'Wat gebeurde er? Dit is optioneel en helpt je Patronen.';
+
+  @override
+  String get endReasonCouldntSleep => 'Kon niet slapen';
+
+  @override
+  String get endReasonNeededPhone => 'Had mijn telefoon nodig';
+
+  @override
+  String get endReasonNotification => 'Een melding';
+
+  @override
+  String get endReasonJustWanted => 'Wilde het gewoon';
+
+  @override
+  String get endReasonOther => 'Iets anders';
+
+  @override
+  String get endReasonEnd => 'Moment stoppen';
+
+  @override
+  String get endReasonSave => 'Bewaren';
+
+  @override
+  String get endReasonSkip => 'Overslaan';
+
+  @override
+  String get endReasonPrivacy => 'Je antwoord blijft op deze telefoon.';
 }

@@ -418,3 +418,27 @@ enum MomentPlanKind implements DbEnum {
   @override
   final String id;
 }
+
+/// Waarom een moment eerder stopte. Optioneel, en blijft op het toestel.
+enum EndReason implements DbEnum {
+  couldntSleep('couldnt_sleep'),
+  neededPhone('needed_phone'),
+  notification('notification'),
+  justWanted('just_wanted'),
+  other('other'),
+  unknown('unknown');
+
+  const EndReason(this.id);
+
+  @override
+  final String id;
+
+  /// De keuzes die de gebruiker ziet, in vaste volgorde.
+  static const choices = [
+    couldntSleep,
+    neededPhone,
+    notification,
+    justWanted,
+    other,
+  ];
+}
