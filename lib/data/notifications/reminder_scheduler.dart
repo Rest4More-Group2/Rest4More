@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'daily_reminder_plan.dart';
@@ -106,7 +107,7 @@ abstract class ReminderScheduler {
 
 class LocalReminderScheduler implements ReminderScheduler {
   LocalReminderScheduler([FlutterLocalNotificationsPlugin? plugin])
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   static const _sessionEndNotificationId = 900000001;
   static const _dailyTimerNotificationId = 900000002;
@@ -121,8 +122,7 @@ class LocalReminderScheduler implements ReminderScheduler {
   final FlutterLocalNotificationsPlugin _plugin;
   final _taps = StreamController<int>.broadcast();
   final _sessionEndTaps = StreamController<String>.broadcast();
-  final _eveningReminderTaps =
-      StreamController<EveningReminderTap>.broadcast();
+  final _eveningReminderTaps = StreamController<EveningReminderTap>.broadcast();
 
   Future<void>? _ready;
 
@@ -222,8 +222,10 @@ class LocalReminderScheduler implements ReminderScheduler {
     try {
       final zone = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(zone.identifier));
-    } on Object {
-      // Keep the current timezone if the device timezone cannot be read.
+    } on Object catch (e) {
+      // tz.local stays UTC here. Reminder times don't depend on it: they are
+      // built from the OS-local DateTime (see replaceAll).
+      debugPrint('Could not read device time zone: $e');
     }
   }
 
@@ -237,13 +239,17 @@ class LocalReminderScheduler implements ReminderScheduler {
     final now = tz.TZDateTime.now(tz.local);
 
     for (final reminder in reminders) {
-      final at = tz.TZDateTime(
+      // Build the moment with the OS time zone (DST-aware), not tz.local,
+      // which is UTC when the zone lookup fails.
+      final at = tz.TZDateTime.from(
+        DateTime(
+          reminder.date.year,
+          reminder.date.month,
+          reminder.date.day,
+          reminder.minutes ~/ 60,
+          reminder.minutes % 60,
+        ),
         tz.local,
-        reminder.date.year,
-        reminder.date.month,
-        reminder.date.day,
-        reminder.minutes ~/ 60,
-        reminder.minutes % 60,
       );
 
       if (!at.isAfter(now)) continue;
@@ -372,8 +378,10 @@ class LocalReminderScheduler implements ReminderScheduler {
   }
 
   Future<AndroidScheduleMode> _scheduleMode() async {
-    final android = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (android == null) return AndroidScheduleMode.exactAllowWhileIdle;
 
