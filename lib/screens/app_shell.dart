@@ -7,6 +7,9 @@ import 'package:rest4more/l10n/app_localizations.dart';
 import 'package:rest4more/providers/notification_providers.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 
+import 'package:rest4more/data/notifications/reminder_scheduler.dart';
+import 'evening_reminder_screen.dart';
+
 import 'moments_screen.dart';
 import 'moments_widgets.dart';
 import 'profile_tab.dart';
@@ -36,6 +39,8 @@ class _AppShellState extends ConsumerState<AppShell>
   StreamSubscription<int>? _taps;
   StreamSubscription<String>? _sessionEndTaps;
   String? _openingSessionId;
+  StreamSubscription<EveningReminderTap>? _eveningReminderTaps;
+  String? _openingEvening;
 
   @override
   void initState() {
@@ -59,6 +64,13 @@ class _AppShellState extends ConsumerState<AppShell>
     scheduler.launchedFromSessionEnd().then((sessionId) {
       if (sessionId != null) _openSessionEnd(sessionId);
     }, onError: (Object _) {});
+
+    // Evening reminder notification handling.
+    _eveningReminderTaps =
+        scheduler.eveningReminderTaps.listen(_openEveningReminder);
+    scheduler.launchedFromEveningReminder().then((tap) {
+      if (tap != null) _openEveningReminder(tap);
+    }, onError: (Object _) {});
   }
 
   @override
@@ -66,6 +78,7 @@ class _AppShellState extends ConsumerState<AppShell>
     WidgetsBinding.instance.removeObserver(this);
     _taps?.cancel();
     _sessionEndTaps?.cancel();
+    _eveningReminderTaps?.cancel();
     super.dispose();
   }
 
@@ -109,6 +122,41 @@ class _AppShellState extends ConsumerState<AppShell>
     } finally {
       if (_openingSessionId == sessionId) {
         _openingSessionId = null;
+      }
+    }
+  }
+
+  Future<void> _openEveningReminder(EveningReminderTap tap) async {
+    if (!mounted) return;
+
+    final key = '${tap.eveningDate.millisecondsSinceEpoch}:'
+        '${tap.startsAt.millisecondsSinceEpoch}';
+    if (_openingEvening == key) return;
+    _openingEvening = key;
+
+    try {
+      final plan = await ref.read(momentPlanStoreProvider).loadEvening();
+      if (!mounted || _openingEvening != key || plan == null) return;
+
+      final enabled = plan.days.any(
+        (day) => day.weekday == tap.eveningDate.weekday && day.enabled,
+      );
+      if (!enabled || plan.steps.isEmpty) return;
+
+      final navigator = Navigator.of(context);
+      navigator.popUntil((route) => route.isFirst);
+      setState(() => _selectedTab = _momentsTab);
+
+      await navigator.push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => EveningReminderScreen(tap: tap, plan: plan),
+        ),
+      );
+    } catch (error) {
+      debugPrint('[evening-reminder] Could not open reminder: $error');
+    } finally {
+      if (_openingEvening == key) {
+        _openingEvening = null;
       }
     }
   }

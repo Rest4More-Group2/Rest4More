@@ -89,6 +89,28 @@ class FakeReminderScheduler implements ReminderScheduler {
 
   @override
   Future<void> cancelSessionEnd() async {}
+
+  @override
+  Stream<EveningReminderTap> get eveningReminderTaps =>
+      const Stream<EveningReminderTap>.empty();
+
+  @override
+  Future<EveningReminderTap?> launchedFromEveningReminder() async => null;
+
+  @override
+  Future<void> scheduleEveningReminders({
+    required DateTime eveningDate,
+    required DateTime startsAt,
+    required DateTime headsUpAt,
+    required DateTime? followUpAt,
+    required String headsUpTitle,
+    required String headsUpBody,
+    required String followUpTitle,
+    required String followUpBody,
+  }) async {}
+
+  @override
+  Future<void> cancelEveningReminders(DateTime eveningDate) async {}
 }
 
 /// Een hoog telefoonscherm en een database in het geheugen, zoals de andere
