@@ -2168,4 +2168,172 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get endReasonPrivacy => 'Je antwoord blijft op deze telefoon.';
+
+  @override
+  String get nfcGuideTitle => 'Handleiding NFC-kaart';
+
+  @override
+  String nfcGuideStepCount(int current, int total) {
+    return '$current van $total';
+  }
+
+  @override
+  String get nfcGuideBackToTags => 'Terug naar NFC-tags';
+
+  @override
+  String get nfcGuidePreviousStep => 'Vorige stap';
+
+  @override
+  String get nfcGuideContinue => 'Verder';
+
+  @override
+  String get nfcGuideGotIt => 'Begrepen';
+
+  @override
+  String get nfcGuideHelpfulTip => 'Handige tip';
+
+  @override
+  String get nfcGuideTroubleshooting =>
+      'Hulp nodig? Controleer of NFC aanstaat, houd de kaart stil en probeer een andere plek aan de achterkant van je telefoon. De kaart moet al gekoppeld zijn aan Rest4More.';
+
+  @override
+  String get nfcGuideHeadingHow => 'Hoe het werkt';
+
+  @override
+  String get nfcGuideHeadingSteps => 'Volg deze stappen';
+
+  @override
+  String get nfcGuidePhoneLabel => 'JE TELEFOON';
+
+  @override
+  String get nfcGuideIllustration0 => 'Eén rustige tik';
+
+  @override
+  String get nfcGuideIllustration1 => 'Houd bij je telefoon';
+
+  @override
+  String get nfcGuideIllustration2 => 'Tik om te starten';
+
+  @override
+  String get nfcGuideIllustration3 => 'Tik om te stoppen';
+
+  @override
+  String get nfcGuideTitle0 => 'Maak kennis met je NFC-kaart';
+
+  @override
+  String get nfcGuideTitle1 => 'Koppel je kaart één keer';
+
+  @override
+  String get nfcGuideTitle2 => 'Start een Tag-moment';
+
+  @override
+  String get nfcGuideTitle3 => 'Beëindig je moment';
+
+  @override
+  String get nfcGuideSubtitle0 =>
+      'Een kleine, tastbare herinnering om je telefoon weg te leggen.';
+
+  @override
+  String get nfcGuideSubtitle1 =>
+      'Laat Rest4More je kaart herkennen voordat je deze gebruikt.';
+
+  @override
+  String get nfcGuideSubtitle2 =>
+      'Kies je apps en scan daarna je gekoppelde kaart.';
+
+  @override
+  String get nfcGuideSubtitle3 =>
+      'Scan dezelfde gekoppelde kaart wanneer je wilt stoppen.';
+
+  @override
+  String get nfcGuideTip0 =>
+      'NFC staat voor Near Field Communication. Je telefoon leest de kaart als je deze dichtbij houdt. Je hebt geen camera nodig.';
+
+  @override
+  String get nfcGuideTip1 =>
+      'De plek van de NFC-lezer verschilt per telefoon. Gebeurt er niets? Beweeg de kaart langzaam langs de achterkant van je telefoon.';
+
+  @override
+  String get nfcGuideTip2 =>
+      'Alleen kaarten die je via Profiel → NFC-tags hebt toegevoegd, kun je voor je Tag-moment gebruiken.';
+
+  @override
+  String get nfcGuideTip3 =>
+      'Bij strikte avondroutines kun je zonder kaart beginnen, maar om de blokkering te beëindigen moet je een NFC-kaart scannen.';
+
+  @override
+  String get nfcGuideInstruction00Title => 'Een eenvoudig ritueel';
+
+  @override
+  String get nfcGuideInstruction00Body =>
+      'Koppel de kaart één keer en gebruik deze daarna voor Tag-momenten.';
+
+  @override
+  String get nfcGuideInstruction01Title => 'Een bewust pauzemoment';
+
+  @override
+  String get nfcGuideInstruction01Body =>
+      'Scan je kaart wanneer het tijd is om je apps even weg te leggen.';
+
+  @override
+  String get nfcGuideInstruction10Title => 'Open Profiel';
+
+  @override
+  String get nfcGuideInstruction10Body =>
+      'Kies NFC-tags en tik vervolgens op Tag toevoegen.';
+
+  @override
+  String get nfcGuideInstruction11Title => 'Houd je kaart dichtbij';
+
+  @override
+  String get nfcGuideInstruction11Body =>
+      'Houd de kaart bij de NFC-lezer van je telefoon.';
+
+  @override
+  String get nfcGuideInstruction12Title => 'Wacht op bevestiging';
+
+  @override
+  String get nfcGuideInstruction12Body =>
+      'Wacht tot Rest4More meldt dat de tag is toegevoegd.';
+
+  @override
+  String get nfcGuideInstruction20Title => 'Open Momenten';
+
+  @override
+  String get nfcGuideInstruction20Body =>
+      'Kies Tag en selecteer de apps die je wilt wegleggen.';
+
+  @override
+  String get nfcGuideInstruction21Title => 'Kies Scan tag om te starten';
+
+  @override
+  String get nfcGuideInstruction21Body =>
+      'Houd je gekoppelde kaart tegen je telefoon.';
+
+  @override
+  String get nfcGuideInstruction22Title => 'Begin je moment';
+
+  @override
+  String get nfcGuideInstruction22Body =>
+      'Rest4More start je Tag-moment na een geldige scan.';
+
+  @override
+  String get nfcGuideInstruction30Title => 'Kies Scan tag om te stoppen';
+
+  @override
+  String get nfcGuideInstruction30Body => 'Open je actieve Tag-moment.';
+
+  @override
+  String get nfcGuideInstruction31Title => 'Scan je gekoppelde kaart';
+
+  @override
+  String get nfcGuideInstruction31Body =>
+      'Houd de kaart bij de NFC-lezer van je telefoon.';
+
+  @override
+  String get nfcGuideInstruction32Title => 'Sluit bewust af';
+
+  @override
+  String get nfcGuideInstruction32Body =>
+      'Je Tag-moment eindigt na een geldige scan.';
 }
