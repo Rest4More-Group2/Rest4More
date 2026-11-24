@@ -3643,6 +3643,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your answer stays on this phone.'**
   String get endReasonPrivacy;
+
+  /// No description provided for @nfcGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NFC card guide'**
+  String get nfcGuideTitle;
+
+  /// No description provided for @nfcGuideStepCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String nfcGuideStepCount(int current, int total);
+
+  /// No description provided for @nfcGuideBackToTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to NFC tags'**
+  String get nfcGuideBackToTags;
+
+  /// No description provided for @nfcGuidePreviousStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous step'**
+  String get nfcGuidePreviousStep;
+
+  /// No description provided for @nfcGuideContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get nfcGuideContinue;
+
+  /// No description provided for @nfcGuideGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get nfcGuideGotIt;
+
+  /// No description provided for @nfcGuideHelpfulTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpful tip'**
+  String get nfcGuideHelpfulTip;
+
+  /// No description provided for @nfcGuideTroubleshooting.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Check that NFC is enabled, keep the card still, and try another spot on the back of your phone. The card must already be paired with Rest4More.'**
+  String get nfcGuideTroubleshooting;
+
+  /// No description provided for @nfcGuideHeadingHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get nfcGuideHeadingHow;
+
+  /// No description provided for @nfcGuideHeadingSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow these steps'**
+  String get nfcGuideHeadingSteps;
+
+  /// No description provided for @nfcGuidePhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR PHONE'**
+  String get nfcGuidePhoneLabel;
+
+  /// No description provided for @nfcGuideIllustration0.
+  ///
+  /// In en, this message translates to:
+  /// **'One gentle tap'**
+  String get nfcGuideIllustration0;
+
+  /// No description provided for @nfcGuideIllustration1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold near phone'**
+  String get nfcGuideIllustration1;
+
+  /// No description provided for @nfcGuideIllustration2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to begin'**
+  String get nfcGuideIllustration2;
+
+  /// No description provided for @nfcGuideIllustration3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to finish'**
+  String get nfcGuideIllustration3;
+
+  /// No description provided for @nfcGuideTitle0.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet your NFC card'**
+  String get nfcGuideTitle0;
+
+  /// No description provided for @nfcGuideTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair it once'**
+  String get nfcGuideTitle1;
+
+  /// No description provided for @nfcGuideTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a Tag moment'**
+  String get nfcGuideTitle2;
+
+  /// No description provided for @nfcGuideTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'End your moment'**
+  String get nfcGuideTitle3;
+
+  /// No description provided for @nfcGuideSubtitle0.
+  ///
+  /// In en, this message translates to:
+  /// **'A small, physical reminder to put your phone aside.'**
+  String get nfcGuideSubtitle0;
+
+  /// No description provided for @nfcGuideSubtitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Rest4More recognize your card before using it.'**
+  String get nfcGuideSubtitle1;
+
+  /// No description provided for @nfcGuideSubtitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your apps, then scan your paired card.'**
+  String get nfcGuideSubtitle2;
+
+  /// No description provided for @nfcGuideSubtitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the same paired card when you are ready to finish.'**
+  String get nfcGuideSubtitle3;
+
+  /// No description provided for @nfcGuideTip0.
+  ///
+  /// In en, this message translates to:
+  /// **'NFC means Near Field Communication. Your phone reads the card when you hold it close. No camera is needed.'**
+  String get nfcGuideTip0;
+
+  /// No description provided for @nfcGuideTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'The NFC reading area differs between phones. If nothing happens, slowly move the card near the back of your phone.'**
+  String get nfcGuideTip1;
+
+  /// No description provided for @nfcGuideTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Only cards you added in Profile → NFC tags can be used for your Tag moment.'**
+  String get nfcGuideTip2;
+
+  /// No description provided for @nfcGuideTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'For strict evening routines, you can start the routine without a card, but ending its blocking requires an NFC scan.'**
+  String get nfcGuideTip3;
+
+  /// No description provided for @nfcGuideInstruction00Title.
+  ///
+  /// In en, this message translates to:
+  /// **'A simple ritual'**
+  String get nfcGuideInstruction00Title;
+
+  /// No description provided for @nfcGuideInstruction00Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair the card once, then use it with Tag moments.'**
+  String get nfcGuideInstruction00Body;
+
+  /// No description provided for @nfcGuideInstruction01Title.
+  ///
+  /// In en, this message translates to:
+  /// **'A deliberate pause'**
+  String get nfcGuideInstruction01Title;
+
+  /// No description provided for @nfcGuideInstruction01Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap your card when it is time to put apps aside.'**
+  String get nfcGuideInstruction01Body;
+
+  /// No description provided for @nfcGuideInstruction10Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Profile'**
+  String get nfcGuideInstruction10Title;
+
+  /// No description provided for @nfcGuideInstruction10Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose NFC tags, then tap Add tag.'**
+  String get nfcGuideInstruction10Body;
+
+  /// No description provided for @nfcGuideInstruction11Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your card nearby'**
+  String get nfcGuideInstruction11Title;
+
+  /// No description provided for @nfcGuideInstruction11Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it near the NFC reading area on your phone.'**
+  String get nfcGuideInstruction11Body;
+
+  /// No description provided for @nfcGuideInstruction12Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for confirmation'**
+  String get nfcGuideInstruction12Title;
+
+  /// No description provided for @nfcGuideInstruction12Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until Rest4More says “Tag added.”'**
+  String get nfcGuideInstruction12Body;
+
+  /// No description provided for @nfcGuideInstruction20Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Moments'**
+  String get nfcGuideInstruction20Title;
+
+  /// No description provided for @nfcGuideInstruction20Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Tag and select the apps to set aside.'**
+  String get nfcGuideInstruction20Body;
+
+  /// No description provided for @nfcGuideInstruction21Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Scan tag to begin'**
+  String get nfcGuideInstruction21Title;
+
+  /// No description provided for @nfcGuideInstruction21Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your paired card against your phone.'**
+  String get nfcGuideInstruction21Body;
+
+  /// No description provided for @nfcGuideInstruction22Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Begin your moment'**
+  String get nfcGuideInstruction22Title;
+
+  /// No description provided for @nfcGuideInstruction22Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest4More starts the Tag moment after a valid scan.'**
+  String get nfcGuideInstruction22Body;
+
+  /// No description provided for @nfcGuideInstruction30Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Scan tag to end'**
+  String get nfcGuideInstruction30Title;
+
+  /// No description provided for @nfcGuideInstruction30Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Open your active Tag moment.'**
+  String get nfcGuideInstruction30Body;
+
+  /// No description provided for @nfcGuideInstruction31Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap your paired card'**
+  String get nfcGuideInstruction31Title;
+
+  /// No description provided for @nfcGuideInstruction31Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold it near the phone’s NFC reading area.'**
+  String get nfcGuideInstruction31Body;
+
+  /// No description provided for @nfcGuideInstruction32Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish intentionally'**
+  String get nfcGuideInstruction32Title;
+
+  /// No description provided for @nfcGuideInstruction32Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Tag moment ends after the valid scan.'**
+  String get nfcGuideInstruction32Body;
 }
 
 class _AppLocalizationsDelegate

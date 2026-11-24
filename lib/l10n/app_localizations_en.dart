@@ -2148,4 +2148,171 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get endReasonPrivacy => 'Your answer stays on this phone.';
+
+  @override
+  String get nfcGuideTitle => 'NFC card guide';
+
+  @override
+  String nfcGuideStepCount(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get nfcGuideBackToTags => 'Back to NFC tags';
+
+  @override
+  String get nfcGuidePreviousStep => 'Previous step';
+
+  @override
+  String get nfcGuideContinue => 'Continue';
+
+  @override
+  String get nfcGuideGotIt => 'Got it';
+
+  @override
+  String get nfcGuideHelpfulTip => 'Helpful tip';
+
+  @override
+  String get nfcGuideTroubleshooting =>
+      'Need help? Check that NFC is enabled, keep the card still, and try another spot on the back of your phone. The card must already be paired with Rest4More.';
+
+  @override
+  String get nfcGuideHeadingHow => 'How it works';
+
+  @override
+  String get nfcGuideHeadingSteps => 'Follow these steps';
+
+  @override
+  String get nfcGuidePhoneLabel => 'YOUR PHONE';
+
+  @override
+  String get nfcGuideIllustration0 => 'One gentle tap';
+
+  @override
+  String get nfcGuideIllustration1 => 'Hold near phone';
+
+  @override
+  String get nfcGuideIllustration2 => 'Tap to begin';
+
+  @override
+  String get nfcGuideIllustration3 => 'Tap to finish';
+
+  @override
+  String get nfcGuideTitle0 => 'Meet your NFC card';
+
+  @override
+  String get nfcGuideTitle1 => 'Pair it once';
+
+  @override
+  String get nfcGuideTitle2 => 'Start a Tag moment';
+
+  @override
+  String get nfcGuideTitle3 => 'End your moment';
+
+  @override
+  String get nfcGuideSubtitle0 =>
+      'A small, physical reminder to put your phone aside.';
+
+  @override
+  String get nfcGuideSubtitle1 =>
+      'Let Rest4More recognize your card before using it.';
+
+  @override
+  String get nfcGuideSubtitle2 =>
+      'Choose your apps, then scan your paired card.';
+
+  @override
+  String get nfcGuideSubtitle3 =>
+      'Scan the same paired card when you are ready to finish.';
+
+  @override
+  String get nfcGuideTip0 =>
+      'NFC means Near Field Communication. Your phone reads the card when you hold it close. No camera is needed.';
+
+  @override
+  String get nfcGuideTip1 =>
+      'The NFC reading area differs between phones. If nothing happens, slowly move the card near the back of your phone.';
+
+  @override
+  String get nfcGuideTip2 =>
+      'Only cards you added in Profile → NFC tags can be used for your Tag moment.';
+
+  @override
+  String get nfcGuideTip3 =>
+      'For strict evening routines, you can start the routine without a card, but ending its blocking requires an NFC scan.';
+
+  @override
+  String get nfcGuideInstruction00Title => 'A simple ritual';
+
+  @override
+  String get nfcGuideInstruction00Body =>
+      'Pair the card once, then use it with Tag moments.';
+
+  @override
+  String get nfcGuideInstruction01Title => 'A deliberate pause';
+
+  @override
+  String get nfcGuideInstruction01Body =>
+      'Tap your card when it is time to put apps aside.';
+
+  @override
+  String get nfcGuideInstruction10Title => 'Open Profile';
+
+  @override
+  String get nfcGuideInstruction10Body => 'Choose NFC tags, then tap Add tag.';
+
+  @override
+  String get nfcGuideInstruction11Title => 'Hold your card nearby';
+
+  @override
+  String get nfcGuideInstruction11Body =>
+      'Keep it near the NFC reading area on your phone.';
+
+  @override
+  String get nfcGuideInstruction12Title => 'Look for confirmation';
+
+  @override
+  String get nfcGuideInstruction12Body =>
+      'Wait until Rest4More says “Tag added.”';
+
+  @override
+  String get nfcGuideInstruction20Title => 'Open Moments';
+
+  @override
+  String get nfcGuideInstruction20Body =>
+      'Choose Tag and select the apps to set aside.';
+
+  @override
+  String get nfcGuideInstruction21Title => 'Choose Scan tag to begin';
+
+  @override
+  String get nfcGuideInstruction21Body =>
+      'Hold your paired card against your phone.';
+
+  @override
+  String get nfcGuideInstruction22Title => 'Begin your moment';
+
+  @override
+  String get nfcGuideInstruction22Body =>
+      'Rest4More starts the Tag moment after a valid scan.';
+
+  @override
+  String get nfcGuideInstruction30Title => 'Choose Scan tag to end';
+
+  @override
+  String get nfcGuideInstruction30Body => 'Open your active Tag moment.';
+
+  @override
+  String get nfcGuideInstruction31Title => 'Tap your paired card';
+
+  @override
+  String get nfcGuideInstruction31Body =>
+      'Hold it near the phone’s NFC reading area.';
+
+  @override
+  String get nfcGuideInstruction32Title => 'Finish intentionally';
+
+  @override
+  String get nfcGuideInstruction32Body =>
+      'Your Tag moment ends after the valid scan.';
 }
