@@ -359,7 +359,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
                       ),
                     ),
                     icon: const Icon(Icons.help_outline),
-                    label: Text('How to use your NFC card',
+                    label: Text(AppLocalizations.of(context).nfcGuideOpen,
                         style: RestType.sans(15,
                             color: RestPalette.primary,
                             weight: FontWeight.w600)),

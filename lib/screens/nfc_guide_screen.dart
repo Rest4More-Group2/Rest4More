@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rest4more/l10n/app_localizations.dart';
 
 import 'today_screen.dart' show RestPalette, RestType;
 
@@ -16,19 +17,21 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
   int _step = 0;
   bool _showTip = false;
 
-  static const _titles = [
-    'Meet your NFC card',
-    'Pair it once',
-    'Start a Tag moment',
-    'End your moment',
-  ];
+  static const _stepCount = 4;
 
-  static const _subtitles = [
-    'A small, physical reminder to put your phone aside.',
-    'Let Rest4More recognize your card before using it.',
-    'Choose your apps, then scan your paired card.',
-    'Scan the same paired card when you are ready to finish.',
-  ];
+  List<String> _titles(AppLocalizations l10n) => [
+        l10n.nfcGuideTitle1,
+        l10n.nfcGuideTitle2,
+        l10n.nfcGuideTitle3,
+        l10n.nfcGuideTitle4,
+      ];
+
+  List<String> _subtitles(AppLocalizations l10n) => [
+        l10n.nfcGuideSubtitle1,
+        l10n.nfcGuideSubtitle2,
+        l10n.nfcGuideSubtitle3,
+        l10n.nfcGuideSubtitle4,
+      ];
 
   @override
   void initState() {
@@ -46,7 +49,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
   }
 
   void _goTo(int index) {
-    if (index < 0 || index >= _titles.length) return;
+    if (index < 0 || index >= _stepCount) return;
     setState(() {
       _step = index;
       _showTip = false;
@@ -56,6 +59,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: RestPalette.background,
       bottomNavigationBar: SafeArea(
@@ -67,7 +71,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 520),
               child: FilledButton(
-                onPressed: () => _step == _titles.length - 1
+                onPressed: () => _step == _stepCount - 1
                     ? Navigator.of(context).pop()
                     : _goTo(_step + 1),
                 style: FilledButton.styleFrom(
@@ -77,12 +81,12 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                   shape: const StadiumBorder(),
                 ),
                 child: Row(children: [
-                  Text(_step == _titles.length - 1 ? 'Got it' : 'Continue',
+                  Text(_step == _stepCount - 1 ? l10n.nfcGuideGotIt : l10n.nfcGuideContinue,
                       style: RestType.sans(17,
                           color: RestPalette.background,
                           weight: FontWeight.w600)),
                   const Spacer(),
-                  Icon(_step == _titles.length - 1
+                  Icon(_step == _stepCount - 1
                       ? Icons.check_rounded
                       : Icons.arrow_forward_rounded),
                 ]),
@@ -106,7 +110,9 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                       onPressed: () => _step == 0
                           ? Navigator.of(context).pop()
                           : _goTo(_step - 1),
-                      tooltip: _step == 0 ? 'Back to NFC tags' : 'Previous step',
+                      tooltip: _step == 0
+                          ? l10n.nfcGuideBackToTags
+                          : l10n.nfcGuidePreviousStep,
                       style: IconButton.styleFrom(
                         backgroundColor: RestPalette.surface,
                         foregroundColor: RestPalette.primary,
@@ -115,19 +121,19 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                       icon: const Icon(Icons.chevron_left),
                     ),
                     const SizedBox(width: 12),
-                    Text('NFC card guide',
+                    Text(l10n.nfcGuideHeader,
                         style: RestType.sans(15,
                             color: RestPalette.primary,
                             weight: FontWeight.w600)),
                     const Spacer(),
-                    Text('${_step + 1} of ${_titles.length}',
+                    Text(l10n.nfcGuideStepOf(_step + 1, _stepCount),
                         style: RestType.sans(13, color: RestPalette.accent)),
                   ]),
                   const SizedBox(height: 22),
-                  Row(children: List.generate(_titles.length, (index) =>
+                  Row(children: List.generate(_stepCount, (index) =>
                       Expanded(child: Padding(
                         padding: EdgeInsets.only(
-                            right: index == _titles.length - 1 ? 0 : 7),
+                            right: index == _stepCount - 1 ? 0 : 7),
                         child: GestureDetector(
                           onTap: () => _goTo(index),
                           child: AnimatedContainer(
@@ -149,9 +155,9 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                       key: ValueKey(_step),
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_titles[_step], style: RestType.serif(43)),
+                        Text(_titles(l10n)[_step], style: RestType.serif(43)),
                         const SizedBox(height: 9),
-                        Text(_subtitles[_step],
+                        Text(_subtitles(l10n)[_step],
                             style: RestType.sans(16, color: RestPalette.accent)),
                       ],
                     ),
@@ -164,7 +170,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                     reduceMotion: reduceMotion,
                   ),
                   const SizedBox(height: 23),
-                  _instructions(),
+                  _instructions(l10n),
                   const SizedBox(height: 15),
                   InkWell(
                     onTap: () => setState(() => _showTip = !_showTip),
@@ -180,7 +186,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                           const Icon(Icons.lightbulb_outline,
                               color: RestPalette.primary, size: 22),
                           const SizedBox(width: 11),
-                          Expanded(child: Text('Helpful tip',
+                          Expanded(child: Text(l10n.nfcGuideHelpfulTip,
                               style: RestType.sans(15,
                                   weight: FontWeight.w600))),
                           Icon(_showTip
@@ -192,7 +198,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                           const SizedBox(height: 12),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(_tipForStep(),
+                            child: Text(_tipForStep(l10n),
                                 style: RestType.sans(14,
                                     color: RestPalette.accent)),
                           ),
@@ -202,9 +208,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
                   ),
                   const SizedBox(height: 20),
                   if (_step == 3)
-                    Text('Need help? Check that NFC is enabled, keep the card '
-                        'still, and try another spot on the back of your phone. '
-                        'The card must already be paired with Rest4More.',
+                    Text(l10n.nfcGuideNeedHelp,
                         style: RestType.sans(14, color: RestPalette.accent)),
                 ],
               ),
@@ -215,43 +219,33 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
     );
   }
 
-  String _tipForStep() {
-    switch (_step) {
-      case 0:
-        return 'NFC means Near Field Communication. Your phone reads the card '
-            'when you hold it close. No camera is needed.';
-      case 1:
-        return 'The NFC reading area differs between phones. If nothing '
-            'happens, slowly move the card near the back of your phone.';
-      case 2:
-        return 'Only cards you added in Profile → NFC tags can be used '
-            'for your Tag moment.';
-      default:
-        return 'For strict evening routines, you can start the routine '
-            'without a card, but ending its blocking requires an NFC scan.';
-    }
-  }
+  String _tipForStep(AppLocalizations l10n) => switch (_step) {
+        0 => l10n.nfcGuideTip1,
+        1 => l10n.nfcGuideTip2,
+        2 => l10n.nfcGuideTip3,
+        _ => l10n.nfcGuideTip4,
+      };
 
-  Widget _instructions() {
+  Widget _instructions(AppLocalizations l10n) {
     final steps = switch (_step) {
-      0 => const [
-          ('A simple ritual', 'Pair the card once, then use it with Tag moments.'),
-          ('A deliberate pause', 'Tap your card when it is time to put apps aside.'),
+      0 => [
+          (l10n.nfcGuide1aTitle, l10n.nfcGuide1aBody),
+          (l10n.nfcGuide1bTitle, l10n.nfcGuide1bBody),
         ],
-      1 => const [
-          ('Open Profile', 'Choose NFC tags, then tap Add tag.'),
-          ('Hold your card nearby', 'Keep it near the NFC reading area on your phone.'),
-          ('Look for confirmation', 'Wait until Rest4More says “Tag added.”'),
+      1 => [
+          (l10n.nfcGuide2aTitle, l10n.nfcGuide2aBody),
+          (l10n.nfcGuide2bTitle, l10n.nfcGuide2bBody),
+          (l10n.nfcGuide2cTitle, l10n.nfcGuide2cBody),
         ],
-      2 => const [
-          ('Open Moments', 'Choose Tag and select the apps to set aside.'),
-          ('Choose Scan tag to begin', 'Hold your paired card against your phone.'),
-          ('Begin your moment', 'Rest4More starts the Tag moment after a valid scan.'),
+      2 => [
+          (l10n.nfcGuide3aTitle, l10n.nfcGuide3aBody),
+          (l10n.nfcGuide3bTitle, l10n.nfcGuide3bBody),
+          (l10n.nfcGuide3cTitle, l10n.nfcGuide3cBody),
         ],
-      _ => const [
-          ('Choose Scan tag to end', 'Open your active Tag moment.'),
-          ('Tap your paired card', 'Hold it near the phone’s NFC reading area.'),
-          ('Finish intentionally', 'Your Tag moment ends after the valid scan.'),
+      _ => [
+          (l10n.nfcGuide4aTitle, l10n.nfcGuide4aBody),
+          (l10n.nfcGuide4bTitle, l10n.nfcGuide4bBody),
+          (l10n.nfcGuide4cTitle, l10n.nfcGuide4cBody),
         ],
     };
     return Container(
@@ -263,7 +257,7 @@ class _NfcGuideScreenState extends State<NfcGuideScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(_step == 0 ? 'How it works' : 'Follow these steps',
+          Text(_step == 0 ? l10n.nfcGuideHowItWorks : l10n.nfcGuideFollowSteps,
               style: RestType.serif(28)),
           const SizedBox(height: 16),
           for (var i = 0; i < steps.length; i++) ...[
@@ -312,7 +306,9 @@ class _NfcIllustration extends StatelessWidget {
   final bool reduceMotion;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
     height: 210,
     width: double.infinity,
     decoration: BoxDecoration(
@@ -341,7 +337,7 @@ class _NfcIllustration extends StatelessWidget {
                     const Icon(Icons.phone_iphone_rounded,
                         size: 49, color: RestPalette.primary),
                     const SizedBox(height: 12),
-                    Text('YOUR PHONE', style: RestType.sans(9,
+                    Text(l10n.nfcGuideYourPhone, style: RestType.sans(9,
                         color: RestPalette.accent,
                         weight: FontWeight.w700)),
                   ],
@@ -392,9 +388,10 @@ class _NfcIllustration extends StatelessWidget {
             ),
           ),
           Positioned(bottom: 12, right: 18,
-            child: Text(step == 1 ? 'Hold near phone' :
-                        step == 2 ? 'Tap to begin' :
-                        step == 3 ? 'Tap to finish' : 'One gentle tap',
+            child: Text(step == 1 ? l10n.nfcGuideHoldNearPhone :
+                        step == 2 ? l10n.nfcGuideTapToBegin :
+                        step == 3 ? l10n.nfcGuideTapToFinish
+                                  : l10n.nfcGuideOneGentleTap,
                 style: RestType.sans(11, color: RestPalette.accent,
                     weight: FontWeight.w600)),
           ),
@@ -402,4 +399,5 @@ class _NfcIllustration extends StatelessWidget {
       },
     ),
   );
+  }
 }
