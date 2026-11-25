@@ -4,6 +4,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rest4more/data/moments/moment_blocking.dart';
 import 'package:rest4more/data/moments/moment_profiles.dart';
+import 'package:rest4more/data/tags/tag_service.dart';
 import 'package:rest4more/providers/repository_providers.dart';
 import 'package:rest4more/theme/app_color.dart';
 
@@ -68,19 +69,37 @@ class _NfcScanScreenState extends State<NfcScanScreen> {
       _status = _isBlocked ? l10n.nfcHoldToUnblock : l10n.nfcHoldToBlock;
     });
 
+    await TagService.stopSessionQuietly();
     _sessionActive = true;
-    await NfcManager.instance.startSession(
-      pollingOptions: {
-        NfcPollingOption.iso14443,
-        NfcPollingOption.iso15693,
-        NfcPollingOption.iso18092,
-      },
-      onDiscovered: (tag) async {
-        _sessionActive = false;
-        await NfcManager.instance.stopSession();
-        await _toggleBlocking();
-      },
-    );
+    try {
+      await NfcManager.instance.startSession(
+        pollingOptions: {
+          NfcPollingOption.iso14443,
+          NfcPollingOption.iso15693,
+          NfcPollingOption.iso18092,
+        },
+        // Cancelled or failed iOS sheet: show the retry button.
+        onSessionErrorIos: (_) => _scanEnded(),
+        onDiscovered: (tag) async {
+          _sessionActive = false;
+          await TagService.stopSessionQuietly();
+          await _toggleBlocking();
+        },
+      );
+    } catch (e) {
+      debugPrint('NFC error: $e');
+      await TagService.stopSessionQuietly();
+      _scanEnded();
+    }
+  }
+
+  void _scanEnded() {
+    _sessionActive = false;
+    if (!mounted) return;
+    setState(() {
+      _canScan = false;
+      _status = AppLocalizations.of(context).couldNotStartScanning;
+    });
   }
 
   Future<void> _toggleBlocking() async {

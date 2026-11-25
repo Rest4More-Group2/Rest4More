@@ -143,6 +143,16 @@ class TagService {
     return parseTagUuid(prefix + utf8.decode(record.payload.sublist(1)));
   }
 
+  /// Ends any NFC session still open, ignoring "no active session" errors.
+  ///
+  /// nfc_manager allows one session at a time and refuses to start a new one
+  /// while it still holds an old one, so a session that was not closed
+  /// cleanly (cancelled sheet, failed read, screen left mid-scan) blocks every
+  /// later scan until the app restarts. Call this before starting a session
+  /// and whenever a scan ends.
+  static Future<void> stopSessionQuietly() =>
+      NfcManager.instance.stopSession().catchError((_) {});
+
   /// Polling for ISO 14443 only: NTAG cards are ISO 14443, and polling for
   /// FeliCa makes iOS demand extra Info.plist keys.
   static const pollingOptions = {NfcPollingOption.iso14443};

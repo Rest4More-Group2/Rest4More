@@ -32,7 +32,7 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
   void dispose() {
     if (_scanning) {
       _scanning = false;
-      NfcManager.instance.stopSession().catchError((_) {});
+      TagService.stopSessionQuietly();
     }
     super.dispose();
   }
@@ -112,15 +112,16 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
     }
 
     setState(() => _scanning = true);
+    // Clear a session a previous scan may have left behind; otherwise
+    // startSession fails with "session_already_exists" until a restart.
+    await TagService.stopSessionQuietly();
     try {
       await NfcManager.instance.startSession(
         pollingOptions: TagService.pollingOptions,
         alertMessageIos: l10n.holdNearTag,
         onSessionErrorIos: (error) {
           debugPrint('NFC session ended: ${error.code} ${error.message}');
-          _scanning = false;
-          if (!mounted) return;
-          setState(() {});
+          _endScan();
           if (error.code !=
               NfcReaderErrorCodeIos.readerSessionInvalidationErrorUserCanceled) {
             _showMessage(l10n.scanningStopped(error.message));
@@ -140,27 +141,32 @@ class _PairedTagsScreenState extends State<PairedTagsScreen> {
             debugPrint('Pairing error: $e');
             message = l10n.couldNotReadTag;
           } finally {
-            _scanning = false;
-            await NfcManager.instance.stopSession();
+            // The session may already be gone (timeout, cancel); a throw
+            // here used to skip the rebuild and leave the button disabled.
+            await TagService.stopSessionQuietly();
+            _endScan();
           }
           if (!mounted) return;
-          setState(() {});
           _showMessage(message);
           await _load();
         },
       );
     } catch (e) {
       debugPrint('NFC error: $e');
-      _scanning = false;
+      await TagService.stopSessionQuietly();
+      _endScan();
       _showMessage(l10n.couldNotStartScanning);
-      if (mounted) setState(() {});
     }
   }
 
-  Future<void> _cancelScan() async {
+  void _endScan() {
     _scanning = false;
-    setState(() {});
-    await NfcManager.instance.stopSession().catchError((_) {});
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _cancelScan() async {
+    _endScan();
+    await TagService.stopSessionQuietly();
   }
 
   @override

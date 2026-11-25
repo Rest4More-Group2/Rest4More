@@ -50,7 +50,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
     _sub?.cancel();
     if (_scanning) {
       _scanning = false;
-      NfcManager.instance.stopSession().catchError((_) {});
+      TagService.stopSessionQuietly();
     }
     super.dispose();
   }
@@ -118,6 +118,9 @@ class _TagMomentScreenState extends State<TagMomentScreen>
     }
 
     setState(() => _scanning = true);
+    // Clear a session a previous scan may have left behind; otherwise
+    // startSession fails with "session_already_exists" until a restart.
+    await TagService.stopSessionQuietly();
     try {
       await NfcManager.instance.startSession(
         pollingOptions: TagService.pollingOptions,
@@ -126,9 +129,7 @@ class _TagMomentScreenState extends State<TagMomentScreen>
             : l10n.holdNearTagToBegin,
         onSessionErrorIos: (error) {
           debugPrint('NFC session ended: ${error.code} ${error.message}');
-          _scanning = false;
-          if (!mounted) return;
-          setState(() {});
+          _endScan();
           if (error.code !=
               NfcReaderErrorCodeIos.readerSessionInvalidationErrorUserCanceled) {
             _message(l10n.scanningStopped(error.message));
@@ -150,20 +151,23 @@ class _TagMomentScreenState extends State<TagMomentScreen>
             debugPrint('Tag scan error: $e');
             message = l10n.couldNotReadTag;
           } finally {
-            _scanning = false;
-            await NfcManager.instance.stopSession();
+            await TagService.stopSessionQuietly();
+            _endScan();
           }
-          if (!mounted) return;
-          setState(() {});
           if (message != null) _message(message);
         },
       );
     } catch (e) {
       debugPrint('NFC error: $e');
-      _scanning = false;
+      await TagService.stopSessionQuietly();
+      _endScan();
       _message(l10n.couldNotStartScanning);
-      if (mounted) setState(() {});
     }
+  }
+
+  void _endScan() {
+    _scanning = false;
+    if (mounted) setState(() {});
   }
 
   @override
